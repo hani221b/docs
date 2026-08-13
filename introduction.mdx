@@ -1,3 +1,280 @@
 ---
 title: "introduction"
 ---
+
+# Introduction
+
+Welcome to **Bludia** — a development and infrastructure platform for building, deploying, and hosting application backends without starting every project from scratch.
+
+Bludia provides the core infrastructure your application needs: databases, REST APIs, authentication, authorization, backend logic, messaging, and hosting — all managed from a single platform.
+
+Instead of spending days building the same CRUD operations, authentication systems, permissions, API endpoints, background jobs, and infrastructure for every project, you can configure the foundation in Bludia and focus on building the product itself.
+
+> **Bludia is currently in beta.** The platform is actively evolving, and APIs, features, and interfaces may change as we continue improving the product.
+
+## What is Bludia?
+
+Bludia is designed to sit between your frontend and your infrastructure.
+
+You build your application using the technologies you already know — React, Next.js, Flutter, JavaScript, TypeScript, or any other client capable of consuming an API — while Bludia provides the backend services behind it.
+
+A typical application can look like this:
+
+```text
+Your Application
+       │
+       ▼
+   Bludia API
+       │
+ ┌─────┼─────────────┐
+ ▼     ▼             ▼
+Data  Auth       Backend Logic
+ │     │             │
+ ▼     ▼             ▼
+Database       Hooks / Jobs
+       │
+       ▼
+   Messaging
+       │
+       ▼
+    Hosting
+```
+
+Bludia handles the backend infrastructure so your application does not need to implement everything from the ground up.
+
+## What can you build?
+
+Bludia is designed for a wide range of applications, including:
+
+- CRM systems
+- Booking and reservation systems
+- Internal management systems
+- Admin panels
+- Business dashboards
+- Customer portals
+- Reporting systems
+- SaaS applications
+- Mobile application backends
+- Directories and marketplaces
+- Operational and workflow systems
+- Custom business applications
+
+The same backend capabilities can be combined differently depending on what you are building.
+
+For example, a booking application might use:
+
+**Collections** → customers, bookings, services, staff
+
+**Authentication** → customer and staff accounts
+
+**RBAC** → administrators, managers, staff
+
+**API** → frontend and mobile application communication
+
+**Hooks** → booking validation and business rules
+
+**Messaging** → booking confirmations and notifications
+
+**Reports** → revenue, bookings, staff performance
+
+## Core capabilities
+
+### Database and data modeling
+
+Create collections and define the data your application needs.
+
+Bludia supports fields, relationships, records, search, filtering, sorting, pagination, and other data operations through the platform and API.
+
+Learn more in [Database](/database/overview).
+
+### REST API
+
+Every project can expose its backend functionality through APIs that your frontend or external applications can consume.
+
+You can connect Bludia to:
+
+- React
+- Next.js
+- Flutter
+- JavaScript applications
+- Mobile applications
+- Custom frontends
+- External services
+
+Learn more in [API](/api/overview).
+
+### Authentication
+
+Build application authentication around your own data model.
+
+Bludia authentication guards can connect authentication to your project's user collection and provide the foundation for login, sessions, verification, and authenticated API access.
+
+Learn more in [Authentication](/authentication/overview).
+
+### Authorization
+
+Control what authenticated users can access using roles and permissions.
+
+Bludia supports role-based access control and authorization rules that allow you to define which users can perform specific operations.
+
+Learn more in [Authorization & Security](/security/overview).
+
+### Backend logic
+
+When configuration alone isn't enough, use Bludia Hooks to run custom backend logic at different points in your application's lifecycle.
+
+Hooks can be used for things such as:
+
+- Validation
+- Data transformation
+- Business rules
+- Notifications
+- Integrations
+- Custom calculations
+- Automated backend operations
+
+Learn more in [Hooks](/hooks/overview).
+
+### Messaging
+
+Connect your backend logic to email and other messaging capabilities.
+
+Create reusable templates, configure email connections, and send messages from your application or backend logic.
+
+Learn more in [Messaging](/messaging/overview).
+
+### Reports
+
+Turn application data into useful business reports and dashboards.
+
+Reports can be used for operational systems, management dashboards, analytics, and other applications where raw records need to become useful information.
+
+Learn more in [Reports](/reports/overview).
+
+### Hosting
+
+Bludia is not only a backend builder.
+
+The platform is designed to provide the infrastructure required to run your application in production, including deployment, domains, SSL, backups, logs, and other hosting capabilities.
+
+Learn more in [Hosting & Deployment](/hosting/overview).
+
+## How Bludia works
+
+A Bludia project generally follows this workflow:
+
+### 1. Create a project
+
+Create a project for your application and configure its environment.
+
+### 2. Model your data
+
+Create collections, define fields, and establish relationships between your data.
+
+### 3. Configure your API
+
+Bludia exposes your project data and operations through its API.
+
+### 4. Add authentication and authorization
+
+Configure authentication guards, users, roles, and permissions according to your application's requirements.
+
+### 5. Add backend logic
+
+Use Hooks and other backend capabilities when your application requires custom business logic.
+
+### 6. Connect your frontend
+
+Connect your React, Next.js, Flutter, mobile, or custom application to your Bludia API.
+
+### 7. Deploy and run
+
+Use Bludia's infrastructure and hosting capabilities to run your application in production.
+
+## Bludia is not your frontend
+
+Bludia does not require you to replace the technology you use to build your user interface.
+
+You can continue using the frontend framework and tools you prefer.
+
+For example:
+
+```text
+Next.js
+   │
+   │ HTTPS / REST API
+   ▼
+Bludia
+   │
+   ├── Database
+   ├── Authentication
+   ├── Authorization
+   ├── Hooks
+   ├── Messaging
+   └── Infrastructure
+```
+
+This means you can build a completely custom frontend while using Bludia as the backend infrastructure underneath it.
+
+## Bludia vs building everything yourself
+
+Building a backend from scratch gives you maximum control, but it also means repeatedly implementing and maintaining the same infrastructure.
+
+A typical project may require:
+
+- Database models
+- CRUD endpoints
+- Validation
+- Authentication
+- Authorization
+- API authentication
+- Search and filtering
+- Pagination
+- Email delivery
+- Background processing
+- Business logic
+- Logging
+- Backups
+- Deployment
+- Server configuration
+- Security
+
+Bludia provides many of these capabilities as reusable infrastructure so you can spend more time on the parts of your application that make it unique.
+
+## Built for developers and teams
+
+Bludia is designed for developers, agencies, freelancers, startups, and teams that need to build business applications quickly without repeatedly rebuilding the same backend foundation.
+
+You can use Bludia when you want to:
+
+- Build a project faster
+- Avoid repetitive backend boilerplate
+- Connect multiple frontends to the same backend
+- Build internal systems for businesses
+- Prototype and validate applications
+- Deliver client projects faster
+- Maintain business applications without a large backend codebase
+- Keep control over your application's data and business logic
+
+## Start building
+
+If you're new to Bludia, the fastest way to get started is:
+
+1. Follow the [Quickstart](/quickstart).
+2. Create your first [Project](/create-project).
+3. Create your first [Collection](/database/collections).
+4. Add your fields and records.
+5. Generate or configure your API access.
+6. Connect your application.
+7. Add authentication and authorization when needed.
+8. Add Hooks for custom backend logic.
+
+If you already understand the platform and want to start integrating immediately, go directly to the [API documentation](/api/overview).
+
+## What's next?
+
+Bludia is continuously evolving. New infrastructure, integrations, development capabilities, and hosting features are being added as the platform grows.
+
+The documentation follows the same principle: explain **what Bludia provides, how it works, and how you can use it to build real applications.**
+
+Start with the [Quickstart](/quickstart), or explore the documentation from the sidebar.

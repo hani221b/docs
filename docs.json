@@ -2,44 +2,386 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Bludia Documentation",
+
   "colors": {
     "primary": "#3B82F6",
     "light": "#60A5FA",
     "dark": "#1D4ED8"
   },
+
   "favicon": {
     "light": "/images/Group21(1).png",
     "dark": "/images/Group21(1).png"
   },
-  "navigation": {
-    "pages": [
-      {
-        "group": "Getting Started",
-        "pages": [
-          "index",
-          "quickstart"
-        ]
-      }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
-  },
+
   "logo": {
     "light": "/images/logo.png",
     "dark": "/images/logo.png"
   },
+
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "index",
+              "introduction",
+              "concepts",
+              "quickstart",
+              "create-project",
+              "dashboard-overview"
+            ]
+          },
+
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "core/projects",
+              "core/environments",
+              "core/collections",
+              "core/records",
+              "core/fields",
+              "core/relations",
+              "core/queries",
+              "core/api",
+              "core/webhooks",
+              "core/keys"
+            ]
+          },
+
+          {
+            "group": "Database",
+            "pages": [
+              "database/overview",
+              "database/collections",
+              "database/fields",
+              "database/field-types",
+              "database/records",
+              "database/relations",
+              "database/one-to-many",
+              "database/search",
+              "database/filters",
+              "database/sorting",
+              "database/pagination",
+              "database/computed-fields",
+              "database/soft-delete",
+              "database/import-export"
+            ]
+          },
+
+          {
+            "group": "API",
+            "pages": [
+              "api/overview",
+              "api/authentication",
+              "api/api-keys",
+              "api/projects",
+              "api/collections",
+              "api/records",
+              "api/create-record",
+              "api/update-record",
+              "api/delete-record",
+              "api/get-record",
+              "api/list-records",
+              "api/search",
+              "api/filtering",
+              "api/relations",
+              "api/pagination",
+              "api/errors",
+              "api/rate-limits",
+              "api/cors"
+            ]
+          },
+
+          {
+            "group": "Authentication",
+            "pages": [
+              "authentication/overview",
+              "authentication/guards",
+              "authentication/users",
+              "authentication/login",
+              "authentication/logout",
+              "authentication/registration",
+              "authentication/email-verification",
+              "authentication/password-reset",
+              "authentication/sessions",
+              "authentication/tokens",
+              "authentication/api-authentication",
+              "authentication/custom-login-fields"
+            ]
+          },
+
+          {
+            "group": "Authorization & Security",
+            "pages": [
+              "security/overview",
+              "security/rbac",
+              "security/roles",
+              "security/permissions",
+              "security/row-level-authorization",
+              "security/guards",
+              "security/api-keys",
+              "security/secret-management",
+              "security/cors",
+              "security/rate-limiting",
+              "security/webhooks",
+              "security/best-practices"
+            ]
+          },
+
+          {
+            "group": "Hooks & Backend Logic",
+            "pages": [
+              "hooks/overview",
+              "hooks/when-to-use-hooks",
+              "hooks/lifecycle",
+              "hooks/before-create",
+              "hooks/after-create",
+              "hooks/before-update",
+              "hooks/after-update",
+              "hooks/before-delete",
+              "hooks/after-delete",
+              "hooks/custom-code",
+              "hooks/javascript",
+              "hooks/typescript",
+              "hooks/runtime",
+              "hooks/versions",
+              "hooks/logs",
+              "hooks/errors",
+              "hooks/best-practices"
+            ]
+          },
+
+          {
+            "group": "Messaging",
+            "pages": [
+              "messaging/overview",
+              "messaging/channels",
+              "messaging/email",
+              "messaging/email-connections",
+              "messaging/templates",
+              "messaging/send-email",
+              "messaging/from-hooks",
+              "messaging/queues",
+              "messaging/delivery",
+              "messaging/errors"
+            ]
+          },
+
+          {
+            "group": "Files & Storage",
+            "pages": [
+              "storage/overview",
+              "storage/files",
+              "storage/uploads",
+              "storage/downloads",
+              "storage/file-fields",
+              "storage/access-control",
+              "storage/public-files",
+              "storage/private-files"
+            ]
+          },
+
+          {
+            "group": "Reports",
+            "pages": [
+              "reports/overview",
+              "reports/getting-started",
+              "reports/data-sources",
+              "reports/queries",
+              "reports/filters",
+              "reports/grouping",
+              "reports/aggregations",
+              "reports/charts",
+              "reports/tables",
+              "reports/dashboards",
+              "reports/export"
+            ]
+          },
+
+
+
+          {
+            "group": "Frontend Integration",
+            "pages": [
+              "frontend/overview",
+              "frontend/javascript",
+              "frontend/typescript",
+              "frontend/react",
+              "frontend/nextjs",
+              "frontend/vue",
+              "frontend/flutter",
+              "frontend/mobile-apps",
+              "frontend/environment-variables",
+              "frontend/api-client",
+              "frontend/authentication",
+              "frontend/file-uploads"
+            ]
+          },
+
+          {
+            "group": "Hosting & Deployment",
+            "pages": [
+              "hosting/overview",
+              "hosting/projects",
+              "hosting/environments",
+              "hosting/domains",
+              "hosting/custom-domains",
+              "hosting/ssl",
+              "hosting/deployments",
+              "hosting/logs",
+              "hosting/health",
+              "hosting/scaling",
+              "hosting/backups",
+              "hosting/restore",
+              "hosting/production-checklist"
+            ]
+          },
+
+          {
+            "group": "Integrations",
+            "pages": [
+              "integrations/overview",
+              "integrations/rest-api",
+              "integrations/webhooks",
+              "integrations/email",
+              "integrations/frontend",
+              "integrations/flutter",
+              "integrations/javascript",
+              "integrations/external-services",
+              "integrations/third-party-apis"
+            ]
+          },
+
+          {
+            "group": "Production",
+            "pages": [
+              "production/overview",
+              "production/project-setup",
+              "production/security",
+              "production/performance",
+              "production/caching",
+              "production/rate-limits",
+              "production/backups",
+              "production/monitoring",
+              "production/logging",
+              "production/error-handling",
+              "production/scaling",
+              "production/deployment-checklist"
+            ]
+          },
+
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/build-crm",
+              "guides/build-booking-system",
+              "guides/build-management-system",
+              "guides/build-internal-tool",
+              "guides/build-admin-panel",
+              "guides/build-directory",
+              "guides/build-marketplace",
+              "guides/build-portal",
+              "guides/build-reporting-system",
+              "guides/build-mobile-backend",
+              "guides/build-saas",
+              "guides/connect-react-app",
+              "guides/connect-nextjs-app",
+              "guides/connect-flutter-app"
+            ]
+          },
+
+          {
+            "group": "Migration",
+            "pages": [
+              "migration/overview",
+              "migration/from-laravel",
+              "migration/from-supabase",
+              "migration/from-firebase",
+              "migration/from-custom-backend",
+              "migration/importing-data"
+            ]
+          },
+
+          {
+            "group": "Troubleshooting",
+            "pages": [
+              "troubleshooting/overview",
+              "troubleshooting/api-errors",
+              "troubleshooting/authentication",
+              "troubleshooting/authorization",
+              "troubleshooting/hooks",
+              "troubleshooting/email",
+              "troubleshooting/file-uploads",
+              "troubleshooting/cors",
+              "troubleshooting/rate-limits",
+              "troubleshooting/deployments",
+              "troubleshooting/logs"
+            ]
+          },
+
+          {
+            "group": "Reference",
+            "pages": [
+              "reference/api",
+              "reference/field-types",
+              "reference/error-codes",
+              "reference/http-status-codes",
+              "reference/authentication",
+              "reference/permissions",
+              "reference/hooks",
+              "reference/events",
+              "reference/webhooks",
+              "reference/environment-variables",
+              "reference/limits",
+              "reference/glossary",
+              "reference/changelog"
+            ]
+          }
+        ]
+      },
+
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "REST API",
+            "pages": [
+              "api-reference/overview",
+              "api-reference/authentication",
+              "api-reference/projects",
+              "api-reference/collections",
+              "api-reference/records",
+              "api-reference/relations",
+              "api-reference/search",
+              "api-reference/filters",
+              "api-reference/pagination",
+              "api-reference/errors"
+            ]
+          }
+        ]
+      }
+    ],
+
+    "global": {
+      "anchors": [
+        {
+          "anchor": "API Reference",
+          "href": "/api-reference/overview",
+          "icon": "brackets"
+        },
+        {
+          "anchor": "Guides",
+          "href": "/guides/build-crm",
+          "icon": "book-open"
+        }
+      ]
+    }
+  },
+
   "navbar": {
     "links": [
       {
@@ -50,9 +392,10 @@
     "primary": {
       "type": "button",
       "label": "Dashboard",
-      "href": "https://app.mintlify.com"
+      "href": "https://bludia.com"
     }
   },
+
   "contextual": {
     "options": [
       "copy",
@@ -65,18 +408,22 @@
       "vscode"
     ]
   },
+
   "footer": {
     "socials": {
       "x": "https://x.com/Bludia",
       "linkedin": "https://www.linkedin.com/company/bludia"
     }
   },
+
   "icons": {
     "library": "lucide"
   },
+
   "appearance": {
     "default": "system"
   },
+
   "background": {
     "decoration": "gradient",
     "color": {
@@ -84,6 +431,7 @@
       "dark": "#0F172A"
     }
   },
+
   "fonts": {
     "family": "Ubuntu"
   }

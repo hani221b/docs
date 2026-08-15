@@ -1,0 +1,447 @@
+---
+title: "Quick Start"
+---
+
+# Quickstart
+
+Build your first Bludia backend in a few minutes.
+
+In this guide, you'll create a project, define a collection, add fields and records, generate API access, and make your first request to the Bludia API.
+
+By the end, you'll have a working backend that can be connected to a web or mobile application.
+
+> **Bludia is currently in beta.** Some features and interfaces may change as the platform evolves.
+
+## What you'll build
+
+For this quickstart, we'll create a simple **Tasks API**.
+
+The final backend will look like this:
+
+```text
+Bludia Project
+│
+└── tasks
+    ├── title
+    ├── description
+    ├── completed
+    └── status
+```
+
+You'll then be able to interact with those records through the Bludia API.
+
+---
+
+## Before you start
+
+You'll need:
+
+- A Bludia account
+- Access to the Bludia dashboard
+- An application capable of making HTTP requests
+
+You don't need to install a backend framework or configure a database server.
+
+---
+
+# 1. Create a project
+
+Sign in to your Bludia dashboard.
+
+From the dashboard, create a new project.
+
+Give your project a name, such as:
+
+```text
+Task Manager
+```
+
+Your project is the container for your application's backend resources.
+
+Once the project has been created, open it from the dashboard.
+
+> **Tip:** Create one Bludia project for each independent application or backend you want to manage.
+
+---
+
+# 2. Create your first collection
+
+Open your project and navigate to:
+
+**Collections → Create Collection**
+
+Create a collection called:
+
+```text
+tasks
+```
+
+A collection represents a type of data in your application.
+
+After creating it, you should have an empty `tasks` collection ready for fields and records.
+
+---
+
+# 3. Add fields
+
+Open your `tasks` collection and add the following fields:
+
+| Field | Type |
+| :-- | :-- |
+| `title` | Text |
+| `description` | Text |
+| `completed` | Boolean |
+| `status` | Text |
+
+Your collection should now represent something similar to:
+
+```text
+tasks
+
+id
+title
+description
+completed
+status
+created_at
+updated_at
+```
+
+Bludia manages the underlying data infrastructure for the collection.
+
+You don't need to manually create a database table or write CRUD endpoints.
+
+---
+
+# 4. Create a record
+
+Open the **Records** section of your collection.
+
+Create your first task:
+
+```text
+{
+  "title": "Learn Bludia",
+  "description": "Build my first Bludia backend",
+  "completed": false,
+  "status": "todo"
+}
+```
+
+Save the record.
+
+You now have your first piece of application data stored in Bludia.
+
+---
+
+# 5. Create API access
+
+To access your project from an external application, create an API key from the project's API settings.
+
+Navigate to:
+
+**Project → API → API Keys**
+
+Create a new API key and give it an appropriate name.
+
+For example:
+
+```text
+Task Manager Frontend
+```
+
+Copy the key and store it securely.
+
+> **Security:** Treat API keys as credentials. Never commit private keys to Git or expose sensitive server-side credentials in publicly accessible frontend code.
+
+For more information, see [API Keys](/api/api-keys).
+
+---
+
+# 6. Make your first API request
+
+Your Bludia project exposes API endpoints that allow applications to interact with project data.
+
+A request generally looks like:
+
+```text
+curl -X GET "https://api.bludia.com/..." \
+  -H "Accept: application/json" \
+  -H "X-BLUDIA-API-KEY: YOUR_API_KEY"
+```
+
+Replace the API URL and credentials with the values provided by your project.
+
+The exact endpoint structure and available parameters are documented in the [API Reference](/api-reference/overview).
+
+A successful request returns your collection data as JSON.
+
+---
+
+# 7. Create a record through the API
+
+You can also create records programmatically.
+
+For example:
+
+```text
+curl -X POST "https://api.bludia.com/..." \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -H "X-BLUDIA-API-KEY: YOUR_API_KEY" \
+  -d '{
+    "title": "Build a dashboard",
+    "description": "Connect a frontend to Bludia",
+    "completed": false,
+    "status": "todo"
+  }'
+```
+
+The API creates the record in your `tasks` collection.
+
+You can then retrieve, update, search, filter, or delete records through the API according to your project's permissions.
+
+See [Records API](/api/records) for the complete API behavior.
+
+---
+
+# 8. Connect your frontend
+
+Bludia is designed to work with the frontend technology you already use.
+
+For example, a React application can communicate with Bludia using a normal HTTP client.
+
+```text
+const response = await fetch(
+  "https://api.bludia.com/...",
+  {
+    headers: {
+      "Accept": "application/json",
+      "X-BLUDIA-API-KEY": process.env.BLUDIA_API_KEY
+    }
+  }
+);
+
+const data = await response.json();
+```
+
+The same API can be consumed by:
+
+- React
+- Next.js
+- Vue
+- Flutter
+- JavaScript
+- TypeScript
+- Mobile applications
+- Other backend services
+
+See [Frontend Integration](/frontend/overview) for framework-specific examples.
+
+---
+
+# 9. Add authentication
+
+The quickstart above uses API access to demonstrate the basic data flow.
+
+For applications with users, you'll normally want to add authentication.
+
+Bludia authentication allows your application to identify users and create authenticated application sessions.
+
+The general architecture becomes:
+
+```text
+User
+ │
+ ▼
+Your Frontend
+ │
+ │ Login
+ ▼
+Bludia Authentication
+ │
+ ▼
+Authenticated User
+ │
+ ▼
+Bludia API
+```
+
+Start with [Authentication](/authentication/overview).
+
+---
+
+# 10. Add authorization
+
+Once users can authenticate, you can control what they are allowed to do.
+
+For example:
+
+```text
+Administrator
+    │
+    ├── Create tasks
+    ├── Update tasks
+    ├── Delete tasks
+    └── View tasks
+
+Employee
+    │
+    ├── Create tasks
+    ├── Update tasks
+    └── View tasks
+```
+
+Bludia provides roles and permissions for implementing this type of access control.
+
+See [Authorization & Security](/security/overview).
+
+---
+
+# 11. Add backend logic
+
+Your application's requirements may eventually go beyond CRUD operations.
+
+For example, you might want to:
+
+- Automatically update a field
+- Validate data
+- Send an email
+- Call an external API
+- Perform a custom calculation
+- Execute application-specific business logic
+
+This is where **Hooks** come in.
+
+For example:
+
+```text
+Task Created
+     │
+     ▼
+After Create Hook
+     │
+     ├── Validate task
+     ├── Update related data
+     └── Send notification
+```
+
+Learn more about [Hooks](/hooks/overview).
+
+---
+
+# 12. Build something real
+
+Once you've completed the basic setup, you can start modeling a real application.
+
+For example, a CRM might contain:
+
+```text
+customers
+contacts
+companies
+deals
+activities
+users
+```
+
+A booking system might contain:
+
+```text
+customers
+services
+staff
+bookings
+availability
+payments
+```
+
+An internal management system might contain:
+
+```text
+employees
+departments
+tasks
+requests
+documents
+reports
+```
+
+The same Bludia building blocks can be combined to create all of these systems.
+
+---
+
+# The complete Bludia workflow
+
+As your application grows, your development process will typically look like:
+
+```text
+Create Project
+     │
+     ▼
+Model Data
+     │
+     ▼
+Create Collections
+     │
+     ▼
+Add Fields & Relations
+     │
+     ▼
+Expose API
+     │
+     ▼
+Add Authentication
+     │
+     ▼
+Configure Authorization
+     │
+     ▼
+Add Backend Hooks
+     │
+     ▼
+Connect Frontend
+     │
+     ▼
+Add Messaging / Reports / Integrations
+     │
+     ▼
+Deploy
+     │
+     ▼
+Production Application
+```
+
+You can introduce these capabilities incrementally. You don't need to configure everything before your first API request.
+
+---
+
+# What's next?
+
+You've now created the foundation of a Bludia backend.
+
+Choose what you want to do next:
+
+### Build your data model
+
+Learn how collections, fields, records, and relationships work in [Database](/database/overview).
+
+### Connect your application
+
+Learn how to consume your backend through the [API](/api/overview).
+
+### Add users
+
+Configure [Authentication](/authentication/overview) for your application.
+
+### Secure your data
+
+Configure [Authorization & Security](/security/overview).
+
+### Add custom backend logic
+
+Start with [Hooks](/hooks/overview).
+
+### Build a real application
+
+Explore the [Guides](/guides/build-crm) for examples of building CRMs, booking systems, internal tools, and other applications with Bludia.

@@ -4,52 +4,28 @@ title: "introduction"
 
 # Introduction
 
-Welcome to **Bludia** — a development and infrastructure platform for building, deploying, and hosting application backends without starting every project from scratch.
+Bludia is the unified development and infrastructure platform for building, deploying, and hosting application backends without starting every project from scratch.
 
-Bludia provides the core infrastructure your application needs: databases, REST APIs, authentication, authorization, backend logic, messaging, and hosting — all managed from a single platform.
+Bludia provides the core infrastructure your application needs: databases, REST APIs, authentication, authorization, backend logic, messaging, and hosting, all managed from a single platform.
 
-Instead of spending days building the same CRUD operations, authentication systems, permissions, API endpoints, background jobs, and infrastructure for every project, you can configure the foundation in Bludia and focus on building the product itself.
+Instead of spending days (and billions of AI tokens) rebuilding the same CRUD operations, authentication systems, permissions, API endpoints, background jobs, and infrastructure for every project, Bludia gives you the foundation so you can focus on building the product itself.
 
 > **Bludia is currently in beta.** The platform is actively evolving, and APIs, features, and interfaces may change as we continue improving the product.
 
 ## What is Bludia?
 
-Bludia is designed to sit between your frontend and your infrastructure.
+Bludia is designed to sit between your frontend and end-users.
 
-You build your application using the technologies you already know — React, Next.js, Flutter, JavaScript, TypeScript, or any other client capable of consuming an API — while Bludia provides the backend services behind it.
-
-A typical application can look like this:
-
-```text
-Your Application
-       │
-       ▼
-   Bludia API
-       │
- ┌─────┼─────────────┐
- ▼     ▼             ▼
-Data  Auth       Backend Logic
- │     │             │
- ▼     ▼             ▼
-Database       Hooks / Jobs
-       │
-       ▼
-   Messaging
-       │
-       ▼
-    Hosting
-```
-
-Bludia handles the backend infrastructure so your application does not need to implement everything from the ground up.
+You build your application using the technologies you already know, such as React, Next.js, Flutter, JavaScript, TypeScript, or any other client capable of consuming an API, while Bludia provides the backend services behind it.
 
 ## What can you build?
 
 Bludia is designed for a wide range of applications, including:
 
-- CRM systems
-- Booking and reservation systems
 - Internal management systems
 - Admin panels
+- CRM systems
+
 - Business dashboards
 - Customer portals
 - Reporting systems
@@ -65,7 +41,7 @@ For example, a booking application might use:
 
 **Collections** → customers, bookings, services, staff
 
-**Authentication** → customer and staff accounts
+**Authentication** → customer and staff guards
 
 **RBAC** → administrators, managers, staff
 
@@ -83,7 +59,7 @@ For example, a booking application might use:
 
 Create collections and define the data your application needs.
 
-Bludia supports fields, relationships, records, search, filtering, sorting, pagination, and other data operations through the platform and API.
+Bludia supports fields, relationships, records, search, filtering, sorting, pagination, and other data operations.
 
 Learn more in [Database](/database/overview).
 
@@ -181,13 +157,17 @@ Configure authentication guards, users, roles, and permissions according to your
 
 ### 5. Add backend logic
 
-Use Hooks and other backend capabilities when your application requires custom business logic.
+Use Hooks when your application requires custom business logic.
 
 ### 6. Connect your frontend
 
 Connect your React, Next.js, Flutter, mobile, or custom application to your Bludia API.
 
-### 7. Deploy and run
+### 7. Set up API keys
+
+Decide who can consume your application API and under which rules.
+
+### 8. Deploy and run
 
 Use Bludia's infrastructure and hosting capabilities to run your application in production.
 
@@ -196,23 +176,6 @@ Use Bludia's infrastructure and hosting capabilities to run your application in 
 Bludia does not require you to replace the technology you use to build your user interface.
 
 You can continue using the frontend framework and tools you prefer.
-
-For example:
-
-```text
-Next.js
-   │
-   │ HTTPS / REST API
-   ▼
-Bludia
-   │
-   ├── Database
-   ├── Authentication
-   ├── Authorization
-   ├── Hooks
-   ├── Messaging
-   └── Infrastructure
-```
 
 This means you can build a completely custom frontend while using Bludia as the backend infrastructure underneath it.
 
@@ -239,7 +202,7 @@ A typical project may require:
 - Server configuration
 - Security
 
-Bludia provides many of these capabilities as reusable infrastructure so you can spend more time on the parts of your application that make it unique.
+Bludia provides these capabilities as reusable infrastructure so you can spend more time on the parts of your application that make it unique.
 
 ## Built for developers and teams
 
@@ -248,6 +211,7 @@ Bludia is designed for developers, agencies, freelancers, startups, and teams th
 You can use Bludia when you want to:
 
 - Build a project faster
+- Reduce technical debt to nearly zero
 - Avoid repetitive backend boilerplate
 - Connect multiple frontends to the same backend
 - Build internal systems for businesses

@@ -28,15 +28,14 @@
             "group": "Getting Started",
             "pages": [
               "introduction",
-              "concepts",
-              "quick-start"
+              "concepts"
             ]
           },
 
           {
             "group": "Core Concepts",
             "pages": [
-              "core/projects",
+              "projects",
               "core/collections",
               "core/records",
               "core/fields",

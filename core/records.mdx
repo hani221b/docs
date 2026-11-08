@@ -1,7 +1,5 @@
 ---
-title: "records"
----
-
+title: "Records"
 ---
 
 Records are the individual data entries stored inside a Bludia collection.
@@ -46,7 +44,7 @@ For example, consider a `tasks` collection with the following fields:
 
 A record in this collection might look like:
 
-```text
+```json
 {
   "title": "Complete documentation",
   "description": "Write the Bludia records documentation",
@@ -61,31 +59,26 @@ Each record represents one task and contains values for its configured fields.
 
 Bludia provides a dashboard interface for managing collection records without writing code.
 
-\<Steps><br />\<Step title="Open your project"><br />Sign in to Bludia and open the project containing the collection you want to manage.<br />\</Step>
+<Steps>
+  <Step title="Open your project">
+    Sign in to Bludia and open the project containing the collection you want to manage.
+  </Step>
+  <Step title="Select a collection">
+    Navigate to **Collections** and open the collection containing your records.
 
-\<Step title="Select a collection"><br />Navigate to **Collections** and open the collection containing your records.
+    For example, select `tasks`.
+  </Step>
+  <Step title="Open the Records section">
+    Navigate to the **Records** section of the collection.
 
-```text
-For example, select `tasks`.
-```
+    Here you can view and manage the records stored in that collection.
+  </Step>
+  <Step title="Create or modify records">
+    Use the available dashboard actions to create new records, edit existing information, or remove records.
 
-\</Step>
-
-\<Step title="Open the Records section"><br />Navigate to the **Records** section of the collection.
-
-```text
-Here you can view and manage the records stored in that collection.
-```
-
-\</Step>
-
-\<Step title="Create or modify records"><br />Use the available dashboard actions to create new records, edit existing information, or remove records.
-
-```text
-Changes are applied to your project's data.
-```
-
-\</Step><br />\</Steps>
+    Changes are applied to your project's data.
+  </Step>
+</Steps>
 
 ## Creating records
 
@@ -99,7 +92,7 @@ Enter the values for the fields defined in your collection and save the record.
 
 For example:
 
-```text
+```json
 {
   "title": "Learn Bludia",
   "description": "Build my first application backend",
@@ -112,7 +105,7 @@ For example:
 
 Applications can create records by sending an HTTP request to the appropriate collection endpoint.
 
-```text
+```bash
 curl -X POST "YOUR_API_ENDPOINT" \
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
@@ -133,7 +126,7 @@ You can retrieve collection records through the API and use them in your fronten
 
 Example:
 
-```text
+```bash
 curl -X GET "YOUR_API_ENDPOINT" \
   -H "Accept: application/json" \
   -H "X-BLUDIA-API-KEY: YOUR_API_KEY"
@@ -151,7 +144,7 @@ For example, you might want to mark a task as completed.
 
 Before:
 
-```text
+```json
 {
   "title": "Complete documentation",
   "completed": false,
@@ -161,7 +154,7 @@ Before:
 
 After:
 
-```text
+```json
 {
   "title": "Complete documentation",
   "completed": true,
@@ -171,7 +164,7 @@ After:
 
 You can perform updates through the dashboard or the API.
 
-The exact update method and endpoint structure are documented in the [Records API](https://chatgpt.com/api/records).
+The exact update method and endpoint structure are documented in the [Records API](/api/records).
 
 ## Deleting records
 
@@ -186,7 +179,9 @@ For example, you might delete:
 
 You can perform record deletion through the dashboard or API, depending on your permissions.
 
-\<Warning><br />Deleting a record may affect other application data that references it. Review your relationships and any dependent application logic before deleting important records.<br />\</Warning>
+<Warning>
+  Deleting a record may affect other application data that references it. Review your relationships and any dependent application logic before deleting important records.
+</Warning>
 
 ## Searching and filtering records
 
@@ -217,7 +212,7 @@ Incomplete Tasks
 Display in Frontend
 ```
 
-Refer to the [Records API](https://chatgpt.com/api/records) for supported filtering, searching, sorting, and pagination parameters.
+Refer to the [Records API](/api/records) for supported filtering, searching, sorting, and pagination parameters.
 
 ## System fields
 
@@ -233,7 +228,7 @@ Common system fields include:
 
 For example:
 
-```text
+```json
 {
   "id": 125,
   "title": "Learn Bludia",
@@ -274,7 +269,7 @@ bookings
 
 This allows your application to associate bookings with their respective customers without unnecessarily duplicating customer information.
 
-Learn more about [Relationships](https://chatgpt.com/database/relationships).
+Learn more about [Relationships](/database/relationships).
 
 ## Records and permissions
 
@@ -290,7 +285,7 @@ Bludia provides authorization capabilities that help control access to applicati
 
 Configure your project's security settings to determine which users can create, retrieve, update, or delete records.
 
-Learn more about [Authorization & Security](https://chatgpt.com/security/overview).
+Learn more about [Authorization & Security](/security/overview).
 
 ## Working with records from your frontend
 
@@ -298,7 +293,7 @@ One of the main advantages of Bludia is that your frontend can communicate direc
 
 For example, a React application can retrieve task records:
 
-```text
+```javascript
 async function getTasks() {
   const response = await fetch(
     "YOUR_API_ENDPOINT",
@@ -320,7 +315,9 @@ async function getTasks() {
 
 You can use the returned records to populate tables, forms, dashboards, and other application components.
 
-\<Warning><br />Keep private API keys on trusted server-side environments. Never expose private credentials through browser-delivered frontend code. Use an appropriate authentication and authorization setup for public-facing applications.<br />\</Warning>
+<Warning>
+  Keep private API keys on trusted server-side environments. Never expose private credentials through browser-delivered frontend code. Use an appropriate authentication and authorization setup for public-facing applications.
+</Warning>
 
 ## Best practices
 
@@ -354,14 +351,28 @@ Consider relationships and dependent operations before removing important record
 
 Explore the other components of Bludia's database and API infrastructure.
 
-\<CardGroup cols=\{2\}><br />\<Card title="Collections" icon="database" href="/database/collections"><br />Learn how to create and organize collections.<br />\</Card>
+<CardGroup cols={2}>
+  <Card title="Collections" icon="database" href="/database/collections">
+    Learn how to create and organize collections.
+  </Card>
 
-\<Card title="Fields" icon="list" href="/database/fields"><br />Understand field types and data structures.<br />\</Card>
+  <Card title="Fields" icon="list" href="/database/fields">
+    Understand field types and data structures.
+  </Card>
 
-\<Card title="Relationships" icon="workflow" href="/database/relationships"><br />Connect records across multiple collections.<br />\</Card>
+  <Card title="Relationships" icon="workflow" href="/database/relationships">
+    Connect records across multiple collections.
+  </Card>
 
-\<Card title="Records API" icon="plug" href="/api/records"><br />Explore API operations for managing records programmatically.<br />\</Card>
+  <Card title="Records API" icon="plug" href="/api/records">
+    Explore API operations for managing records programmatically.
+  </Card>
 
-\<Card title="Authentication" icon="users" href="/authentication/overview"><br />Authenticate application users and manage sessions.<br />\</Card>
+  <Card title="Authentication" icon="users" href="/authentication/overview">
+    Authenticate application users and manage sessions.
+  </Card>
 
-\<Card title="Security" icon="shield-check" href="/security/overview"><br />Configure access control for your application data.<br />\</Card><br />\</CardGroup>
+  <Card title="Security" icon="shield-check" href="/security/overview">
+    Configure access control for your application data.
+  </Card>
+</CardGroup>

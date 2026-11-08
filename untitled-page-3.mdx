@@ -1,7 +1,5 @@
 ---
-title: "collections"
----
-
+title: "Collections"
 ---
 
 Collections are the foundation of data management in Bludia.
@@ -37,7 +35,7 @@ Each record represents an individual customer.
 
 Example records:
 
-```text
+```json
 [
   {
     "name": "John Smith",
@@ -58,63 +56,55 @@ Bludia manages the underlying data infrastructure for your collections.
 
 ## Creating a collection
 
-\<Steps><br />\<Step title="Open your project"><br />Sign in to your Bludia dashboard and open the project where you want to create the collection.<br />\</Step>
+<Steps>
+  <Step title="Open your project">
+    Sign in to your Bludia dashboard and open the project where you want to create the collection.
+  </Step>
+  <Step title="Navigate to Collections">
+    Open the **Collections** section from your project dashboard.
 
-\<Step title="Navigate to Collections"><br />Open the **Collections** section from your project dashboard.
+    Select **Create Collection** to start defining a new collection.
+  </Step>
+  <Step title="Configure your collection">
+    Provide a name for your collection.
 
-```text
-Select **Create Collection** to start defining a new collection.
-```
+    For example:
 
-\</Step>
+    ```text
+    customers
+    ```
 
-\<Step title="Configure your collection"><br />Provide a name for your collection.
+    Choose a clear, descriptive name that represents the type of data the collection will contain.
+  </Step>
+  <Step title="Add fields">
+    Once the collection has been created, open it and start defining its fields.
 
-````text
-For example:
+    For example:
 
-```text
-customers
-```
+    | Field | Type |
+    | :-- | :-- |
+    | `name` | Text |
+    | `email` | Text |
+    | `phone` | Text |
+    | `company` | Text |
 
-Choose a clear, descriptive name that represents the type of data the collection will contain.
-````
+    Each field defines a specific property of your records.
+  </Step>
+  <Step title="Start adding records">
+    Open the **Records** section of your collection and create your first record.
 
-\</Step>
+    ```json
+    {
+      "name": "John Smith",
+      "email": "john@example.com",
+      "phone": "+971500000001",
+      "company": "Example Company"
+    }
+    ```
 
-\<Step title="Add fields"><br />Once the collection has been created, open it and start defining its fields.
-
-```text
-For example:
-
-| Field | Type |
-| :--- | :--- |
-| `name` | Text |
-| `email` | Text |
-| `phone` | Text |
-| `company` | Text |
-
-Each field defines a specific property of your records.
-```
-
-\</Step>
-
-\<Step title="Start adding records"><br />Open the **Records** section of your collection and create your first record.
-
-````text
-```json
-{
-  "name": "John Smith",
-  "email": "john@example.com",
-  "phone": "+971500000001",
-  "company": "Example Company"
-}
-```
-
-Save the record. Your collection is now ready to store and manage customer data.
-````
-
-\</Step><br />\</Steps>
+    Save the record. Your collection is now ready to store and manage customer data.
+  </Step>
+</Steps>
 
 ## Field types
 
@@ -143,7 +133,7 @@ The appropriate field type depends on the information you want to store.
 
 For example, a `completed` field should use Boolean, while a `price` field should use Number.
 
-Learn more about [Fields](https://chatgpt.com/database/fields).
+Learn more about [Fields](/database/fields).
 
 ## System fields
 
@@ -184,7 +174,7 @@ Add new records through the dashboard or send a request to the collection's API 
 
 Example:
 
-```text
+```json
 {
   "title": "Complete documentation",
   "description": "Write the collections documentation",
@@ -196,7 +186,7 @@ Example:
 
 Retrieve records from a collection through the API.
 
-```text
+```bash
 curl -X GET "YOUR_API_ENDPOINT" \
   -H "Accept: application/json" \
   -H "X-BLUDIA-API-KEY: YOUR_API_KEY"
@@ -210,7 +200,7 @@ Modify existing records by sending an update request with the fields you want to
 
 Remove records that are no longer required.
 
-The exact operations, endpoint structure, and supported parameters are documented in the [Records API](https://chatgpt.com/api/records).
+The exact operations, endpoint structure, and supported parameters are documented in the [Records API](/api/records).
 
 ## Relationships between collections
 
@@ -243,7 +233,7 @@ This allows your application to associate each booking with its corresponding cu
 
 Relationships help you build structured applications without unnecessarily duplicating data.
 
-Learn more about [Relationships](https://chatgpt.com/database/relationships).
+Learn more about [Relationships](/database/relationships).
 
 ## Designing your data structure
 
@@ -309,7 +299,7 @@ Your Frontend
 
 You can consume these resources from React, Next.js, Vue, Flutter, or any application capable of making HTTP requests.
 
-Explore the [API Overview](https://chatgpt.com/api/overview) to learn how to connect your application.
+Explore the [API Overview](/api/overview) to learn how to connect your application.
 
 ## Best practices
 
@@ -343,10 +333,20 @@ Make sure users and applications only have access to the records and operations 
 
 Now that you understand collections, explore the other components of Bludia's data management system.
 
-\<CardGroup cols=\{2\}><br />\<Card title="Fields" icon="list" href="/database/fields"><br />Learn about field types and configuring your data structure.<br />\</Card>
+<CardGroup cols={2}>
+  <Card title="Fields" icon="list" href="/database/fields">
+    Learn about field types and configuring your data structure.
+  </Card>
 
-\<Card title="Records" icon="rows" href="/database/records"><br />Learn how to create, retrieve, update, and manage records.<br />\</Card>
+  <Card title="Records" icon="rows" href="/database/records">
+    Learn how to create, retrieve, update, and manage records.
+  </Card>
 
-\<Card title="Relationships" icon="workflow" href="/database/relationships"><br />Connect collections and build relational data models.<br />\</Card>
+  <Card title="Relationships" icon="workflow" href="/database/relationships">
+    Connect collections and build relational data models.
+  </Card>
 
-\<Card title="API" icon="plug" href="/api/overview"><br />Access your collections programmatically through the Bludia API.<br />\</Card><br />\</CardGroup>
+  <Card title="API" icon="plug" href="/api/overview">
+    Access your collections programmatically through the Bludia API.
+  </Card>
+</CardGroup>

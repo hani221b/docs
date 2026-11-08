@@ -4,6 +4,8 @@ title: "APIs"
 
 ---
 
+# APIs
+
 Bludia provides APIs that allow your frontend applications to communicate with your backend.
 
 Whether you're building a website, mobile application, desktop application, or a custom software solution, you can use Bludia APIs to access your project's data and backend functionality.
@@ -58,7 +60,7 @@ Before connecting your frontend, make sure you have:
 - The API endpoint for your project.
 - The appropriate API credentials or authentication method.
 
-If you haven't created a project yet, start with the [Quickstart](https://chatgpt.com/quickstart).
+If you haven't created a project yet, start with the [Quickstart](/quickstart).
 
 ## 1. Get your API credentials
 
@@ -71,7 +73,9 @@ To communicate with your project, you need its API endpoint and the appropriate 
 
 Keep your API credentials secure. An API key intended for private server-side use must never be exposed in public frontend code.
 
-\<Warning><br />Never commit private API keys to frontend applications, public repositories, or client-side environment variables. Browser-based applications expose their code to users. For public frontend integrations, use the appropriate user authentication and permission model, or route private operations through your own server.<br />\</Warning>
+<Warning>
+  Never commit private API keys to frontend applications, public repositories, or client-side environment variables. Browser-based applications expose their code to users. For public frontend integrations, use the appropriate user authentication and permission model, or route private operations through your own server.
+</Warning>
 
 ## 2. Make your first API request
 
@@ -81,7 +85,7 @@ For example, imagine you have a collection named `tasks` containing task records
 
 You can request data from your frontend using the standard Fetch API:
 
-```text
+```javascript
 const response = await fetch(
   "YOUR_API_ENDPOINT",
   {
@@ -109,7 +113,7 @@ Bludia APIs allow your applications to work with the records stored in your coll
 Common operations include:
 
 | Operation | Purpose |
-| :-- | :-- |
+| --- | --- |
 | Create | Add a new record |
 | Read | Retrieve existing records |
 | Update | Modify a record |
@@ -121,7 +125,7 @@ For example, you might use these operations to build a task management interface
 
 Your frontend can request records from a collection and display them:
 
-```text
+```javascript
 async function getTasks() {
   const response = await fetch(
     "YOUR_API_ENDPOINT",
@@ -146,7 +150,7 @@ async function getTasks() {
 
 Send the data collected from your frontend to create a new record.
 
-```text
+```javascript
 async function createTask(task) {
   const response = await fetch(
     "YOUR_API_ENDPOINT",
@@ -176,4 +180,245 @@ createTask({
 
 ### Update a record
 
-Your applicat
+Your application can also send changes to an existing record.
+
+The exact HTTP method, URL structure, and required parameters depend on the corresponding Bludia API operation.
+
+Conceptually, an update request contains:
+
+- The target record identifier.
+- The fields that need to change.
+- The appropriate authentication credentials.
+
+### Delete a record
+
+When a record is no longer needed, your frontend can request its deletion through the corresponding API operation.
+
+Make sure the authenticated user has permission to perform the operation.
+
+<Note>
+  The examples above demonstrate the integration pattern. Use the endpoint paths, HTTP methods, request formats, and response structures documented for your actual Bludia API operations.
+</Note>
+
+## 4. Connect any frontend framework
+
+Bludia APIs are not tied to a particular frontend technology.
+
+You can use the same backend with multiple applications, including:
+
+<CardGroup cols={2}>
+  <Card title="React" icon="code">
+    Build interactive web applications using React and Bludia APIs.
+  </Card>
+
+  <Card title="Next.js" icon="globe">
+    Connect server components, route handlers, and client-side interfaces.
+  </Card>
+
+  <Card title="Vue.js" icon="layers">
+    Build reactive applications using your Bludia backend.
+  </Card>
+
+  <Card title="Flutter" icon="smartphone">
+    Connect Android, iOS, and desktop applications.
+  </Card>
+
+  <Card title="Mobile applications" icon="tablet">
+    Integrate native applications built with Swift, Kotlin, or other technologies.
+  </Card>
+
+  <Card title="Other platforms" icon="terminal">
+    Use any language or platform that supports HTTP requests.
+  </Card>
+</CardGroup>
+
+### Example: React integration
+
+You can create a reusable API function and use it throughout your application.
+
+```javascript
+const API_URL = "YOUR_API_ENDPOINT";
+
+export async function fetchTasks() {
+  const response = await fetch(API_URL, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "X-BLUDIA-API-KEY": "YOUR_API_KEY"
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error("API request failed");
+  }
+
+  return response.json();
+}
+```
+
+Then use it inside a React component:
+
+```jsx
+import { useEffect, useState } from "react";
+import { fetchTasks } from "./api";
+
+export default function Tasks() {
+  const [tasks, setTasks] = useState([]);
+
+  useEffect(() => {
+    fetchTasks()
+      .then(setTasks)
+      .catch(console.error);
+  }, []);
+
+  return (
+    <ul>
+      {tasks.map((task) => (
+        <li key={task.id}>
+          {task.title}
+        </li>
+      ))}
+    </ul>
+  );
+}
+```
+
+The same integration concept applies to other frontend frameworks.
+
+## 5. Authentication
+
+Bludia supports backend authentication so your applications can identify users and make requests on their behalf.
+
+For example, a typical application might:
+
+1. Allow a user to sign in.
+2. Send their credentials through the authentication flow.
+3. Receive the authentication result.
+4. Use the supported authentication credentials for subsequent requests.
+5. Access only the resources permitted to that user.
+
+Authentication is particularly important when your application contains private user data, dashboards, or operations that should not be available to everyone.
+
+For more information, see [Authentication](/authentication/overview).
+
+## 6. Permissions and access control
+
+Connecting a frontend to your backend does not mean every user should have access to every operation.
+
+Bludia lets you configure access rules for your project so that API operations can be restricted according to your security configuration.
+
+For example, in a task management application:
+
+| User | Possible access |
+| --- | --- |
+| Administrator | Manage all tasks |
+| Manager | View and manage team tasks |
+| Employee | View and update permitted tasks |
+| Guest | Access only public information |
+
+The actual access granted depends on the permissions and roles configured in your project.
+
+Always configure permissions on the backend. Hiding a button or restricting a page in your frontend is not a security boundary.
+
+Learn more in [Security and Permissions](/security/overview).
+
+## 7. Working with relationships
+
+Bludia collections can be connected through relationships.
+
+For example, a booking application might contain:
+
+- Customers
+- Services
+- Bookings
+
+A booking can be associated with a customer and a service.
+
+Your frontend can use the corresponding API operations to retrieve and work with related data.
+
+This allows you to build complex application interfaces while keeping your data structure and relationships managed by Bludia.
+
+See [Relationships](/database/relationships) for more information.
+
+## 8. Handle API errors
+
+Your application should always handle unsuccessful requests.
+
+For example:
+
+```javascript
+async function request(url, options = {}) {
+  const response = await fetch(url, options);
+
+  if (!response.ok) {
+    throw new Error(
+      `Request failed with status ${response.status}`
+    );
+  }
+
+  return response.json();
+}
+```
+
+In production applications, consider handling:
+
+- Authentication failures.
+- Permission errors.
+- Invalid request data.
+- Missing records.
+- Network failures.
+- Server errors.
+
+Use the error response returned by Bludia to help your application display meaningful messages and recover from failures.
+
+## 9. Recommended integration architecture
+
+For most applications, keep your frontend responsible for presentation and user interaction, while Bludia handles your backend infrastructure and data operations.
+
+A typical architecture looks like this:
+
+```text
+Frontend
+   │
+   ├── User Interface
+   ├── Forms
+   ├── Navigation
+   └── Application State
+          │
+          ▼
+      Bludia APIs
+          │
+          ├── Authentication
+          ├── Collections
+          ├── Relationships
+          ├── Permissions
+          └── Backend Operations
+```
+
+This separation makes it easier to:
+
+- Build multiple frontends using the same backend.
+- Replace or upgrade your frontend without rebuilding your backend.
+- Keep your data structure centralized.
+- Manage backend access rules independently.
+- Focus on the actual product instead of repeatedly implementing backend infrastructure.
+
+## What's next?
+
+<CardGroup cols={2}>
+  <Card title="API Keys" icon="key" href="/api/api-keys">
+    Learn how to manage API credentials.
+  </Card>
+
+  <Card title="Authentication" icon="shield-check" href="/authentication/overview">
+    Configure authentication for your applications.
+  </Card>
+
+  <Card title="Collections" icon="database" href="/database/collections">
+    Organize your backend data.
+  </Card>
+
+  <Card title="Security" icon="lock" href="/security/overview">
+    Configure permissions and protect your data.
+  </Card>
+</CardGroup>

@@ -4,6 +4,8 @@ title: "API Keys"
 
 ---
 
+# API Keys
+
 API keys allow external applications and services to communicate with your Bludia project.
 
 They provide a way to authenticate API requests so Bludia can identify the integration making the request and apply the appropriate access rules.
@@ -55,9 +57,27 @@ API keys make it possible to connect applications without implementing a separat
 
 To create an API key:
 
-\<Steps><br />\<Step title="Open your project"><br />Navigate to the Bludia project you want to connect.<br />\</Step><br />\<Step title="Open API settings"><br />Navigate to **Project → API → API Keys**.<br />\</Step><br />\<Step title="Create a new key"><br />Use the available option to generate a new API key.<br />\</Step><br />\<Step title="Copy your key"><br />Copy the generated credential and store it securely.<br />\</Step><br />\<Step title="Connect your application"><br />Include the API key in the headers of requests sent to your Bludia API.<br />\</Step><br />\</Steps>
+<Steps>
+  <Step title="Open your project">
+    Navigate to the Bludia project you want to connect.
+  </Step>
+  <Step title="Open API settings">
+    Navigate to **Project → API → API Keys**.
+  </Step>
+  <Step title="Create a new key">
+    Use the available option to generate a new API key.
+  </Step>
+  <Step title="Copy your key">
+    Copy the generated credential and store it securely.
+  </Step>
+  <Step title="Connect your application">
+    Include the API key in the headers of requests sent to your Bludia API.
+  </Step>
+</Steps>
 
-\<Warning><br />Treat API keys like passwords. Anyone who obtains a key may be able to make requests using its associated access. Never publish private keys in public repositories or expose them in browser-based JavaScript.<br />\</Warning>
+<Warning>
+  Treat API keys like passwords. Anyone who obtains a key may be able to make requests using its associated access. Never publish private keys in public repositories or expose them in browser-based JavaScript.
+</Warning>
 
 ## Using an API key
 
@@ -65,7 +85,7 @@ Bludia API requests use the `X-BLUDIA-API-KEY` header for API key authentication
 
 For example, using JavaScript:
 
-```text
+```javascript
 const response = await fetch(
   "YOUR_API_ENDPOINT",
   {
@@ -93,7 +113,7 @@ The same header can be included in requests from other programming languages and
 
 You can also test your API connection using cURL:
 
-```text
+```bash
 curl -X GET "YOUR_API_ENDPOINT" \
   -H "Content-Type: application/json" \
   -H "X-BLUDIA-API-KEY: YOUR_API_KEY"
@@ -111,14 +131,14 @@ For server-side applications, store your API key in environment variables rather
 
 For example:
 
-```text
+```env
 BLUDIA_API_KEY=your_private_api_key
 BLUDIA_API_URL=your_api_endpoint
 ```
 
 Then access it from your server-side code:
 
-```text
+```javascript
 const apiKey = process.env.BLUDIA_API_KEY;
 const apiUrl = process.env.BLUDIA_API_URL;
 
@@ -137,16 +157,18 @@ Browser-based applications are different.
 
 Any credential included in frontend JavaScript can potentially be inspected by users through browser developer tools or network requests.
 
-\<Warning><br />Do not expose private API keys in React, Vue, Next.js client components, mobile application bundles, or other publicly distributed frontend code.
+<Warning>
+  Do not expose private API keys in React, Vue, Next.js client components, mobile application bundles, or other publicly distributed frontend code.
 
-For private API operations, use a backend service or server-side route to communicate with Bludia. For operations performed on behalf of signed-in users, use the appropriate Bludia authentication and permission model.<br />\</Warning>
+  For private API operations, use a backend service or server-side route to communicate with Bludia. For operations performed on behalf of signed-in users, use the appropriate Bludia authentication and permission model.
+</Warning>
 
 ## API keys vs. user authentication
 
 API keys and user authentication serve different purposes.
 
 | API keys | User authentication |
-| :-- | :-- |
+| --- | --- |
 | Authenticate an application or integration | Identify an individual user |
 | Useful for backend services and automation | Useful for user-facing applications |
 | Used to authorize API requests according to key access rules | Used to establish a user's authenticated session |
@@ -158,7 +180,7 @@ Your backend service might use an API key to communicate with Bludia, while indi
 
 This separation helps you build applications with both secure integrations and individual user access.
 
-See [Authentication](https://chatgpt.com/authentication/overview) for more information.
+See [Authentication](/authentication/overview) for more information.
 
 ## Managing API keys
 
@@ -194,7 +216,7 @@ If the old key is already compromised, revoke it immediately and investigate any
 If your API requests are not working, check the following:
 
 | Problem | What to check |
-| :-- | :-- |
+| --- | --- |
 | Unauthorized request | Verify that the API key is correct and active. |
 | Missing credentials | Confirm that `X-BLUDIA-API-KEY` is included in the request headers. |
 | Incorrect endpoint | Verify that you are using the correct project API endpoint. |
@@ -220,4 +242,20 @@ Follow these principles:
 
 ## What's next?
 
-\<CardGroup cols=\{2\}><br />\<Card title="API Overview" icon="code" href="/api/overview"><br />Learn how to connect any frontend to Bludia.<br />\</Card><br />\<Card title="Authentication" icon="shield-check" href="/authentication/overview"><br />Configure user authentication.<br />\</Card><br />\<Card title="Security" icon="lock" href="/security/overview"><br />Manage access and protect your backend.<br />\</Card><br />\<Card title="Hooks" icon="workflow" href="/hooks/overview"><br />Extend your backend with custom logic.<br />\</Card><br />\</CardGroup>
+<CardGroup cols={2}>
+  <Card title="API Overview" icon="code" href="/api/overview">
+    Learn how to connect any frontend to Bludia.
+  </Card>
+
+  <Card title="Authentication" icon="shield-check" href="/authentication/overview">
+    Configure user authentication.
+  </Card>
+
+  <Card title="Security" icon="lock" href="/security/overview">
+    Manage access and protect your backend.
+  </Card>
+
+  <Card title="Hooks" icon="workflow" href="/hooks/overview">
+    Extend your backend with custom logic.
+  </Card>
+</CardGroup>

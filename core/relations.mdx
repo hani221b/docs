@@ -1,5 +1,5 @@
 ---
-title: "relations"
+title: "Relations"
 ---
 
 ---
@@ -91,7 +91,7 @@ Typical use cases:
 - Users and personal settings.
 - Companies and company configurations.
 
-### One-to-Many (1)
+### One-to-Many (1:N)
 
 A one-to-many relationship allows one record to be associated with multiple records in another collection.
 
@@ -117,7 +117,7 @@ Typical use cases:
 - Courses and registrations.
 - Users and tasks.
 
-### Many-to-Many (M)
+### Many-to-Many (M:N)
 
 A many-to-many relationship allows multiple records in one collection to be associated with multiple records in another collection.
 
@@ -144,46 +144,38 @@ The exact configuration and storage behavior depend on the relationship options 
 
 ## Creating a relationship
 
-\<Steps><br />\<Step title="Open your project"><br />Sign in to your Bludia dashboard and open the project containing the collections you want to connect.<br />\</Step>
+<Steps>
+  <Step title="Open your project">
+    Sign in to your Bludia dashboard and open the project containing the collections you want to connect.
+  </Step>
+  <Step title="Create or select your collections">
+    Make sure the collections involved in the relationship already exist.
 
-\<Step title="Create or select your collections"><br />Make sure the collections involved in the relationship already exist.
+    For this example, we'll use:
 
-````text
-For this example, we'll use:
+    ```text
+    customers
+    bookings
+    ```
+  </Step>
+  <Step title="Add a Relation field">
+    Open the `bookings` collection and add a new field.
 
-```text
-customers
-bookings
-```
-````
+    Select the **Relation** field type.
+  </Step>
+  <Step title="Configure the relationship">
+    Select the collection you want to reference.
 
-\</Step>
+    For this example, configure the relationship to reference the `customers` collection.
 
-\<Step title="Add a Relation field"><br />Open the `bookings` collection and add a new field.
+    Your booking collection will now contain a relationship field connecting bookings to customers.
+  </Step>
+  <Step title="Save your configuration">
+    Save the field configuration.
 
-```text
-Select the **Relation** field type.
-```
-
-\</Step>
-
-\<Step title="Configure the relationship"><br />Select the collection you want to reference.
-
-```text
-For this example, configure the relationship to reference the `customers` collection.
-
-Your booking collection will now contain a relationship field connecting bookings to customers.
-```
-
-\</Step>
-
-\<Step title="Save your configuration"><br />Save the field configuration.
-
-```text
-You can now associate booking records with the appropriate customer records according to the configured relationship.
-```
-
-\</Step><br />\</Steps>
+    You can now associate booking records with the appropriate customer records according to the configured relationship.
+  </Step>
+</Steps>
 
 ## Example: Building a booking system
 
@@ -238,7 +230,7 @@ A booking record can now reference both a customer and a service.
 
 For example:
 
-```text
+```json
 {
   "customer": "CUSTOMER_RECORD_ID",
   "service": "SERVICE_RECORD_ID",
@@ -277,7 +269,7 @@ Booking
          └── Duration
 ```
 
-Refer to the [API Reference](https://chatgpt.com/api-reference/overview) for the supported ways to retrieve related data.
+Refer to the [API Reference](/api-reference/overview) for the supported ways to retrieve related data.
 
 ## Relationships and the API
 
@@ -285,7 +277,7 @@ Your application can interact with relationship fields through the Bludia API.
 
 For example, creating a booking might involve sending references to existing customer and service records.
 
-```text
+```bash
 curl -X POST "YOUR_API_ENDPOINT" \
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
@@ -300,7 +292,7 @@ curl -X POST "YOUR_API_ENDPOINT" \
 
 The referenced records must exist and be accessible according to your project's configuration and permissions.
 
-Learn more about [Records API](https://chatgpt.com/api/records).
+Learn more about [Records API](/api/records).
 
 ## Relationships and data integrity
 
@@ -315,7 +307,9 @@ For example:
 
 These decisions are important for maintaining consistent application data.
 
-\<Warning><br />Do not assume that deleting a record automatically deletes, preserves, or updates related records. Verify the deletion and relationship behavior supported by your Bludia configuration before relying on it in production.<br />\</Warning>
+<Warning>
+  Do not assume that deleting a record automatically deletes, preserves, or updates related records. Verify the deletion and relationship behavior supported by your Bludia configuration before relying on it in production.
+</Warning>
 
 ## Designing effective relationships
 
@@ -349,14 +343,28 @@ Make sure users can only access related records they are authorized to view.
 
 Now that you understand relationships, explore the other components of Bludia's data infrastructure.
 
-\<CardGroup cols=\{2\}><br />\<Card title="Collections" icon="database" href="/database/collections"><br />Create and organize your application's data collections.<br />\</Card>
+<CardGroup cols={2}>
+  <Card title="Collections" icon="database" href="/database/collections">
+    Create and organize your application's data collections.
+  </Card>
 
-\<Card title="Fields" icon="list" href="/database/fields"><br />Define field types and configure your data structures.<br />\</Card>
+  <Card title="Fields" icon="list" href="/database/fields">
+    Define field types and configure your data structures.
+  </Card>
 
-\<Card title="Records" icon="rows" href="/database/records"><br />Create, retrieve, update, and manage application records.<br />\</Card>
+  <Card title="Records" icon="rows" href="/database/records">
+    Create, retrieve, update, and manage application records.
+  </Card>
 
-\<Card title="Computed Fields" icon="calculator" href="/database/computed-fields"><br />Work with calculated values derived from your application data.<br />\</Card>
+  <Card title="Computed Fields" icon="calculator" href="/database/computed-fields">
+    Work with calculated values derived from your application data.
+  </Card>
 
-\<Card title="API Overview" icon="plug" href="/api/overview"><br />Access your collections and records programmatically.<br />\</Card>
+  <Card title="API Overview" icon="plug" href="/api/overview">
+    Access your collections and records programmatically.
+  </Card>
 
-\<Card title="Security" icon="shield-check" href="/security/overview"><br />Control access to your data and related resources.<br />\</Card><br />\</CardGroup>
+  <Card title="Security" icon="shield-check" href="/security/overview">
+    Control access to your data and related resources.
+  </Card>
+</CardGroup>

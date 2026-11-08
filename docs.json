@@ -37,11 +37,10 @@
             "group": "Core Concepts",
             "pages": [
               "projects",
-              "core/collections",
+              "untitled-page-3",
               "core/records",
               "core/fields",
               "core/relations",
-              "core/queries",
               "core/api",
               "core/webhooks",
               "core/keys"

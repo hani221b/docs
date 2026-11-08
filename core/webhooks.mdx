@@ -4,6 +4,8 @@ title: "Hooks"
 
 ---
 
+# Hooks
+
 Hooks allow you to extend your Bludia backend with custom logic.
 
 Instead of implementing every backend operation yourself, you can configure hooks to execute additional actions when specific events occur in your project.
@@ -137,7 +139,7 @@ Hooks should be designed around the event they need to handle.
 A useful way to think about hook execution is:
 
 | Stage | Description |
-| :-- | :-- |
+| --- | --- |
 | Trigger | A configured event occurs |
 | Dispatch | Bludia identifies the matching hook |
 | Execution | The hook's logic runs |
@@ -151,7 +153,26 @@ For operations that involve slow external services, background execution is gene
 
 The general workflow for configuring a hook is:
 
-\<Steps><br />\<Step title="Open your project"><br />Navigate to the Bludia project where you want to configure custom behavior.<br />\</Step><br />\<Step title="Open the Hooks section"><br />Locate the Hooks configuration area in your project.<br />\</Step><br />\<Step title="Choose the trigger"><br />Select the event or operation that should activate the hook.<br />\</Step><br />\<Step title="Configure the logic"><br />Define what the hook should do when the event occurs, using the supported execution method.<br />\</Step><br />\<Step title="Configure required credentials"><br />Add any required external service credentials or configuration securely.<br />\</Step><br />\<Step title="Test the hook"><br />Trigger the event and verify that the expected action executes successfully.<br />\</Step><br />\</Steps>
+<Steps>
+  <Step title="Open your project">
+    Navigate to the Bludia project where you want to configure custom behavior.
+  </Step>
+  <Step title="Open the Hooks section">
+    Locate the Hooks configuration area in your project.
+  </Step>
+  <Step title="Choose the trigger">
+    Select the event or operation that should activate the hook.
+  </Step>
+  <Step title="Configure the logic">
+    Define what the hook should do when the event occurs, using the supported execution method.
+  </Step>
+  <Step title="Configure required credentials">
+    Add any required external service credentials or configuration securely.
+  </Step>
+  <Step title="Test the hook">
+    Trigger the event and verify that the expected action executes successfully.
+  </Step>
+</Steps>
 
 The available triggers, configuration options, and execution methods depend on the hook capabilities exposed by your Bludia project.
 
@@ -169,7 +190,9 @@ Follow these practices:
 - Test hooks before enabling them in production.
 - Make operations safe to retry where possible.
 
-\<Warning><br />A hook should never be treated as a replacement for authentication or permissions. Protect the underlying API operations and data independently, even when additional logic is executed through hooks.<br />\</Warning>
+<Warning>
+  A hook should never be treated as a replacement for authentication or permissions. Protect the underlying API operations and data independently, even when additional logic is executed through hooks.
+</Warning>
 
 ## Error handling and reliability
 
@@ -212,4 +235,20 @@ This also means you can use the same hooks regardless of whether your applicatio
 
 ## What's next?
 
-\<CardGroup cols=\{2\}><br />\<Card title="APIs" icon="code" href="/api/overview"><br />Connect your frontend to your Bludia backend.<br />\</Card><br />\<Card title="Collections" icon="database" href="/database/collections"><br />Organize and manage your project data.<br />\</Card><br />\<Card title="Authentication" icon="shield-check" href="/authentication/overview"><br />Manage user authentication.<br />\</Card><br />\<Card title="Security" icon="lock" href="/security/overview"><br />Configure access rules and protect your backend.<br />\</Card><br />\</CardGroup>
+<CardGroup cols={2}>
+  <Card title="APIs" icon="code" href="/api/overview">
+    Connect your frontend to your Bludia backend.
+  </Card>
+
+  <Card title="Collections" icon="database" href="/database/collections">
+    Organize and manage your project data.
+  </Card>
+
+  <Card title="Authentication" icon="shield-check" href="/authentication/overview">
+    Manage user authentication.
+  </Card>
+
+  <Card title="Security" icon="lock" href="/security/overview">
+    Configure access rules and protect your backend.
+  </Card>
+</CardGroup>

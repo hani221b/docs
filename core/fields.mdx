@@ -1,7 +1,5 @@
 ---
-title: "fields"
----
-
+title: "Fields"
 ---
 
 Fields define the structure of the data stored inside your Bludia collections.
@@ -44,41 +42,35 @@ Each record follows the structure defined by its collection.
 
 ## Creating a field
 
-\<Steps><br />\<Step title="Open your project"><br />Sign in to your Bludia dashboard and open the project containing the collection you want to modify.<br />\</Step>
+<Steps>
+  <Step title="Open your project">
+    Sign in to your Bludia dashboard and open the project containing the collection you want to modify.
+  </Step>
+  <Step title="Select a collection">
+    Navigate to **Collections** and open the collection where you want to add a field.
 
-\<Step title="Select a collection"><br />Navigate to **Collections** and open the collection where you want to add a field.
+    For example, select `tasks`.
+  </Step>
+  <Step title="Add a new field">
+    Select the option to add a field.
 
-```text
-For example, select `tasks`.
-```
+    Provide the required field information, including its name and field type.
+  </Step>
+  <Step title="Configure the field">
+    Configure the available options for your selected field type.
 
-\</Step>
+    Depending on the type, this may include predefined options, relationships, or other field-specific settings.
+  </Step>
+  <Step title="Save your changes">
+    Save the field configuration.
 
-\<Step title="Add a new field"><br />Select the option to add a field.
+    The new field becomes part of your collection's data structure and can be used when creating or updating records.
+  </Step>
+</Steps>
 
-```text
-Provide the required field information, including its name and field type.
-```
-
-\</Step>
-
-\<Step title="Configure the field"><br />Configure the available options for your selected field type.
-
-```text
-Depending on the type, this may include predefined options, relationships, or other field-specific settings.
-```
-
-\</Step>
-
-\<Step title="Save your changes"><br />Save the field configuration.
-
-```text
-The new field becomes part of your collection's data structure and can be used when creating or updating records.
-```
-
-\</Step><br />\</Steps>
-
-\<Tip><br />Use descriptive field names such as `customer_name`, `payment_status`, and `registration_date`. Consistent naming makes your data model easier to understand and maintain.<br />\</Tip>
+<Tip>
+  Use descriptive field names such as `customer_name`, `payment_status`, and `registration_date`. Consistent naming makes your data model easier to understand and maintain.
+</Tip>
 
 ## Supported field types
 
@@ -98,7 +90,7 @@ Typical use cases:
 
 Example:
 
-```text
+```json
 {
   "name": "John Smith",
   "email": "john@example.com"
@@ -119,7 +111,7 @@ Typical use cases:
 
 Example:
 
-```text
+```json
 {
   "description": "A detailed description of the customer's requirements and project history."
 }
@@ -139,7 +131,7 @@ Typical use cases:
 
 Example:
 
-```text
+```json
 {
   "content": "<p>Welcome to our platform.</p>"
 }
@@ -161,7 +153,7 @@ Typical use cases:
 
 Example:
 
-```text
+```json
 {
   "price": 149.99,
   "quantity": 5
@@ -181,13 +173,15 @@ Typical use cases:
 
 Example:
 
-```text
+```json
 {
   "password": "example-password"
 }
 ```
 
-\<Warning><br />Never assume that a Password field automatically provides secure password hashing, authentication, or credential management. Do not store plaintext passwords. Use Bludia Authentication for application user credentials and verify the security behavior of any custom password workflow.<br />\</Warning>
+<Warning>
+  Never assume that a Password field automatically provides secure password hashing, authentication, or credential management. Do not store plaintext passwords. Use Bludia Authentication for application user credentials and verify the security behavior of any custom password workflow.
+</Warning>
 
 ### Date
 
@@ -202,7 +196,7 @@ Typical use cases:
 
 Example:
 
-```text
+```json
 {
   "due_date": "2026-11-15"
 }
@@ -221,7 +215,7 @@ Typical use cases:
 
 Example:
 
-```text
+```json
 {
   "scheduled_at": "2026-11-15T14:30:00Z"
 }
@@ -240,7 +234,7 @@ Typical use cases:
 
 Example:
 
-```text
+```json
 {
   "opening_time": "09:00:00"
 }
@@ -259,7 +253,7 @@ Typical use cases:
 
 Example:
 
-```text
+```json
 {
   "active": true,
   "completed": false
@@ -288,7 +282,7 @@ completed
 
 Example record:
 
-```text
+```json
 {
   "status": "in_progress"
 }
@@ -308,7 +302,7 @@ Typical use cases:
 
 For example:
 
-```text
+```json
 {
   "skills": [
     "Laravel",
@@ -344,7 +338,7 @@ bookings
 └── booking_date
 ```
 
-Learn more about [Relationships](https://chatgpt.com/database/relationships).
+Learn more about [Relationships](/database/relationships).
 
 ### QR Code
 
@@ -374,7 +368,7 @@ Typical use cases:
 
 Example:
 
-```text
+```json
 {
   "name": "John Smith",
   "document": "YOUR_FILE_REFERENCE"
@@ -456,7 +450,7 @@ When creating or updating records, your application sends values corresponding t
 
 For example:
 
-```text
+```json
 {
   "title": "Build a customer dashboard",
   "priority": "high",
@@ -469,7 +463,7 @@ The Bludia API processes these values according to your collection configuration
 
 You can then retrieve the records and use their field values in your frontend.
 
-Learn more about the [Records API](https://chatgpt.com/api/records).
+Learn more about the [Records API](/api/records).
 
 ## Managing fields over time
 
@@ -501,7 +495,9 @@ customers
 
 Consider the impact of schema changes on existing records, API consumers, relationships, and application logic before modifying fields.
 
-\<Warning><br />Removing or changing a field can affect existing data and applications that depend on it. Review your integrations and dependent configurations before making structural changes.<br />\</Warning>
+<Warning>
+  Removing or changing a field can affect existing data and applications that depend on it. Review your integrations and dependent configurations before making structural changes.
+</Warning>
 
 ## Best practices
 
@@ -533,14 +529,28 @@ Consider how new features might affect your existing data structure before makin
 
 Now that you understand how fields work, explore the other parts of Bludia's data infrastructure.
 
-\<CardGroup cols=\{2\}><br />\<Card title="Collections" icon="database" href="/database/collections"><br />Learn how to create and organize collections.<br />\</Card>
+<CardGroup cols={2}>
+  <Card title="Collections" icon="database" href="/database/collections">
+    Learn how to create and organize collections.
+  </Card>
 
-\<Card title="Records" icon="rows" href="/database/records"><br />Manage the actual data stored in your collections.<br />\</Card>
+  <Card title="Records" icon="rows" href="/database/records">
+    Manage the actual data stored in your collections.
+  </Card>
 
-\<Card title="Relationships" icon="workflow" href="/database/relationships"><br />Connect records across multiple collections.<br />\</Card>
+  <Card title="Relationships" icon="workflow" href="/database/relationships">
+    Connect records across multiple collections.
+  </Card>
 
-\<Card title="Computed Fields" icon="calculator" href="/database/computed-fields"><br />Learn how to work with calculated data in your application.<br />\</Card>
+  <Card title="Computed Fields" icon="calculator" href="/database/computed-fields">
+    Learn how to work with calculated data in your application.
+  </Card>
 
-\<Card title="API Overview" icon="plug" href="/api/overview"><br />Access and manage your data programmatically.<br />\</Card>
+  <Card title="API Overview" icon="plug" href="/api/overview">
+    Access and manage your data programmatically.
+  </Card>
 
-\<Card title="Authentication" icon="users" href="/authentication/overview"><br />Configure application users and authenticated sessions.<br />\</Card><br />\</CardGroup>
+  <Card title="Authentication" icon="users" href="/authentication/overview">
+    Configure application users and authenticated sessions.
+  </Card>
+</CardGroup>

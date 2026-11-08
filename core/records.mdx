@@ -1,3 +1,367 @@
 ---
 title: "records"
 ---
+
+---
+
+Records are the individual data entries stored inside a Bludia collection.
+
+While collections define the structure of your data, records contain the actual information your application works with.
+
+For example, a `customers` collection defines the fields available for customer information. Each customer you add becomes a separate record.
+
+```text
+customers
+│
+├── Record 1
+│   ├── name: John Smith
+│   ├── email: john@example.com
+│   └── phone: +971500000001
+│
+├── Record 2
+│   ├── name: Sarah Johnson
+│   ├── email: sarah@example.com
+│   └── phone: +971500000002
+│
+└── Record 3
+    ├── name: David Brown
+    ├── email: david@example.com
+    └── phone: +971500000003
+```
+
+Bludia manages the underlying data infrastructure, allowing you to work with records through the dashboard or API.
+
+## Understanding records
+
+Every record belongs to a collection and follows the structure defined by that collection's fields.
+
+For example, consider a `tasks` collection with the following fields:
+
+| Field | Type |
+| :-- | :-- |
+| `title` | Text |
+| `description` | Text |
+| `completed` | Boolean |
+| `status` | Text |
+
+A record in this collection might look like:
+
+```text
+{
+  "title": "Complete documentation",
+  "description": "Write the Bludia records documentation",
+  "completed": false,
+  "status": "in_progress"
+}
+```
+
+Each record represents one task and contains values for its configured fields.
+
+## Managing records from the dashboard
+
+Bludia provides a dashboard interface for managing collection records without writing code.
+
+\<Steps><br />\<Step title="Open your project"><br />Sign in to Bludia and open the project containing the collection you want to manage.<br />\</Step>
+
+\<Step title="Select a collection"><br />Navigate to **Collections** and open the collection containing your records.
+
+```text
+For example, select `tasks`.
+```
+
+\</Step>
+
+\<Step title="Open the Records section"><br />Navigate to the **Records** section of the collection.
+
+```text
+Here you can view and manage the records stored in that collection.
+```
+
+\</Step>
+
+\<Step title="Create or modify records"><br />Use the available dashboard actions to create new records, edit existing information, or remove records.
+
+```text
+Changes are applied to your project's data.
+```
+
+\</Step><br />\</Steps>
+
+## Creating records
+
+You can create records through the Bludia dashboard or programmatically through the API.
+
+### Creating a record from the dashboard
+
+Open a collection and select the option to create a new record.
+
+Enter the values for the fields defined in your collection and save the record.
+
+For example:
+
+```text
+{
+  "title": "Learn Bludia",
+  "description": "Build my first application backend",
+  "completed": false,
+  "status": "todo"
+}
+```
+
+### Creating a record through the API
+
+Applications can create records by sending an HTTP request to the appropriate collection endpoint.
+
+```text
+curl -X POST "YOUR_API_ENDPOINT" \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -H "X-BLUDIA-API-KEY: YOUR_API_KEY" \
+  -d '{
+    "title": "Build a dashboard",
+    "description": "Connect a frontend to Bludia",
+    "completed": false,
+    "status": "todo"
+  }'
+```
+
+Bludia processes the request and creates a new record in the specified collection, subject to your project's configuration and permissions.
+
+## Retrieving records
+
+You can retrieve collection records through the API and use them in your frontend or other services.
+
+Example:
+
+```text
+curl -X GET "YOUR_API_ENDPOINT" \
+  -H "Accept: application/json" \
+  -H "X-BLUDIA-API-KEY: YOUR_API_KEY"
+```
+
+A successful request returns the matching records as JSON.
+
+Your application can then use the returned data to display tables, dashboards, lists, and other interface components.
+
+## Updating records
+
+Records can be updated when their information changes.
+
+For example, you might want to mark a task as completed.
+
+Before:
+
+```text
+{
+  "title": "Complete documentation",
+  "completed": false,
+  "status": "in_progress"
+}
+```
+
+After:
+
+```text
+{
+  "title": "Complete documentation",
+  "completed": true,
+  "status": "completed"
+}
+```
+
+You can perform updates through the dashboard or the API.
+
+The exact update method and endpoint structure are documented in the [Records API](https://chatgpt.com/api/records).
+
+## Deleting records
+
+When a record is no longer needed, you can remove it from its collection.
+
+For example, you might delete:
+
+- An obsolete task.
+- An outdated customer entry.
+- A cancelled booking.
+- A test record.
+
+You can perform record deletion through the dashboard or API, depending on your permissions.
+
+\<Warning><br />Deleting a record may affect other application data that references it. Review your relationships and any dependent application logic before deleting important records.<br />\</Warning>
+
+## Searching and filtering records
+
+As your application grows, retrieving every record becomes less practical.
+
+Bludia API capabilities can be used to retrieve specific records based on your application's requirements.
+
+Typical use cases include:
+
+- Finding a customer by email.
+- Retrieving completed tasks.
+- Listing bookings for a specific date.
+- Finding unpaid invoices.
+- Displaying records belonging to a particular user.
+
+For example, a task management application might need to display only incomplete tasks.
+
+```text
+tasks
+  │
+  ▼
+Filter: completed = false
+  │
+  ▼
+Incomplete Tasks
+  │
+  ▼
+Display in Frontend
+```
+
+Refer to the [Records API](https://chatgpt.com/api/records) for supported filtering, searching, sorting, and pagination parameters.
+
+## System fields
+
+Bludia records may contain system-managed fields in addition to the fields you define.
+
+Common system fields include:
+
+| Field | Description |
+| :-- | :-- |
+| `id` | Unique identifier of the record |
+| `created_at` | Date and time the record was created |
+| `updated_at` | Date and time the record was last updated |
+
+For example:
+
+```text
+{
+  "id": 125,
+  "title": "Learn Bludia",
+  "completed": false,
+  "created_at": "2026-11-08T10:30:00Z",
+  "updated_at": "2026-11-08T10:30:00Z"
+}
+```
+
+These fields help identify records and track changes over time.
+
+System fields are managed by Bludia and should not be treated as ordinary application fields.
+
+## Records and relationships
+
+Records can reference records in other collections through relationships.
+
+For example, consider a booking application with `customers` and `bookings` collections.
+
+```text
+customers
+│
+├── Customer 1
+│   └── John Smith
+│
+└── Customer 2
+    └── Sarah Johnson
+
+
+bookings
+│
+├── Booking 1
+│   └── customer → Customer 1
+│
+└── Booking 2
+    └── customer → Customer 2
+```
+
+This allows your application to associate bookings with their respective customers without unnecessarily duplicating customer information.
+
+Learn more about [Relationships](https://chatgpt.com/database/relationships).
+
+## Records and permissions
+
+Not every application user should have access to every record.
+
+For example:
+
+- An administrator may view and manage all records.
+- An employee may only access records relevant to their work.
+- A customer may only access their own bookings.
+
+Bludia provides authorization capabilities that help control access to application resources.
+
+Configure your project's security settings to determine which users can create, retrieve, update, or delete records.
+
+Learn more about [Authorization & Security](https://chatgpt.com/security/overview).
+
+## Working with records from your frontend
+
+One of the main advantages of Bludia is that your frontend can communicate directly with your backend through standard HTTP requests.
+
+For example, a React application can retrieve task records:
+
+```text
+async function getTasks() {
+  const response = await fetch(
+    "YOUR_API_ENDPOINT",
+    {
+      headers: {
+        "Accept": "application/json",
+        "X-BLUDIA-API-KEY": process.env.BLUDIA_API_KEY
+      }
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to retrieve tasks");
+  }
+
+  return await response.json();
+}
+```
+
+You can use the returned records to populate tables, forms, dashboards, and other application components.
+
+\<Warning><br />Keep private API keys on trusted server-side environments. Never expose private credentials through browser-delivered frontend code. Use an appropriate authentication and authorization setup for public-facing applications.<br />\</Warning>
+
+## Best practices
+
+Consider these recommendations when working with records:
+
+**1. Use meaningful data structures**
+
+Define appropriate fields before creating large amounts of application data.
+
+**2. Validate incoming data**
+
+Make sure records contain valid values and follow your application's requirements.
+
+**3. Use relationships where appropriate**
+
+Avoid duplicating the same information across multiple collections when a relationship is more suitable.
+
+**4. Apply appropriate permissions**
+
+Restrict record access according to the responsibilities of each application user.
+
+**5. Use filtering and pagination**
+
+Avoid retrieving unnecessarily large datasets when your frontend only needs a subset of records.
+
+**6. Be careful when deleting data**
+
+Consider relationships and dependent operations before removing important records.
+
+## What's next?
+
+Explore the other components of Bludia's database and API infrastructure.
+
+\<CardGroup cols=\{2\}><br />\<Card title="Collections" icon="database" href="/database/collections"><br />Learn how to create and organize collections.<br />\</Card>
+
+\<Card title="Fields" icon="list" href="/database/fields"><br />Understand field types and data structures.<br />\</Card>
+
+\<Card title="Relationships" icon="workflow" href="/database/relationships"><br />Connect records across multiple collections.<br />\</Card>
+
+\<Card title="Records API" icon="plug" href="/api/records"><br />Explore API operations for managing records programmatically.<br />\</Card>
+
+\<Card title="Authentication" icon="users" href="/authentication/overview"><br />Authenticate application users and manage sessions.<br />\</Card>
+
+\<Card title="Security" icon="shield-check" href="/security/overview"><br />Configure access control for your application data.<br />\</Card><br />\</CardGroup>

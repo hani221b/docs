@@ -1,3 +1,215 @@
 ---
-title: "webhooks"
+title: "Hooks"
 ---
+
+---
+
+Hooks allow you to extend your Bludia backend with custom logic.
+
+Instead of implementing every backend operation yourself, you can configure hooks to execute additional actions when specific events occur in your project.
+
+For example, you can use hooks to:
+
+- Send an email when a customer registers.
+- Notify an administrator when a new order is created.
+- Generate a certificate after a course is completed.
+- Perform additional validation before processing data.
+- Trigger an external service when a record changes.
+- Execute custom business logic as part of your application workflow.
+
+Hooks help you build more capable applications while keeping your backend logic centralized in Bludia.
+
+## How hooks work
+
+A hook is associated with an event or operation in your project.
+
+When the corresponding event occurs, Bludia invokes the configured hook and executes its logic according to the hook's configuration.
+
+A simplified execution flow looks like this:
+
+```text
+┌──────────────────────┐
+│   Frontend Request   │
+│                      │
+│  Create a new record │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│     Bludia API       │
+│                      │
+│  Process the request │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│    Hook Dispatcher   │
+│                      │
+│  Identify the event  │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│     Custom Hook      │
+│                      │
+│  Execute logic       │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│   External Service   │
+│   or Custom Action   │
+└──────────────────────┘
+```
+
+The frontend does not need to know how the hook works. It simply performs the operation that triggers the event.
+
+## Common use cases
+
+### 1. Send emails automatically
+
+Imagine a customer submits a registration form.
+
+Instead of making your frontend responsible for sending emails, you can use a hook to trigger an email after the relevant backend event.
+
+Example workflow:
+
+1. A customer submits a registration form.
+2. Bludia processes the registration.
+3. The configured hook executes.
+4. An email is sent to the administrator or customer.
+
+This keeps email-related logic outside your frontend.
+
+### 2. Send notifications
+
+Hooks can help you build notification workflows.
+
+For example, when a new order is created, your application might need to notify the responsible employee.
+
+```text
+New order created
+       │
+       ▼
+   Hook triggered
+       │
+       ▼
+ Notification sent
+       │
+       ▼
+ Employee notified
+```
+
+### 3. Generate documents
+
+Consider a training academy that issues certificates when students complete their courses.
+
+A hook can trigger the certificate generation workflow after a course completion event.
+
+The workflow might look like this:
+
+1. A student's completion status changes.
+2. Bludia triggers the configured hook.
+3. The certificate generation process runs.
+4. The generated document is stored or delivered through the configured integration.
+
+### 4. Integrate external services
+
+Your application may depend on services outside Bludia.
+
+Hooks can provide a way to connect backend events to external systems.
+
+Examples include:
+
+- Email providers.
+- Messaging platforms.
+- Document generation services.
+- Payment-related integrations.
+- External APIs.
+- Internal business systems.
+
+The external integration should be implemented using the supported hook capabilities and configured credentials.
+
+## Hook execution
+
+Hooks should be designed around the event they need to handle.
+
+A useful way to think about hook execution is:
+
+| Stage | Description |
+| :-- | :-- |
+| Trigger | A configured event occurs |
+| Dispatch | Bludia identifies the matching hook |
+| Execution | The hook's logic runs |
+| Result | The configured action completes or reports an error |
+
+Depending on the hook type and execution configuration, custom logic may run as part of a request workflow or through background processing.
+
+For operations that involve slow external services, background execution is generally preferable when supported. This helps avoid making users wait for work that does not need to finish before the original request can complete.
+
+## Creating a hook
+
+The general workflow for configuring a hook is:
+
+\<Steps><br />\<Step title="Open your project"><br />Navigate to the Bludia project where you want to configure custom behavior.<br />\</Step><br />\<Step title="Open the Hooks section"><br />Locate the Hooks configuration area in your project.<br />\</Step><br />\<Step title="Choose the trigger"><br />Select the event or operation that should activate the hook.<br />\</Step><br />\<Step title="Configure the logic"><br />Define what the hook should do when the event occurs, using the supported execution method.<br />\</Step><br />\<Step title="Configure required credentials"><br />Add any required external service credentials or configuration securely.<br />\</Step><br />\<Step title="Test the hook"><br />Trigger the event and verify that the expected action executes successfully.<br />\</Step><br />\</Steps>
+
+The available triggers, configuration options, and execution methods depend on the hook capabilities exposed by your Bludia project.
+
+## Security considerations
+
+Hooks can perform operations that affect your data and external services. They should be configured carefully.
+
+Follow these practices:
+
+- Never hardcode private credentials in frontend applications.
+- Store external service credentials in secure backend configuration.
+- Validate incoming data before performing sensitive operations.
+- Avoid exposing internal implementation details in error responses.
+- Restrict hook execution to the intended events and operations.
+- Test hooks before enabling them in production.
+- Make operations safe to retry where possible.
+
+\<Warning><br />A hook should never be treated as a replacement for authentication or permissions. Protect the underlying API operations and data independently, even when additional logic is executed through hooks.<br />\</Warning>
+
+## Error handling and reliability
+
+External services can fail, networks can become unavailable, and custom logic can encounter unexpected data.
+
+For production applications, consider:
+
+- Recording hook execution results.
+- Logging errors for troubleshooting.
+- Defining appropriate retry behavior.
+- Preventing duplicate actions when an event is retried.
+- Monitoring integrations that are important to your application.
+
+For example, if a hook sends an email and the external provider temporarily fails, a retry mechanism can help complete the operation without requiring the user to submit the original form again.
+
+## Hooks and your frontend
+
+One of the main advantages of hooks is that your frontend does not need to implement every backend workflow.
+
+Your frontend can focus on:
+
+- Displaying information.
+- Collecting user input.
+- Managing navigation.
+- Providing a good user experience.
+
+Bludia can handle the backend operations and configured custom logic.
+
+This also means you can use the same hooks regardless of whether your application is built with React, Vue, Next.js, Flutter, or another technology.
+
+## Best practices
+
+- Keep each hook focused on a clear responsibility.
+- Avoid unnecessary external requests during critical user operations.
+- Use background processing for longer-running tasks when supported.
+- Make retryable operations idempotent where possible.
+- Log enough information to diagnose failures.
+- Test both successful and unsuccessful execution paths.
+- Keep credentials and sensitive data on the backend.
+
+## What's next?
+
+\<CardGroup cols=\{2\}><br />\<Card title="APIs" icon="code" href="/api/overview"><br />Connect your frontend to your Bludia backend.<br />\</Card><br />\<Card title="Collections" icon="database" href="/database/collections"><br />Organize and manage your project data.<br />\</Card><br />\<Card title="Authentication" icon="shield-check" href="/authentication/overview"><br />Manage user authentication.<br />\</Card><br />\<Card title="Security" icon="lock" href="/security/overview"><br />Configure access rules and protect your backend.<br />\</Card><br />\</CardGroup>

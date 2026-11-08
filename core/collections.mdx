@@ -1,3 +1,352 @@
 ---
 title: "collections"
 ---
+
+---
+
+Collections are the foundation of data management in Bludia.
+
+A **Collection** represents a structured set of records belonging to the same data type. It defines how your application stores, organizes, and accesses information.
+
+For example, a task management application might have collections for tasks, users, and categories. A booking application might have collections for customers, services, bookings, and payments.
+
+Instead of manually creating database tables and implementing data operations, you define your data structure in Bludia.
+
+## Understanding collections
+
+A collection consists of fields and records.
+
+- **Fields** define the structure of your data.
+- **Records** contain the actual data stored in the collection.
+
+For example, consider a `customers` collection:
+
+```text
+customers
+│
+├── id
+├── name
+├── email
+├── phone
+├── company
+├── created_at
+└── updated_at
+```
+
+Each record represents an individual customer.
+
+Example records:
+
+```text
+[
+  {
+    "name": "John Smith",
+    "email": "john@example.com",
+    "phone": "+971500000001",
+    "company": "Example Company"
+  },
+  {
+    "name": "Sarah Johnson",
+    "email": "sarah@example.com",
+    "phone": "+971500000002",
+    "company": "Another Company"
+  }
+]
+```
+
+Bludia manages the underlying data infrastructure for your collections.
+
+## Creating a collection
+
+\<Steps><br />\<Step title="Open your project"><br />Sign in to your Bludia dashboard and open the project where you want to create the collection.<br />\</Step>
+
+\<Step title="Navigate to Collections"><br />Open the **Collections** section from your project dashboard.
+
+```text
+Select **Create Collection** to start defining a new collection.
+```
+
+\</Step>
+
+\<Step title="Configure your collection"><br />Provide a name for your collection.
+
+````text
+For example:
+
+```text
+customers
+```
+
+Choose a clear, descriptive name that represents the type of data the collection will contain.
+````
+
+\</Step>
+
+\<Step title="Add fields"><br />Once the collection has been created, open it and start defining its fields.
+
+```text
+For example:
+
+| Field | Type |
+| :--- | :--- |
+| `name` | Text |
+| `email` | Text |
+| `phone` | Text |
+| `company` | Text |
+
+Each field defines a specific property of your records.
+```
+
+\</Step>
+
+\<Step title="Start adding records"><br />Open the **Records** section of your collection and create your first record.
+
+````text
+```json
+{
+  "name": "John Smith",
+  "email": "john@example.com",
+  "phone": "+971500000001",
+  "company": "Example Company"
+}
+```
+
+Save the record. Your collection is now ready to store and manage customer data.
+````
+
+\</Step><br />\</Steps>
+
+## Field types
+
+Bludia supports different field types to represent the data your application needs.
+
+The available field types include:
+
+| Field type | Description |
+| :-- | :-- |
+| Text | Short text values |
+| Long Text | Longer text content |
+| Text Editor | Rich text content |
+| Number | Numeric values |
+| Password | Password-related values |
+| Date | Calendar dates |
+| DateTime | Date and time values |
+| Time | Time values |
+| Boolean | True or false values |
+| Select | A single value from predefined options |
+| Multi Select | Multiple values from predefined options |
+| Relation | A reference to another collection |
+| QR Code | QR code-related values |
+| File | Uploaded files |
+
+The appropriate field type depends on the information you want to store.
+
+For example, a `completed` field should use Boolean, while a `price` field should use Number.
+
+Learn more about [Fields](https://chatgpt.com/database/fields).
+
+## System fields
+
+Bludia collections may also contain system-managed fields used to identify and track records.
+
+A typical collection structure looks like this:
+
+```text
+tasks
+│
+├── id
+├── title
+├── description
+├── completed
+├── created_at
+└── updated_at
+```
+
+Common system fields include:
+
+| Field | Purpose |
+| :-- | :-- |
+| `id` | Identifies a record |
+| `created_at` | Tracks when a record was created |
+| `updated_at` | Tracks when a record was last updated |
+
+System fields are managed by the platform and are not ordinary application fields.
+
+## Working with records
+
+Records are the individual entries stored inside a collection.
+
+Once you've created a collection and defined its fields, you can manage its records through the Bludia dashboard or API.
+
+### Create records
+
+Add new records through the dashboard or send a request to the collection's API endpoint.
+
+Example:
+
+```text
+{
+  "title": "Complete documentation",
+  "description": "Write the collections documentation",
+  "completed": false
+}
+```
+
+### Retrieve records
+
+Retrieve records from a collection through the API.
+
+```text
+curl -X GET "YOUR_API_ENDPOINT" \
+  -H "Accept: application/json" \
+  -H "X-BLUDIA-API-KEY: YOUR_API_KEY"
+```
+
+### Update records
+
+Modify existing records by sending an update request with the fields you want to change.
+
+### Delete records
+
+Remove records that are no longer required.
+
+The exact operations, endpoint structure, and supported parameters are documented in the [Records API](https://chatgpt.com/api/records).
+
+## Relationships between collections
+
+Real applications often require data to be connected across multiple collections.
+
+For example, a booking application might contain customers and bookings.
+
+Instead of storing all customer information inside every booking record, you can create a relationship between the two collections.
+
+```text
+customers
+│
+├── id
+├── name
+└── email
+
+       │
+       │ Relationship
+       ▼
+
+bookings
+│
+├── id
+├── customer
+├── service
+└── booking_date
+```
+
+This allows your application to associate each booking with its corresponding customer.
+
+Relationships help you build structured applications without unnecessarily duplicating data.
+
+Learn more about [Relationships](https://chatgpt.com/database/relationships).
+
+## Designing your data structure
+
+A good data model makes your application easier to maintain and extend.
+
+Consider a sports academy management system.
+
+You might start with these collections:
+
+```text
+Sports Academy
+│
+├── students
+│   ├── name
+│   ├── email
+│   └── phone
+│
+├── coaches
+│   ├── name
+│   └── specialization
+│
+├── courses
+│   ├── name
+│   ├── price
+│   └── capacity
+│
+├── registrations
+│   ├── student
+│   ├── course
+│   └── registration_date
+│
+└── payments
+    ├── registration
+    ├── amount
+    └── status
+```
+
+You can then connect the collections through relationships and expose the required operations through your project's API.
+
+This approach makes it easier to manage complex applications using smaller, well-defined data structures.
+
+## Collections and the Bludia API
+
+Every collection can serve as a data resource for your application.
+
+Once API access is configured, external applications can interact with collection records programmatically.
+
+```text
+Your Frontend
+     │
+     ▼
+  Bludia API
+     │
+     ▼
+  Collection
+     │
+     ├── Create
+     ├── Retrieve
+     ├── Update
+     ├── Search
+     └── Delete
+```
+
+You can consume these resources from React, Next.js, Vue, Flutter, or any application capable of making HTTP requests.
+
+Explore the [API Overview](https://chatgpt.com/api/overview) to learn how to connect your application.
+
+## Best practices
+
+Consider the following recommendations when designing collections:
+
+**1. Use descriptive names**
+
+Prefer `customers`, `payments`, and `bookings` over generic names such as `data1` or `items`.
+
+**2. Keep collections focused**
+
+Each collection should represent a specific type of entity or information in your application.
+
+**3. Choose appropriate field types**
+
+Use Number for numeric values, Boolean for true/false values, and DateTime for timestamps.
+
+**4. Avoid unnecessary duplication**
+
+Use relationships when information needs to be shared across multiple collections.
+
+**5. Plan for application growth**
+
+Think about how your data model might evolve as your application gains users and features.
+
+**6. Configure permissions**
+
+Make sure users and applications only have access to the records and operations they are authorized to use.
+
+## What's next?
+
+Now that you understand collections, explore the other components of Bludia's data management system.
+
+\<CardGroup cols=\{2\}><br />\<Card title="Fields" icon="list" href="/database/fields"><br />Learn about field types and configuring your data structure.<br />\</Card>
+
+\<Card title="Records" icon="rows" href="/database/records"><br />Learn how to create, retrieve, update, and manage records.<br />\</Card>
+
+\<Card title="Relationships" icon="workflow" href="/database/relationships"><br />Connect collections and build relational data models.<br />\</Card>
+
+\<Card title="API" icon="plug" href="/api/overview"><br />Access your collections programmatically through the Bludia API.<br />\</Card><br />\</CardGroup>

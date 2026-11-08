@@ -1,3 +1,179 @@
 ---
-title: "api"
+title: "APIs"
 ---
+
+---
+
+Bludia provides APIs that allow your frontend applications to communicate with your backend.
+
+Whether you're building a website, mobile application, desktop application, or a custom software solution, you can use Bludia APIs to access your project's data and backend functionality.
+
+You don't need to build a separate backend for every frontend. Configure your backend in Bludia, then connect any application that can send HTTP requests.
+
+## How it works
+
+Every Bludia project provides a backend that your applications can communicate with.
+
+Your frontend sends an API request to Bludia. Bludia processes the request, applies the relevant authentication and permission rules, interacts with your project's data, and returns a response.
+
+```text
+┌─────────────────────┐
+│     Your Frontend   │
+│                     │
+│  React / Vue /      │
+│  Flutter / Next.js  │
+│  Native Mobile App  │
+└──────────┬──────────┘
+           │
+           │ HTTP Requests
+           ▼
+┌─────────────────────┐
+│     Bludia API      │
+│                     │
+│ Authentication      │
+│ Permissions         │
+│ Business Logic      │
+│ Data Operations     │
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────┐
+│   Project Database  │
+│                     │
+│ Collections         │
+│ Records             │
+│ Relationships       │
+└─────────────────────┘
+```
+
+Your frontend can use any programming language or framework as long as it can make HTTP requests.
+
+## Before you start
+
+Before connecting your frontend, make sure you have:
+
+- A Bludia account.
+- An existing project.
+- At least one configured collection.
+- The API endpoint for your project.
+- The appropriate API credentials or authentication method.
+
+If you haven't created a project yet, start with the [Quickstart](https://chatgpt.com/quickstart).
+
+## 1. Get your API credentials
+
+To communicate with your project, you need its API endpoint and the appropriate credentials.
+
+1. Open your Bludia project.
+2. Navigate to the API section.
+3. Locate your API endpoint.
+4. Create or retrieve an API key if your integration requires one.
+
+Keep your API credentials secure. An API key intended for private server-side use must never be exposed in public frontend code.
+
+\<Warning><br />Never commit private API keys to frontend applications, public repositories, or client-side environment variables. Browser-based applications expose their code to users. For public frontend integrations, use the appropriate user authentication and permission model, or route private operations through your own server.<br />\</Warning>
+
+## 2. Make your first API request
+
+Once you have your endpoint and credentials, you can start communicating with your project.
+
+For example, imagine you have a collection named `tasks` containing task records.
+
+You can request data from your frontend using the standard Fetch API:
+
+```text
+const response = await fetch(
+  "YOUR_API_ENDPOINT",
+  {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "X-BLUDIA-API-KEY": "YOUR_API_KEY"
+    }
+  }
+);
+
+const data = await response.json();
+
+console.log(data);
+```
+
+Replace `YOUR_API_ENDPOINT` with the actual endpoint for the operation you want to perform.
+
+The example uses an API key for illustration. Use only credentials that are appropriate for the environment where the request runs.
+
+## 3. Working with records
+
+Bludia APIs allow your applications to work with the records stored in your collections.
+
+Common operations include:
+
+| Operation | Purpose |
+| :-- | :-- |
+| Create | Add a new record |
+| Read | Retrieve existing records |
+| Update | Modify a record |
+| Delete | Remove a record |
+
+For example, you might use these operations to build a task management interface.
+
+### Retrieve records
+
+Your frontend can request records from a collection and display them:
+
+```text
+async function getTasks() {
+  const response = await fetch(
+    "YOUR_API_ENDPOINT",
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "X-BLUDIA-API-KEY": "YOUR_API_KEY"
+      }
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Unable to retrieve tasks");
+  }
+
+  return await response.json();
+}
+```
+
+### Create a record
+
+Send the data collected from your frontend to create a new record.
+
+```text
+async function createTask(task) {
+  const response = await fetch(
+    "YOUR_API_ENDPOINT",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-BLUDIA-API-KEY": "YOUR_API_KEY"
+      },
+      body: JSON.stringify(task)
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Unable to create task");
+  }
+
+  return await response.json();
+}
+
+createTask({
+  title: "Prepare project documentation",
+  description: "Complete the API documentation",
+  completed: false
+});
+```
+
+### Update a record
+
+Your applicat

@@ -1,3 +1,546 @@
 ---
 title: "fields"
 ---
+
+---
+
+Fields define the structure of the data stored inside your Bludia collections.
+
+Every field represents a specific property of a record and determines what type of information that property can contain.
+
+For example, a `customers` collection might contain fields for names, email addresses, phone numbers, and registration dates.
+
+```text
+customers
+│
+├── name          Text
+├── email         Text
+├── phone         Text
+├── active        Boolean
+└── registered_at DateTime
+```
+
+By defining fields, you establish a consistent data structure for your application without manually designing database tables or implementing data handling logic.
+
+## Understanding fields
+
+A collection is made up of fields and records.
+
+- **Collections** define the type of data you want to manage.
+- **Fields** define the properties of that data.
+- **Records** contain the actual values stored in those properties.
+
+For example, consider a `tasks` collection:
+
+| Field | Type | Example value |
+| :-- | :-- | :-- |
+| `title` | Text | Complete documentation |
+| `description` | Long Text | Write the fields guide |
+| `completed` | Boolean | `false` |
+| `priority` | Select | High |
+| `due_date` | Date | 2026-11-15 |
+
+Each record follows the structure defined by its collection.
+
+## Creating a field
+
+\<Steps><br />\<Step title="Open your project"><br />Sign in to your Bludia dashboard and open the project containing the collection you want to modify.<br />\</Step>
+
+\<Step title="Select a collection"><br />Navigate to **Collections** and open the collection where you want to add a field.
+
+```text
+For example, select `tasks`.
+```
+
+\</Step>
+
+\<Step title="Add a new field"><br />Select the option to add a field.
+
+```text
+Provide the required field information, including its name and field type.
+```
+
+\</Step>
+
+\<Step title="Configure the field"><br />Configure the available options for your selected field type.
+
+```text
+Depending on the type, this may include predefined options, relationships, or other field-specific settings.
+```
+
+\</Step>
+
+\<Step title="Save your changes"><br />Save the field configuration.
+
+```text
+The new field becomes part of your collection's data structure and can be used when creating or updating records.
+```
+
+\</Step><br />\</Steps>
+
+\<Tip><br />Use descriptive field names such as `customer_name`, `payment_status`, and `registration_date`. Consistent naming makes your data model easier to understand and maintain.<br />\</Tip>
+
+## Supported field types
+
+Bludia provides different field types for representing common application data.
+
+### Text
+
+Stores short text values.
+
+Typical use cases:
+
+- Names
+- Email addresses
+- Phone numbers
+- Titles
+- Reference codes
+
+Example:
+
+```text
+{
+  "name": "John Smith",
+  "email": "john@example.com"
+}
+```
+
+### Long Text
+
+Stores longer text content.
+
+Typical use cases:
+
+- Descriptions
+- Notes
+- Comments
+- Addresses
+- Detailed information
+
+Example:
+
+```text
+{
+  "description": "A detailed description of the customer's requirements and project history."
+}
+```
+
+### Text Editor
+
+Stores rich text content that can include formatted text.
+
+Typical use cases:
+
+- Articles
+- Documentation
+- Product descriptions
+- Formatted notes
+- Content management
+
+Example:
+
+```text
+{
+  "content": "<p>Welcome to our platform.</p>"
+}
+```
+
+The exact supported formatting and stored representation depend on the editor implementation.
+
+### Number
+
+Stores numeric values.
+
+Typical use cases:
+
+- Prices
+- Quantities
+- Scores
+- Amounts
+- Measurements
+
+Example:
+
+```text
+{
+  "price": 149.99,
+  "quantity": 5
+}
+```
+
+Use Number for calculations and numeric comparisons rather than storing numeric values as Text.
+
+### Password
+
+Designed for password-related values.
+
+Typical use cases:
+
+- Password inputs
+- Credential-related workflows
+
+Example:
+
+```text
+{
+  "password": "example-password"
+}
+```
+
+\<Warning><br />Never assume that a Password field automatically provides secure password hashing, authentication, or credential management. Do not store plaintext passwords. Use Bludia Authentication for application user credentials and verify the security behavior of any custom password workflow.<br />\</Warning>
+
+### Date
+
+Stores calendar date values without requiring a time component.
+
+Typical use cases:
+
+- Birthdays
+- Registration dates
+- Booking dates
+- Expiration dates
+
+Example:
+
+```text
+{
+  "due_date": "2026-11-15"
+}
+```
+
+### DateTime
+
+Stores date and time values.
+
+Typical use cases:
+
+- Appointment timestamps
+- Event schedules
+- Record timestamps
+- Transaction dates
+
+Example:
+
+```text
+{
+  "scheduled_at": "2026-11-15T14:30:00Z"
+}
+```
+
+### Time
+
+Stores time-related values.
+
+Typical use cases:
+
+- Opening hours
+- Appointment times
+- Daily schedules
+- Shift start times
+
+Example:
+
+```text
+{
+  "opening_time": "09:00:00"
+}
+```
+
+### Boolean
+
+Stores a true or false value.
+
+Typical use cases:
+
+- Active or inactive
+- Completed or pending
+- Published or unpublished
+- Enabled or disabled
+
+Example:
+
+```text
+{
+  "active": true,
+  "completed": false
+}
+```
+
+### Select
+
+Allows a record to contain one value from a predefined set of options.
+
+Typical use cases:
+
+- Payment status
+- Priority
+- Order status
+- Categories
+- Application states
+
+For example, a `status` field might have these options:
+
+```text
+todo
+in_progress
+completed
+```
+
+Example record:
+
+```text
+{
+  "status": "in_progress"
+}
+```
+
+### Multi Select
+
+Allows a record to contain multiple values from a predefined set of options.
+
+Typical use cases:
+
+- Skills
+- Tags
+- Categories
+- Product features
+- Supported services
+
+For example:
+
+```text
+{
+  "skills": [
+    "Laravel",
+    "React",
+    "PostgreSQL"
+  ]
+}
+```
+
+### Relation
+
+Connects a record to data in another collection.
+
+Relations are useful when your application contains multiple connected data entities.
+
+For example, a `bookings` collection might reference a record in the `customers` collection.
+
+```text
+customers
+│
+├── id
+├── name
+└── email
+
+       │
+       │ Relation
+       ▼
+
+bookings
+│
+├── id
+├── customer
+└── booking_date
+```
+
+Learn more about [Relationships](https://chatgpt.com/database/relationships).
+
+### QR Code
+
+Provides a field for QR code-related functionality.
+
+Typical use cases:
+
+- Certificates
+- Tickets
+- Product identification
+- Attendance tracking
+- Registration verification
+
+QR codes can be useful when records need to be identified or accessed through scanning workflows.
+
+### File
+
+Allows your application to associate uploaded files with records.
+
+Typical use cases:
+
+- Profile pictures
+- Documents
+- Certificates
+- Product images
+- Attachments
+
+Example:
+
+```text
+{
+  "name": "John Smith",
+  "document": "YOUR_FILE_REFERENCE"
+}
+```
+
+The actual file representation and upload workflow depend on Bludia's file handling implementation.
+
+## Field configuration
+
+In addition to selecting a field type, fields may have configuration options that determine how they behave.
+
+Depending on the selected field type and available dashboard options, configuration may include:
+
+| Configuration | Purpose |
+| :-- | :-- |
+| Name | Internal identifier of the field |
+| Label | Human-readable field name |
+| Type | Defines the type of stored data |
+| Order | Controls the field's position |
+| Options | Defines available Select or Multi Select values |
+| Relation | Defines the related collection |
+
+Some configuration options are specific to particular field types.
+
+## Field names and labels
+
+It is useful to distinguish between a field's internal name and its display label.
+
+For example:
+
+| Property | Value |
+| :-- | :-- |
+| Name | `customer_name` |
+| Label | Customer Name |
+| Type | Text |
+
+The internal name identifies the field within your data model, while the label provides a readable name for interfaces.
+
+Prefer consistent internal naming conventions, such as lowercase names with underscores.
+
+## System fields
+
+Bludia may also maintain system-managed fields that are automatically associated with records.
+
+Common examples include:
+
+| Field | Description |
+| :-- | :-- |
+| `id` | Unique record identifier |
+| `created_at` | Record creation timestamp |
+| `updated_at` | Last modification timestamp |
+
+These fields are managed by the platform and should not be confused with ordinary user-defined fields.
+
+## Choosing the right field type
+
+Selecting the appropriate field type helps maintain a consistent data model.
+
+Consider this example for a payment collection:
+
+| Field | Recommended type |
+| :-- | :-- |
+| `reference` | Text |
+| `amount` | Number |
+| `currency` | Text |
+| `status` | Select |
+| `paid` | Boolean |
+| `payment_date` | DateTime |
+| `receipt` | File |
+
+A well-designed collection uses field types according to the actual meaning of the stored information.
+
+## Fields and API operations
+
+Fields determine the data structure your application interacts with through the Bludia API.
+
+When creating or updating records, your application sends values corresponding to the fields defined in the collection.
+
+For example:
+
+```text
+{
+  "title": "Build a customer dashboard",
+  "priority": "high",
+  "completed": false,
+  "due_date": "2026-11-15"
+}
+```
+
+The Bludia API processes these values according to your collection configuration and project permissions.
+
+You can then retrieve the records and use their field values in your frontend.
+
+Learn more about the [Records API](https://chatgpt.com/api/records).
+
+## Managing fields over time
+
+Application requirements change as products evolve.
+
+You might need to introduce new fields, update existing configurations, or remove fields that are no longer needed.
+
+For example, a basic customer collection might initially contain:
+
+```text
+customers
+│
+├── name
+└── email
+```
+
+As the application grows, you might extend it:
+
+```text
+customers
+│
+├── name
+├── email
+├── phone
+├── company
+├── customer_status
+└── registration_date
+```
+
+Consider the impact of schema changes on existing records, API consumers, relationships, and application logic before modifying fields.
+
+\<Warning><br />Removing or changing a field can affect existing data and applications that depend on it. Review your integrations and dependent configurations before making structural changes.<br />\</Warning>
+
+## Best practices
+
+**1. Choose meaningful field names**
+
+Use names that clearly communicate the information being stored.
+
+**2. Use the correct field type**
+
+Avoid storing numbers, dates, and Boolean values as generic text when a dedicated field type is available.
+
+**3. Keep your data model organized**
+
+Avoid adding unnecessary fields that duplicate information or make your collection difficult to maintain.
+
+**4. Use Select for predefined values**
+
+When a field should contain a controlled set of options, use Select or Multi Select instead of unrestricted text.
+
+**5. Use Relations for connected data**
+
+Avoid duplicating entire records when a relationship can represent the connection.
+
+**6. Think about future requirements**
+
+Consider how new features might affect your existing data structure before making major changes.
+
+## What's next?
+
+Now that you understand how fields work, explore the other parts of Bludia's data infrastructure.
+
+\<CardGroup cols=\{2\}><br />\<Card title="Collections" icon="database" href="/database/collections"><br />Learn how to create and organize collections.<br />\</Card>
+
+\<Card title="Records" icon="rows" href="/database/records"><br />Manage the actual data stored in your collections.<br />\</Card>
+
+\<Card title="Relationships" icon="workflow" href="/database/relationships"><br />Connect records across multiple collections.<br />\</Card>
+
+\<Card title="Computed Fields" icon="calculator" href="/database/computed-fields"><br />Learn how to work with calculated data in your application.<br />\</Card>
+
+\<Card title="API Overview" icon="plug" href="/api/overview"><br />Access and manage your data programmatically.<br />\</Card>
+
+\<Card title="Authentication" icon="users" href="/authentication/overview"><br />Configure application users and authenticated sessions.<br />\</Card><br />\</CardGroup>

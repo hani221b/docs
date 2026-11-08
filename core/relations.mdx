@@ -1,3 +1,362 @@
 ---
 title: "relations"
 ---
+
+---
+
+Relationships allow you to connect records across different collections in Bludia.
+
+Real applications rarely store all their information in a single collection. A booking system, for example, might contain customers, services, bookings, and payments.
+
+Instead of duplicating information between these collections, you can establish relationships that connect related records.
+
+This makes your data model more organized, maintainable, and easier to extend.
+
+## Understanding relationships
+
+A relationship connects records from one collection to records in another collection.
+
+For example, consider a booking application with two collections:
+
+**Customers**
+
+```text
+customers
+│
+├── id
+├── name
+└── email
+```
+
+**Bookings**
+
+```text
+bookings
+│
+├── id
+├── customer
+├── service
+└── booking_date
+```
+
+Each booking can reference a customer record.
+
+```text
+customers
+│
+├── John Smith
+│
+└── Sarah Johnson
+
+       │
+       │
+       ▼
+
+bookings
+│
+├── Booking 1 → John Smith
+├── Booking 2 → John Smith
+└── Booking 3 → Sarah Johnson
+```
+
+This allows multiple bookings to belong to the same customer without storing the customer's information repeatedly.
+
+## Relationship types
+
+The appropriate relationship type depends on how records in your collections are connected.
+
+### One-to-One (1:1)
+
+A one-to-one relationship connects one record in a collection to one record in another collection.
+
+For example, an employee might have one employee profile.
+
+```text
+employees
+│
+├── Employee 1
+│       │
+│       ▼
+│    Profile 1
+│
+└── Employee 2
+        │
+        ▼
+     Profile 2
+```
+
+Typical use cases:
+
+- Employees and employee profiles.
+- Users and personal settings.
+- Companies and company configurations.
+
+### One-to-Many (1)
+
+A one-to-many relationship allows one record to be associated with multiple records in another collection.
+
+For example, one customer can have multiple bookings.
+
+```text
+customers
+│
+└── John Smith
+       │
+       ├──────── Booking 1
+       ├──────── Booking 2
+       └──────── Booking 3
+                    │
+                    ▼
+                 bookings
+```
+
+Typical use cases:
+
+- Customers and bookings.
+- Categories and products.
+- Courses and registrations.
+- Users and tasks.
+
+### Many-to-Many (M)
+
+A many-to-many relationship allows multiple records in one collection to be associated with multiple records in another collection.
+
+For example, students can enroll in multiple courses, and each course can contain multiple students.
+
+```text
+students                 courses
+│                        │
+├── John                 ├── Mathematics
+├── Sarah                ├── Physics
+└── David                └── Programming
+
+       Many-to-Many Relationship
+```
+
+Typical use cases:
+
+- Students and courses.
+- Users and roles.
+- Products and categories.
+- Employees and projects.
+
+The exact configuration and storage behavior depend on the relationship options supported by Bludia.
+
+## Creating a relationship
+
+\<Steps><br />\<Step title="Open your project"><br />Sign in to your Bludia dashboard and open the project containing the collections you want to connect.<br />\</Step>
+
+\<Step title="Create or select your collections"><br />Make sure the collections involved in the relationship already exist.
+
+````text
+For this example, we'll use:
+
+```text
+customers
+bookings
+```
+````
+
+\</Step>
+
+\<Step title="Add a Relation field"><br />Open the `bookings` collection and add a new field.
+
+```text
+Select the **Relation** field type.
+```
+
+\</Step>
+
+\<Step title="Configure the relationship"><br />Select the collection you want to reference.
+
+```text
+For this example, configure the relationship to reference the `customers` collection.
+
+Your booking collection will now contain a relationship field connecting bookings to customers.
+```
+
+\</Step>
+
+\<Step title="Save your configuration"><br />Save the field configuration.
+
+```text
+You can now associate booking records with the appropriate customer records according to the configured relationship.
+```
+
+\</Step><br />\</Steps>
+
+## Example: Building a booking system
+
+Let's create a simple booking system using three collections.
+
+### Customers
+
+Stores customer information.
+
+| Field | Type |
+| :-- | :-- |
+| `name` | Text |
+| `email` | Text |
+| `phone` | Text |
+
+### Services
+
+Stores available services.
+
+| Field | Type |
+| :-- | :-- |
+| `name` | Text |
+| `price` | Number |
+| `duration` | Number |
+
+### Bookings
+
+Stores customer bookings and connects them to customers and services.
+
+| Field | Type |
+| :-- | :-- |
+| `customer` | Relation → customers |
+| `service` | Relation → services |
+| `booking_date` | DateTime |
+| `status` | Select |
+
+The resulting data model looks like this:
+
+```text
+                 customers
+                     │
+                     │
+                     ▼
+                  bookings
+                     ▲
+                     │
+                     │
+                  services
+```
+
+A booking record can now reference both a customer and a service.
+
+For example:
+
+```text
+{
+  "customer": "CUSTOMER_RECORD_ID",
+  "service": "SERVICE_RECORD_ID",
+  "booking_date": "2026-11-15T14:30:00Z",
+  "status": "confirmed"
+}
+```
+
+The exact representation of relation values depends on the configured relationship and Bludia API behavior.
+
+## Accessing related records
+
+Relationships become particularly useful when your application needs information from multiple collections.
+
+For example, when displaying a booking, you might want to show:
+
+- The customer's name.
+- The customer's email.
+- The selected service.
+- The service price.
+- The booking date.
+
+Instead of storing all this information directly inside the booking record, your application can use the configured relationships to access the related records.
+
+```text
+Booking
+   │
+   ├── Customer
+   │     ├── Name
+   │     ├── Email
+   │     └── Phone
+   │
+   └── Service
+         ├── Name
+         ├── Price
+         └── Duration
+```
+
+Refer to the [API Reference](https://chatgpt.com/api-reference/overview) for the supported ways to retrieve related data.
+
+## Relationships and the API
+
+Your application can interact with relationship fields through the Bludia API.
+
+For example, creating a booking might involve sending references to existing customer and service records.
+
+```text
+curl -X POST "YOUR_API_ENDPOINT" \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -H "X-BLUDIA-API-KEY: YOUR_API_KEY" \
+  -d '{
+    "customer": "CUSTOMER_RECORD_ID",
+    "service": "SERVICE_RECORD_ID",
+    "booking_date": "2026-11-15T14:30:00Z",
+    "status": "confirmed"
+  }'
+```
+
+The referenced records must exist and be accessible according to your project's configuration and permissions.
+
+Learn more about [Records API](https://chatgpt.com/api/records).
+
+## Relationships and data integrity
+
+When designing relational data models, consider how connected records should behave when changes occur.
+
+For example:
+
+- What happens when a customer is deleted?
+- Should existing bookings remain?
+- Should a relationship be cleared when its referenced record is removed?
+- Should a record be prevented from deletion while other records reference it?
+
+These decisions are important for maintaining consistent application data.
+
+\<Warning><br />Do not assume that deleting a record automatically deletes, preserves, or updates related records. Verify the deletion and relationship behavior supported by your Bludia configuration before relying on it in production.<br />\</Warning>
+
+## Designing effective relationships
+
+Consider these recommendations when building relational data models.
+
+**1. Avoid unnecessary duplication**
+
+Use relationships to connect existing records instead of repeatedly copying the same information.
+
+**2. Model real application entities**
+
+Create separate collections for distinct entities such as customers, products, bookings, and payments.
+
+**3. Choose the appropriate relationship type**
+
+Think about whether records should have one-to-one, one-to-many, or many-to-many associations.
+
+**4. Consider deletion behavior**
+
+Understand how removing a record affects other records that reference it.
+
+**5. Keep your data model understandable**
+
+Use descriptive collection and field names so relationships are easy to identify.
+
+**6. Configure permissions carefully**
+
+Make sure users can only access related records they are authorized to view.
+
+## What's next?
+
+Now that you understand relationships, explore the other components of Bludia's data infrastructure.
+
+\<CardGroup cols=\{2\}><br />\<Card title="Collections" icon="database" href="/database/collections"><br />Create and organize your application's data collections.<br />\</Card>
+
+\<Card title="Fields" icon="list" href="/database/fields"><br />Define field types and configure your data structures.<br />\</Card>
+
+\<Card title="Records" icon="rows" href="/database/records"><br />Create, retrieve, update, and manage application records.<br />\</Card>
+
+\<Card title="Computed Fields" icon="calculator" href="/database/computed-fields"><br />Work with calculated values derived from your application data.<br />\</Card>
+
+\<Card title="API Overview" icon="plug" href="/api/overview"><br />Access your collections and records programmatically.<br />\</Card>
+
+\<Card title="Security" icon="shield-check" href="/security/overview"><br />Control access to your data and related resources.<br />\</Card><br />\</CardGroup>

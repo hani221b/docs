@@ -1,3 +1,226 @@
 ---
 title: "projects"
 ---
+
+---
+
+A **Project** is the foundation of everything you build with Bludia.
+
+Each project represents an independent backend for an application or system. It brings together the resources, configurations, and infrastructure required to operate that backend.
+
+Instead of managing databases, API endpoints, authentication systems, and backend infrastructure separately, you manage them through a single Bludia project.
+
+## What is a project?
+
+A Bludia project acts as an isolated workspace for your application's backend resources.
+
+A project can contain:
+
+- **Collections** — Define and organize your application data.
+- **Fields** — Specify the structure and data types of your records.
+- **Relationships** — Connect related collections.
+- **API** — Access and manage your application data programmatically.
+- **Authentication** — Manage application users and authenticated sessions.
+- **Roles & Permissions** — Control access to resources and operations.
+- **Hooks** — Execute custom backend logic in response to events.
+- **Reports** — Build insights and retrieve meaningful information from your data.
+
+The project provides a unified place to configure and manage these capabilities.
+
+## Project structure
+
+A typical Bludia project looks like this:
+
+```text
+Task Manager
+│
+├── Collections
+│   ├── tasks
+│   ├── users
+│   └── categories
+│
+├── Relationships
+│   ├── tasks → users
+│   └── tasks → categories
+│
+├── API
+│   └── API Keys
+│
+├── Authentication
+│
+├── Roles & Permissions
+│
+├── Hooks
+│
+├── Reports
+│
+└── Settings
+```
+
+The exact resources available depend on your project's configuration and enabled features.
+
+## Creating a project
+
+\<Steps><br />\<Step title="Open your dashboard"><br />Sign in to your Bludia account and navigate to the dashboard.
+
+```text
+Your dashboard provides access to the projects you own or have permission to manage.
+```
+
+\</Step>
+
+\<Step title="Create a new project"><br />Select **Create Project** to start creating a backend.
+
+```text
+Provide the required project information, including its name and other available configuration options.
+```
+
+\</Step>
+
+\<Step title="Configure your project"><br />Review the available project settings and configure your backend according to your application's requirements.
+
+```text
+You can start with a simple data model and introduce additional capabilities as your application grows.
+```
+
+\</Step>
+
+\<Step title="Start building"><br />Once your project is created, open it to access its management interface.
+
+```text
+You can now create collections, define fields, configure relationships, generate API access, and manage your backend resources.
+```
+
+\</Step><br />\</Steps>
+
+\<Tip><br />You don't need to design your entire backend before creating a project. Start with the resources your application needs today and expand your configuration over time.<br />\</Tip>
+
+## Managing multiple projects
+
+You can use your Bludia account to manage multiple independent projects.
+
+For example, you might have:
+
+| Project | Purpose |
+| :-- | :-- |
+| Task Manager | Task management application |
+| Customer Portal | Customer-facing application |
+| Booking System | Appointment and reservation management |
+| Internal CRM | Internal business operations |
+
+Each project maintains its own backend configuration and resources.
+
+This makes it possible to manage multiple applications without mixing their data models and configurations.
+
+## Projects and collections
+
+Projects contain collections, which define how application data is structured and managed.
+
+For example, a booking application might have the following collections:
+
+```text
+Booking System
+│
+├── customers
+├── services
+├── staff
+├── bookings
+└── payments
+```
+
+Each collection can contain its own fields, records, relationships, and configuration.
+
+Learn more about [Collections](https://chatgpt.com/database/collections).
+
+## Project API access
+
+Every project can expose its backend capabilities through the Bludia API.
+
+This allows external applications and services to communicate with your backend.
+
+For example:
+
+```text
+React / Next.js / Flutter
+          │
+          ▼
+      Bludia API
+          │
+          ▼
+     Your Project
+          │
+          ▼
+      Collections
+          │
+          ▼
+       Database
+```
+
+You can generate API keys from your project's API settings and use them to authenticate API requests.
+
+Learn more about [API Overview](https://chatgpt.com/api/overview) and [API Keys](https://chatgpt.com/api/api-keys).
+
+## Project settings
+
+Project settings provide access to the configuration and management options associated with your backend.
+
+Depending on the available features, these may include:
+
+- Project information and configuration.
+- API access and API keys.
+- Authentication settings.
+- Security and permissions.
+- Other project-level capabilities.
+
+Review your project settings when configuring or maintaining your backend.
+
+## Choosing your project structure
+
+A useful general rule is to create a separate project for each independent application or backend.
+
+For example:
+
+**Good separation**
+
+```text
+Company
+│
+├── Customer Portal
+│
+├── Internal CRM
+│
+└── Booking Application
+```
+
+**Shared application backend**
+
+```text
+Sports Academy
+│
+├── students
+├── coaches
+├── courses
+├── registrations
+├── payments
+└── attendance
+```
+
+If multiple parts of an application share the same users, data, permissions, and backend logic, they will often belong in the same project.
+
+If they represent independent applications with separate data and configurations, separate projects may be more appropriate.
+
+## What's next?
+
+Now that you understand how Bludia projects work, explore the resources available inside your project.
+
+\<CardGroup cols=\{2\}><br />\<Card title="Collections" icon="database" href="/database/collections"><br />Define your data structures and manage application records.<br />\</Card>
+
+\<Card title="Relationships" icon="workflow" href="/database/relationships"><br />Connect collections and model relationships between your data.<br />\</Card>
+
+\<Card title="API" icon="plug" href="/api/overview"><br />Connect external applications to your backend.<br />\</Card>
+
+\<Card title="Authentication" icon="users" href="/authentication/overview"><br />Configure user authentication and application sessions.<br />\</Card>
+
+\<Card title="Security" icon="shield-check" href="/security/overview"><br />Manage roles, permissions, and access control.<br />\</Card>
+
+\<Card title="Hooks" icon="workflow" href="/hooks/overview"><br />Extend your backend with custom logic and automation.<br />\</Card><br />\</CardGroup>

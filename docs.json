@@ -28,7 +28,8 @@
             "group": "Getting Started",
             "pages": [
               "introduction",
-              "concepts"
+              "concepts",
+              "quick-start"
             ]
           },
 
@@ -36,7 +37,6 @@
             "group": "Core Concepts",
             "pages": [
               "core/projects",
-              "core/environments",
               "core/collections",
               "core/records",
               "core/fields",

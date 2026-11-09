@@ -1,3 +1,183 @@
 ---
 title: "Errors"
 ---
+
+When interacting with the Bludia REST API, requests may fail for different reasons, including invalid parameters, missing authentication credentials, insufficient permissions, or server-side issues.
+
+Bludia uses HTTP status codes to indicate the outcome of API requests and help developers identify and resolve problems.
+
+This page explains common API errors and provides guidance for troubleshooting them.
+
+## HTTP Status Codes
+
+Bludia uses standard HTTP status codes to communicate the result of API requests.
+
+The most common status code categories are:
+
+| Status Code | Description |
+| --- | --- |
+| `2xx` | The request was successful. |
+| `4xx` | The request could not be processed because of an issue with the request or its authorization. |
+| `5xx` | An unexpected server-side error occurred. |
+
+### Common Error Codes
+
+The following HTTP status codes are particularly useful when troubleshooting API requests.
+
+| Status Code | Name | Description |
+| --- | --- | --- |
+| `400` | Bad Request | The request contains invalid or malformed data. |
+| `401` | Unauthorized | Authentication credentials are missing or invalid. |
+| `403` | Forbidden | The authenticated requester does not have permission to perform the operation. |
+| `404` | Not Found | The requested resource does not exist or cannot be found. |
+| `405` | Method Not Allowed | The HTTP method is not supported for the requested endpoint. |
+| `409` | Conflict | The request conflicts with the current state of a resource. |
+| `422` | Unprocessable Entity | The request data failed validation. |
+| `429` | Too Many Requests | The request exceeded the applicable rate limit. |
+| `500` | Internal Server Error | An unexpected server-side error occurred. |
+| `502` | Bad Gateway | An upstream service returned an invalid response. |
+| `503` | Service Unavailable | The service is temporarily unavailable. |
+
+## Understanding Error Responses
+
+When an API request fails, inspect the response body to understand the reason for the failure.
+
+Error responses should provide useful information about what went wrong whenever possible.
+
+For example, a validation error might indicate that a required field is missing or that a submitted value does not match the expected field type.
+
+When troubleshooting, inspect:
+
+- The HTTP status code.
+- The response body.
+- The requested endpoint.
+- The HTTP method.
+- The request parameters and submitted data.
+- The authentication credentials.
+
+Refer to the [Error Codes](/reference/error-codes) reference for documented Bludia-specific error codes.
+
+## Common API Errors
+
+### Authentication Errors
+
+**Status codes:** `401`, `403`
+
+Authentication errors occur when a request does not have valid credentials or the authenticated requester is not authorized to access a resource.
+
+Things to check:
+
+- Ensure the required API credentials are included.
+- Verify that your API key is valid.
+- Check whether your authentication token has expired.
+- Confirm that the user has the required permissions.
+
+See [API Authentication](/api/authentication) for more information.
+
+### Validation Errors
+
+**Status codes:** `400`, `422`
+
+Validation errors occur when submitted data does not satisfy the requirements of the destination collection.
+
+Common causes include:
+
+- Missing required fields.
+- Invalid field values.
+- Incorrect data types.
+- Invalid relationship references.
+- Values that do not match configured field options.
+
+Review the collection configuration and ensure that your request data matches the expected structure.
+
+### Resource Not Found
+
+**Status code:** `404`
+
+A resource may not be found when:
+
+- The requested project does not exist.
+- The collection identifier is incorrect.
+- The requested record does not exist.
+- The endpoint URL is incorrect.
+
+Verify the requested resource identifiers and endpoint path.
+
+### Rate Limit Errors
+
+**Status code:** `429`
+
+Rate limit errors occur when an application sends more requests than the applicable limits allow.
+
+When this happens:
+
+- Reduce the frequency of API requests.
+- Avoid unnecessary repeated requests.
+- Implement retry handling where appropriate.
+- Use pagination when retrieving large datasets.
+
+See [Rate Limits](/api/rate-limits) for more information.
+
+### Server Errors
+
+**Status codes:** `500`, `502`, `503`
+
+Server errors indicate that a request could not be completed because of an unexpected infrastructure or service-side problem.
+
+If you encounter these errors:
+
+- Retry the request after a short delay.
+- Check whether the issue is temporary.
+- Avoid sending repeated requests in rapid succession.
+- Contact Bludia support if the problem persists.
+
+## Handling Errors in Your Application
+
+Your frontend or backend should handle unsuccessful API responses gracefully.
+
+Recommended practices include:
+
+- Check the HTTP status code before processing a response.
+- Display useful error messages to users.
+- Log technical details for debugging.
+- Handle authentication failures separately from validation errors.
+- Implement appropriate retry logic for temporary server errors.
+- Avoid exposing sensitive information in error messages.
+
+## Best Practices
+
+**Validate data before submitting requests.**
+
+Ensure that values match the configured collection fields and their requirements.
+
+**Handle errors consistently.**
+
+Use a centralized error-handling mechanism in your application instead of implementing separate error handling for every API request.
+
+**Log unexpected failures.**
+
+Keep useful diagnostic information to make debugging easier.
+
+**Avoid exposing sensitive information.**
+
+Never expose API keys, access tokens, internal server details, or other sensitive information in client-facing error messages.
+
+## Related Documentation
+
+<CardGroup cols={2}>
+  <Card title="API Authentication" icon="shield-check" href="/api/authentication">
+    Understand API authentication and credentials.
+  </Card>
+
+  <Card title="Rate Limits" icon="gauge" href="/api/rate-limits">
+    Learn about API request limits.
+  </Card>
+
+  <Card title="Error Codes" icon="list" href="/reference/error-codes">
+    Explore documented error codes.
+  </Card>
+
+  <Card title="API Reference" icon="code" href="/api-reference/overview">
+    Explore available API endpoints.
+  </Card>
+</CardGroup>

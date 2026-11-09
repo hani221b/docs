@@ -1,3 +1,125 @@
 ---
 title: "Rate Limits"
 ---
+
+Bludia uses rate limiting to control API request frequency and protect backend infrastructure from excessive traffic.
+
+Rate limits help maintain service stability, prevent abuse, and ensure that resources remain available to applications using the platform.
+
+When building an application with Bludia, understanding rate limits helps you design efficient integrations and avoid unnecessary API failures.
+
+## How Rate Limiting Works
+
+Rate limiting controls how frequently an application can send requests to the Bludia API within a defined period.
+
+For example, a rate limit might restrict an application to a certain number of requests per minute.
+
+When an application exceeds its applicable limit, additional requests may be temporarily rejected until the request window allows more traffic.
+
+Rate limits may depend on factors such as:
+
+- API credentials.
+- Project configuration.
+- Request volume.
+- Applicable platform policies.
+
+## What Happens When a Limit Is Exceeded?
+
+When an API request exceeds an applicable rate limit, Bludia may return an HTTP `429 Too Many Requests` response.
+
+This indicates that the application should reduce its request frequency before attempting additional requests.
+
+A rate limit response should be handled gracefully by your application rather than treated as an unexpected application failure.
+
+## Handling Rate Limit Errors
+
+When your application receives a `429` response, consider the following:
+
+1. Stop sending additional requests temporarily.
+2. Wait before attempting another request.
+3. Retry the request using an appropriate backoff strategy.
+4. Avoid repeatedly retrying requests without delays.
+5. Monitor request frequency to identify unnecessary API calls.
+
+### Retry Strategies
+
+For applications that make frequent API requests, exponential backoff is a recommended approach.
+
+Instead of retrying immediately, increase the waiting period after each unsuccessful attempt.
+
+For example:
+
+| Attempt | Waiting Time |
+| --- | --- |
+| First retry | 1 second |
+| Second retry | 2 seconds |
+| Third retry | 4 seconds |
+| Fourth retry | 8 seconds |
+
+You can also introduce a small random delay (jitter) to prevent multiple application instances from retrying simultaneously.
+
+## Best Practices
+
+### Avoid Unnecessary Requests
+
+Do not repeatedly request the same information when it has not changed.
+
+Consider caching frequently accessed data where appropriate.
+
+### Use Pagination
+
+When retrieving large collections, use pagination instead of attempting to retrieve all records in a single request.
+
+See [Sorting & Pagination](/database/sorting) for more information.
+
+### Optimize Frontend Requests
+
+Avoid triggering unnecessary API calls during component rendering or repeated user interactions.
+
+Consider debouncing search inputs and grouping related operations where supported.
+
+### Implement Retry Logic
+
+Handle temporary rate limit failures using controlled retry strategies.
+
+Avoid infinite retry loops, as they can increase request volume and make the problem worse.
+
+### Monitor API Usage
+
+Monitor request frequency and investigate unexpected increases in API traffic.
+
+This helps identify inefficient integrations and potential abuse.
+
+## Building Applications at Scale
+
+Applications with many users or automated processes may generate significant API traffic.
+
+To handle larger workloads:
+
+- Avoid unnecessary polling.
+- Use caching for frequently accessed information.
+- Process background operations efficiently.
+- Distribute requests when appropriate.
+- Monitor traffic patterns as your application grows.
+
+Designing efficient API interactions from the beginning helps applications scale more reliably.
+
+## Related Documentation
+
+<CardGroup cols={2}>
+  <Card title="API Authentication" icon="shield-check" href="/api/authentication">
+    Learn how applications authenticate API requests.
+  </Card>
+
+  <Card title="API Errors" icon="alert-circle" href="/api/errors">
+    Understand API errors and troubleshooting.
+  </Card>
+
+  <Card title="Pagination" icon="layers" href="/database/sorting">
+    Retrieve large datasets efficiently.
+  </Card>
+
+  <Card title={"Hosting & Operations"} icon="server" href="/hosting/overview">
+    Learn about operating your Bludia projects.
+  </Card>
+</CardGroup>

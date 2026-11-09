@@ -1,3 +1,77 @@
 ---
 title: "Import & Export"
 ---
+
+Import and Export allow you to move data between Bludia and external applications.
+
+Whether you're migrating from an existing system, uploading customer records, creating an initial dataset, or exporting information for reporting, these capabilities help you work with your application data more efficiently.
+
+## Importing Data
+
+Import allows you to bring existing data into a Bludia collection without manually creating each record.
+
+This is particularly useful when migrating from another backend, transferring data from spreadsheets, or initializing a new application.
+
+### Common use cases
+
+- Import existing customer records into a CRM.
+- Transfer products and inventory from another system.
+- Populate a collection with existing business data.
+- Migrate records when moving an application to Bludia.
+- Initialize a new project with an existing dataset.
+
+### Preparing your data
+
+Before importing data, make sure it matches the structure of the destination collection.
+
+Consider the following:
+
+- **Field names:** Ensure your data fields correspond to the fields defined in your collection.
+- **Data types:** Values should match the expected field types.
+- **Required fields:** Make sure required fields contain valid values.
+- **Relationships:** Verify that referenced records and relationships can be resolved.
+- **Data consistency:** Remove duplicate or invalid entries before importing.
+
+For example, a `customers` collection might contain:
+
+| name | email | phone | status |
+| --- | --- | --- | --- |
+| John Smith | [john@example.com](mailto:john@example.com) | +123456789 | active |
+| Sarah Lee | [sarah@example.com](mailto:sarah@example.com) | +987654321 | active |
+
+Your imported data should follow the collection's configured structure.
+
+## Exporting Data
+
+Export allows you to retrieve collection data for use outside Bludia.
+
+This is useful when you need to analyze records, create external reports, transfer information, or maintain independent copies of your application data.
+
+### Common use cases
+
+- Export customer records for external reporting.
+- Download order information for business analysis.
+- Transfer records to another application.
+- Maintain additional copies of important business data.
+- Process application data using external tools.
+
+## Import vs Export
+
+| Operation | Purpose |
+| --- | --- |
+| Import | Bring external data into a Bludia collection |
+| Export | Retrieve collection data for external use |
+
+Both operations help make your application data easier to manage and integrate with other systems.
+
+## Working with Large Datasets
+
+When working with large collections, consider how much data you need to process at once.
+
+Recommended practices:
+
+- Import data in manageable batches when appropriate.
+- Validate data before starting large imports.
+- Review imported records for consistency.
+- Use filtering to narrow down exported records when supported.
+- Avoid unnecessarily exporting entire

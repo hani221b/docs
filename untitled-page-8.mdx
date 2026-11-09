@@ -1,3 +1,109 @@
 ---
 title: "Filters"
 ---
+
+Filters allow you to retrieve specific records from a collection based on conditions applied to its fields.
+
+Instead of retrieving every record and filtering the results in your application, you can apply filtering conditions through Bludia and retrieve only the records you need.
+
+Filtering is useful for building dashboards, management systems, reporting tools, and applications where users need to find specific information.
+
+## How filtering works
+
+A filter evaluates records against one or more conditions.
+
+For example, imagine you have a `tasks` collection containing the following fields:
+
+| Field | Type |
+| --- | --- |
+| title | Text |
+| status | Select |
+| priority | Number |
+| completed | Boolean |
+
+You might want to retrieve:
+
+- Tasks with a specific status.
+- Tasks with a priority greater than a particular value.
+- Tasks that have not been completed.
+- Records matching multiple conditions.
+
+Filters help narrow down collection results to the records relevant to your application.
+
+## Filtering by field
+
+You can use collection fields as the basis for filtering records.
+
+Common filtering scenarios include:
+
+| Field type | Example use case |
+| --- | --- |
+| Text | Find records matching a text value |
+| Number | Retrieve records above or below a value |
+| Select | Retrieve records with a specific option |
+| Boolean | Find enabled or disabled records |
+| Date | Retrieve records based on dates |
+| Relation | Filter records based on related data |
+
+Available filtering operations depend on the field type and supported filtering capabilities.
+
+## Combining filters
+
+Filtering becomes especially useful when you need to narrow down results using multiple conditions.
+
+For example, consider a task management application where you want to retrieve tasks that:
+
+- Have the status `pending`.
+- Have a priority greater than `2`.
+- Are not completed.
+
+Applying multiple conditions allows your application to retrieve a more specific set of records.
+
+## Filters and Search
+
+Filtering and searching serve different purposes.
+
+**Search** helps locate records based on matching text.
+
+**Filters** allow you to narrow down records using specific conditions and field values.
+
+For example:
+
+- Search for a customer by name.
+- Filter customers by their subscription status.
+- Combine search and filtering to find a specific customer within a particular group.
+
+Use search when you need to find information. Use filters when you need to define which records should be included in the results.
+
+## Filters with Pagination and Sorting
+
+Filtering can be used alongside other collection query capabilities to build more useful data views.
+
+For example, an administrative dashboard might:
+
+1. Filter orders by their payment status.
+2. Sort the matching orders by creation date.
+3. Retrieve the results using pagination.
+
+This approach helps applications work with specific subsets of data without requiring the frontend to retrieve an entire collection.
+
+See also:
+
+- [Sorting](/database/sorting)
+- [Pagination](/database/pagination)
+- [Search](/database/search)
+- [Records](/database/records)
+
+## Next Steps
+
+Explore the API documentation to learn how to retrieve collection records and work with filtering capabilities in your application.
+
+<CardGroup cols={2}>
+  <Card title="API Reference" icon="code" href="/api-reference/overview">
+    Explore Bludia's REST API.
+  </Card>
+
+  <Card title="Collections" icon="database" href="/database/collections">
+    Learn how to organize your application data.
+  </Card>
+</CardGroup>

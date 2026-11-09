@@ -1,3 +1,130 @@
 ---
 title: "Sorting & Pagination"
 ---
+
+When working with collection records, you often need to control the order in which records are returned and how many records are retrieved at a time.
+
+Bludia provides sorting and pagination capabilities to help your applications retrieve organized datasets without unnecessarily loading entire collections.
+
+## Sorting
+
+Sorting allows you to control the order in which records are returned.
+
+You can sort records using collection fields, depending on the supported field types.
+
+For example, consider an `orders` collection containing:
+
+| Field | Type |
+| --- | --- |
+| customer_name | Text |
+| total | Number |
+| status | Select |
+| created_at | Date |
+
+You might want to:
+
+- Display the newest orders first.
+- Sort products by price.
+- Display customers alphabetically.
+- Organize records by their creation date.
+
+### Sort direction
+
+Sorting generally supports two directions:
+
+| Direction | Description |
+| --- | --- |
+| Ascending | Orders values from lowest to highest, or alphabetically from A to Z |
+| Descending | Orders values from highest to lowest, or alphabetically from Z to A |
+
+For example:
+
+**Newest orders first**
+
+Sort records by `created_at` in descending order.
+
+**Lowest prices first**
+
+Sort records by `price` in ascending order.
+
+## Pagination
+
+Pagination divides a collection's results into smaller sets instead of returning every matching record in a single request.
+
+This is particularly useful when working with large collections.
+
+For example, imagine an application has 10,000 customer records.
+
+Instead of retrieving all 10,000 records at once, your application can retrieve a smaller number of records per page.
+
+A paginated interface might look like this:
+
+| Page | Records |
+| --- | --- |
+| Page 1 | Records 1–20 |
+| Page 2 | Records 21–40 |
+| Page 3 | Records 41–60 |
+| Page 4 | Records 61–80 |
+
+This makes it easier to build tables, dashboards, administrative panels, and other interfaces that work with large datasets.
+
+### Page size
+
+The page size determines how many records are returned in each page.
+
+For example:
+
+- 10 records per page.
+- 20 records per page.
+- 50 records per page.
+- 100 records per page.
+
+Choose a page size appropriate for your application and the amount of data being displayed.
+
+## Combining Sorting, Filtering, and Pagination
+
+These capabilities become particularly useful when used together.
+
+Consider an order management dashboard where users need to:
+
+1. Filter orders with the status `pending`.
+2. Sort the matching orders by creation date, newest first.
+3. Retrieve 20 records per page.
+
+The result is an organized, paginated list containing only the records relevant to the user.
+
+This approach is useful for:
+
+- Customer management systems.
+- Order and inventory dashboards.
+- Booking applications.
+- Administrative panels.
+- Reporting interfaces.
+
+## Best Practices
+
+- **Use appropriate page sizes:** Avoid retrieving unnecessarily large datasets.
+- **Sort consistently:** Use a consistent sorting order when navigating between pages.
+- **Combine with filters:** Narrow down records before presenting them to users.
+- **Avoid loading everything:** Retrieve only the records needed for the current view.
+- **Consider performance:** Efficient sorting and pagination become increasingly important as collections grow.
+
+## Related Documentation
+
+<CardGroup cols={2}>
+  <Card title="Filters" icon="filter" href="/database/filters">
+    Retrieve records that match specific conditions.
+  </Card>
+
+  <Card title="Search" icon="search" href="/database/search">
+    Find records using search capabilities.
+  </Card>
+
+  <Card title="Records" icon="database" href="/database/records">
+    Learn how to manage collection records.
+  </Card>
+
+  <Card title="API Reference" icon="code" href="/api-reference/overview">
+    Explore the REST API and collection endpoints.
+  </Card>
+</CardGroup>

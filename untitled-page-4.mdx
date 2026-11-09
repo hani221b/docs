@@ -1,3 +1,124 @@
 ---
 title: "Authentication"
 ---
+
+Bludia uses API authentication to control access to your project resources and ensure that incoming requests are authorized.
+
+When connecting a frontend, mobile application, or external service to Bludia, requests must include the appropriate authentication credentials.
+
+This allows Bludia to identify and authorize requests before providing access to protected resources.
+
+## Authentication Methods
+
+Bludia supports different authentication mechanisms depending on the type of request and the application accessing your backend.
+
+### API Keys
+
+API keys allow applications and external services to authenticate requests to Bludia.
+
+An API key is associated with a project and is used to identify requests made to its API.
+
+API keys are particularly useful for:
+
+- Server-to-server communication.
+- Backend integrations.
+- Automated processes.
+- External services accessing project resources.
+
+API keys should be treated as sensitive credentials.
+
+**Security recommendation:** Never expose secret API keys in frontend JavaScript, mobile application code, or publicly accessible repositories.
+
+### User Authentication
+
+When an application needs to access resources on behalf of an individual user, user authentication can be used.
+
+After a user successfully authenticates, the application can use the issued authentication credentials when making subsequent API requests.
+
+This allows Bludia to associate requests with an authenticated user and apply the relevant access permissions.
+
+Typical use cases include:
+
+- Customer portals.
+- User dashboards.
+- Mobile applications.
+- Applications with individual user accounts.
+
+See [Authentication](/authentication/overview) for more information about user authentication in Bludia.
+
+## Sending Authenticated Requests
+
+Authentication credentials must be included in API requests using the appropriate authentication mechanism.
+
+For example, an authenticated request using a bearer token generally follows this structure:
+
+```http
+GET /api/collections/tasks/records
+Authorization: Bearer YOUR_ACCESS_TOKEN
+Accept: application/json
+```
+
+Replace `YOUR_ACCESS_TOKEN` with the appropriate credential issued for your application.
+
+The exact endpoint and authentication requirements depend on the API resource being accessed.
+
+## Authentication and Permissions
+
+Authentication and authorization serve different purposes.
+
+**Authentication** establishes who or what is making a request.
+
+**Authorization** determines whether that identity is allowed to perform the requested operation.
+
+For example:
+
+1. A user successfully authenticates with Bludia.
+2. Bludia identifies the authenticated user.
+3. The request is evaluated against the applicable permissions.
+4. Access is granted or denied based on the configured rules.
+
+Valid authentication credentials do not automatically grant unrestricted access to project resources.
+
+## Handling Authentication Errors
+
+Authentication failures can occur for several reasons.
+
+Common scenarios include:
+
+| Scenario | Description |
+| --- | --- |
+| Missing credentials | The request does not include the required authentication information. |
+| Invalid credentials | The supplied API key or token is not valid. |
+| Expired token | The authentication token is no longer valid. |
+| Unauthorized access | The request cannot be authenticated or is not permitted. |
+
+Always inspect the API response when authentication fails.
+
+## Security Best Practices
+
+- **Protect API keys:** Never publish secret credentials in frontend applications or public repositories.
+- **Use HTTPS:** Always communicate with Bludia over secure connections.
+- **Use user authentication appropriately:** Authenticate individual users when an application operates on their behalf.
+- **Apply permissions:** Restrict access to resources according to the application's requirements.
+- **Rotate exposed credentials:** Replace credentials immediately if they are compromised.
+- **Avoid hardcoding secrets:** Store sensitive credentials in secure server-side environment variables.
+
+## Related Documentation
+
+<CardGroup cols={2}>
+  <Card title="API Overview" icon="code" href="/api/overview">
+    Learn how to interact with the Bludia REST API.
+  </Card>
+
+  <Card title="API Keys" icon="key" href="/api/api-keys">
+    Learn how API credentials are managed.
+  </Card>
+
+  <Card title="Authentication" icon="shield-check" href="/authentication/overview">
+    Explore user authentication features.
+  </Card>
+
+  <Card title={"Roles & Permissions"} icon="lock" href="/security/roles">
+    Understand how access to resources is controlled.
+  </Card>
+</CardGroup>

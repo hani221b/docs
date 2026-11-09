@@ -1,3 +1,109 @@
 ---
 title: "Computed Fields"
 ---
+
+Computed fields allow you to derive values from existing data instead of manually storing and updating them.
+
+They are useful when your application needs calculated values, totals, summaries, or other data that depends on existing record fields.
+
+For example, in an order management system, you might want to calculate the total price of an order based on its quantity and unit price.
+
+Instead of manually updating the total every time the quantity or price changes, you can use a computed field to derive the value from the underlying data.
+
+## How Computed Fields Work
+
+A computed field derives its value using other data available to your application.
+
+Unlike regular fields, which hold values entered or stored as part of a record, computed fields represent values calculated from existing data.
+
+Consider a `products` collection:
+
+| Field | Type | Value |
+| --- | --- | --- |
+| name | Text | Laptop |
+| price | Number | 1200 |
+| quantity | Number | 3 |
+| total | Computed | 3600 |
+
+The `total` field represents the result of multiplying the product price by its quantity.
+
+If either the price or quantity changes, the calculated result can be updated accordingly.
+
+## Common Use Cases
+
+Computed fields can help simplify many common application workflows.
+
+### Financial calculations
+
+Calculate values using existing numerical fields.
+
+Examples:
+
+- Order totals.
+- Product subtotals.
+- Discounts.
+- Tax calculations.
+- Remaining balances.
+
+### Business management
+
+Derive useful information from existing business data.
+
+Examples:
+
+- Remaining inventory.
+- Outstanding payments.
+- Available capacity.
+- Customer balances.
+
+### Reporting and analytics
+
+Prepare calculated values that can be used in application interfaces and reports.
+
+Examples:
+
+- Revenue totals.
+- Completion percentages.
+- Performance indicators.
+- Aggregated values.
+
+## Computed Fields vs Regular Fields
+
+Understanding the difference helps you decide when to use each field type.
+
+| Regular Fields | Computed Fields |
+| --- | --- |
+| Hold stored data | Derive values from other data |
+| Can contain manually entered values | Values are calculated |
+| Updated through normal record operations | Depend on their underlying data |
+| Suitable for user input | Suitable for calculated results |
+
+For example, an order's `quantity` and `unit_price` are regular fields, while its `total` can be a computed field.
+
+## Best Practices
+
+- **Avoid duplicate data:** Use computed fields when a value can be reliably derived from existing data.
+- **Keep calculations understandable:** Prefer simple calculations that are easy to maintain.
+- **Consider dependencies:** Changes to source fields may affect computed values.
+- **Choose the right field type:** Use regular fields for manually managed data and computed fields for derived values.
+- **Test your calculations:** Verify results with different input values, including empty values and edge cases.
+
+## Related Documentation
+
+<CardGroup cols={2}>
+  <Card title="Fields" icon="list" href="/database/fields">
+    Learn how to define fields in your collections.
+  </Card>
+
+  <Card title="Field Types" icon="blocks" href="/database/field-types">
+    Explore the field types available in Bludia.
+  </Card>
+
+  <Card title="Records" icon="database" href="/database/records">
+    Learn how to create and manage records.
+  </Card>
+
+  <Card title={"Reports & Analytics"} icon="chart-column" href="/reports/overview">
+    Learn how to build reports using application data.
+  </Card>
+</CardGroup>

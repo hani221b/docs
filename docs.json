@@ -41,19 +41,27 @@
           {
             "group": "Database",
             "pages": [
+              "untitled-page-5",
               "untitled-page-3",
-              "core/records",
               "core/fields",
+              "core/records",
+              "untitled-page-8",
               "core/relations",
-              "core/api",
-              "core/webhooks",
-              "core/keys"
+              "untitled-page-9",
+              "untitled-page-10",
+              "untitled-page-11"
             ]
           },
 
           {
             "group": "API",
-            "pages": []
+            "pages": [
+              "core/api",
+              "untitled-page-4",
+              "core/keys",
+              "untitled-page-6",
+              "untitled-page-7"
+            ]
           },
           {
             "group": "Authentication & Security",
@@ -62,7 +70,9 @@
 
           {
             "group": "Hooks & Backend Logic",
-            "pages": []
+            "pages": [
+              "core/webhooks"
+            ]
           },
 
           {

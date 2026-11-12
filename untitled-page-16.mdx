@@ -1,0 +1,261 @@
+---
+title: "Email Verification"
+---
+
+Email verification helps ensure that users have access to the email addresses associated with their accounts.
+
+Bludia provides email verification capabilities that you can use to build more secure registration flows, protect user accounts, and reduce invalid or unverified registrations.
+
+Whether you're building a SaaS platform, booking system, customer portal, or membership application, email verification helps establish trust in your user accounts.
+
+<Info>
+  Email verification is separate from authentication. A user can have an account without having a verified email address. Your application can use verification status to control access to specific functionality.
+</Info>
+
+## Why verify email addresses?
+
+Email verification provides several benefits:
+
+<Columns cols={2}>
+  <Card title="Account ownership" icon="user-check">
+    Confirm that users have access to the email addresses associated with their accounts.
+  </Card>
+
+  <Card title="Data quality" icon="database">
+    Reduce invalid email addresses and improve the quality of your user records.
+  </Card>
+
+  <Card title="Account security" icon="shield-check">
+    Add an additional verification step to your account registration process.
+  </Card>
+
+  <Card title="Communication" icon="mail">
+    Improve the reliability of important account notifications and messages.
+  </Card>
+</Columns>
+
+## How email verification works
+
+A typical email verification flow involves the following steps:
+
+<Steps>
+  <Step title="User registers">
+    A new user creates an account through your application's registration form.
+  </Step>
+  <Step title="Verification email is sent">
+    Bludia initiates the configured verification email workflow.
+  </Step>
+  <Step title="User receives verification link">
+    The user receives an email containing a verification link.
+  </Step>
+  <Step title="User completes verification">
+    The user opens the link and completes the verification process.
+  </Step>
+  <Step title="Verification status is updated">
+    The user's email verification status is updated according to the verification result.
+  </Step>
+</Steps>
+
+<Frame>
+  <div>
+  <div>
+    <Badge color="info">Step 1</Badge>
+    **Registration**
+    <div>User creates an account</div>
+  </div>
+
+  <div>
+    <Icon icon="arrow-down" color="secondary" />
+  </div>
+
+  <div>
+    <Badge color="warning">Step 2</Badge>
+    **Pending Verification**
+    <div>Verification email is sent</div>
+  </div>
+
+  <div>
+    <Icon icon="arrow-down" color="secondary" />
+  </div>
+
+  <div>
+    <Badge color="info">Step 3</Badge>
+    **Email Confirmation**
+    <div>User opens the verification link</div>
+  </div>
+
+  <div>
+    <Icon icon="arrow-down" color="secondary" />
+  </div>
+
+  <div>
+    <Badge color="success">Verified</Badge>
+    **Account Confirmed**
+    <div>Email verification is completed</div>
+  </div>
+</div>
+</Frame>
+
+## Verification status
+
+Your application can use a user's email verification status to determine which features are available.
+
+For example:
+
+| Status | Description |
+| --- | --- |
+| Unverified | The user's email address has not been verified. |
+| Verified | The user has successfully completed email verification. |
+
+<Warning>
+  Do not rely only on frontend checks to protect restricted functionality. Verification requirements should be enforced through your backend authentication and authorization configuration.
+</Warning>
+
+## Restricting access to unverified users
+
+Not every application needs to block unverified users completely.
+
+You can decide which functionality requires a verified email address.
+
+For example:
+
+<Columns cols={2}>
+  <Card title="Before verification" icon="mail-warning">
+    - Access public pages
+    - View basic account information
+    - Complete email verification
+  </Card>
+
+  <Card title="After verification" icon="mail-check">
+    - Access restricted features
+    - Complete account-dependent actions
+    - Receive account notifications
+  </Card>
+</Columns>
+
+Common use cases include:
+
+- Requiring verification before users can create bookings.
+- Restricting access to membership features.
+- Requiring verification before activating a subscription.
+- Preventing unverified users from accessing sensitive resources.
+
+## Resending verification emails
+
+Users may sometimes lose their verification email or fail to receive it.
+
+A good registration experience should provide a way to request another verification email when supported by your authentication configuration.
+
+Consider the following user experience:
+
+1. Inform the user that their email is not verified.
+2. Provide an option to resend the verification email.
+3. Display a confirmation when the request is accepted.
+4. Provide useful feedback if the request fails.
+
+<Info>
+  Apply appropriate rate limits to verification email requests to prevent abuse and unnecessary email delivery costs.
+</Info>
+
+## Frontend integration
+
+Your frontend should provide clear feedback throughout the verification process.
+
+Recommended interface states include:
+
+<AccordionGroup>
+  <Accordion title="Verification required" icon="mail-warning">
+    Inform the user that their email address has not yet been verified and explain how to complete verification.
+  </Accordion>
+
+  <Accordion title="Email sent" icon="send">
+    Confirm that a verification email has been requested and explain what the user should do next.
+  </Accordion>
+
+  <Accordion title="Verification successful" icon="check-circle">
+    Display a success message and allow the user to continue to the appropriate application page.
+  </Accordion>
+
+  <Accordion title="Verification failed" icon="alert-circle">
+    Explain that the verification could not be completed and provide an appropriate next step.
+  </Accordion>
+
+  <Accordion title="Verification link expired" icon="clock">
+    Allow the user to request a new verification email when supported.
+  </Accordion>
+</AccordionGroup>
+
+## Email configuration
+
+Email verification depends on a working email delivery configuration.
+
+Before enabling verification in production, make sure your project has an appropriate email connection and a properly configured verification email template.
+
+<Steps>
+  <Step title="Configure email delivery">
+    Set up an email provider and verify that your application can send emails.
+  </Step>
+  <Step title="Configure verification messages">
+    Prepare an email template that explains the verification process and includes the appropriate verification link.
+  </Step>
+  <Step title="Test the workflow">
+    Register a test user and confirm that the verification email is delivered and the verification process completes successfully.
+  </Step>
+  <Step title="Enable production usage">
+    Review your email delivery configuration and verification requirements before making the workflow available to users.
+  </Step>
+</Steps>
+
+<CardGroup cols={2}>
+  <Card title="Email Connections" icon="mail" href="/email-messaging/email-connections">
+    Configure email providers and delivery settings.
+  </Card>
+
+  <Card title="Email Templates" icon="file-text" href="/email-messaging/templates">
+    Create and manage reusable email templates.
+  </Card>
+</CardGroup>
+
+## Security best practices
+
+<AccordionGroup>
+  <Accordion title="Use secure verification links" icon="shield-check">
+    Verification links should use HTTPS and should not expose sensitive account information.
+  </Accordion>
+
+  <Accordion title="Expire verification links" icon="clock">
+    Verification links should have a limited validity period to reduce the risk of unauthorized use.
+  </Accordion>
+
+  <Accordion title="Protect verification endpoints" icon="lock">
+    Ensure verification requests are validated by Bludia rather than trusting information supplied by the frontend.
+  </Accordion>
+
+  <Accordion title="Apply rate limits" icon="gauge">
+    Limit repeated verification email requests to prevent abuse and excessive email delivery.
+  </Accordion>
+
+  <Accordion title="Avoid exposing account information" icon="eye-off">
+    Do not reveal sensitive user details through verification responses or error messages.
+  </Accordion>
+</AccordionGroup>
+
+## What's next?
+
+<CardGroup cols={2}>
+  <Card title="Password Reset" icon="key-round" href="/authentication-security/password-reset">
+    Allow users to securely recover their accounts.
+  </Card>
+
+  <Card title={"Login & Registration"} icon="log-in" href="/authentication-security/login-registration">
+    Configure user registration and authentication.
+  </Card>
+
+  <Card title={"Email & Messaging"} icon="mail" href="/email-messaging/overview">
+    Learn how to configure email delivery in Bludia.
+  </Card>
+
+  <Card title={"Roles & Permissions"} icon="shield" href="/authentication-security/roles-permissions">
+    Control what authenticated users can access.
+  </Card>
+</CardGroup>

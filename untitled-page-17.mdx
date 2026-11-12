@@ -1,0 +1,162 @@
+---
+title: "Password Reset"
+---
+
+Users sometimes forget their passwords or lose access to their accounts. A reliable password recovery process allows them to regain access without requiring an administrator to manually reset their credentials.
+
+Bludia provides password reset capabilities that you can integrate into your application's authentication flow.
+
+Instead of building your own password recovery infrastructure, you can use Bludia to handle the underlying process while providing a simple and secure recovery experience for your users.
+
+<Info>
+  Password reset is part of user authentication. It allows users to establish a new password without creating a new account or losing their existing application data.
+</Info>
+
+## How password reset works
+
+A typical password reset workflow consists of three main stages:
+
+<Columns cols={3}>
+  <Card title="Request" icon="mail">
+    The user submits the email address associated with their account.
+  </Card>
+
+  <Card title="Verification" icon="shield-check">
+    The user receives a password reset link and verifies the recovery request.
+  </Card>
+
+  <Card title="Reset" icon="key-round">
+    The user submits a new password and regains access to their account.
+  </Card>
+</Columns>
+
+## Password recovery workflow
+
+<Steps>
+  <Step title="User requests a password reset">
+    Your frontend displays a password recovery form where the user enters their registered email address.
+  </Step>
+  <Step title="Bludia processes the request">
+    Your frontend sends the recovery request to the Bludia authentication API.
+  </Step>
+  <Step title="Recovery email is sent">
+    Bludia initiates the configured password reset email workflow.
+  </Step>
+  <Step title="User opens the reset link">
+    The user follows the link in the recovery email to access the password reset interface.
+  </Step>
+  <Step title="User submits a new password">
+    Your frontend submits the required recovery information and the new password to Bludia.
+  </Step>
+  <Step title="Password is updated">
+    Bludia validates the recovery request and processes the password change.
+  </Step>
+</Steps>
+
+<Frame>
+  <div>
+  <div>
+    <Badge color="info">Request</Badge>
+    **Forgot Password**
+    <div>User submits registered email address</div>
+  </div>
+
+  <div>
+    <Icon icon="arrow-down" color="secondary" />
+  </div>
+
+  <div>
+    <Badge color="warning">Email</Badge>
+    **Recovery Link**
+    <div>User receives a password reset email</div>
+  </div>
+
+  <div>
+    <Icon icon="arrow-down" color="secondary" />
+  </div>
+
+  <div>
+    <Badge color="info">Verification</Badge>
+    **Reset Password**
+    <div>User submits a new password</div>
+  </div>
+
+  <div>
+    <Icon icon="arrow-down" color="secondary" />
+  </div>
+
+  <div>
+    <Badge color="success">Completed</Badge>
+    **Password Updated**
+    <div>User can authenticate using the new password</div>
+  </div>
+</div>
+</Frame>
+
+## Password reset interface
+
+Your frontend should provide a clear and straightforward recovery experience.
+
+We recommend separating the process into two interfaces.
+
+<Columns cols={2}>
+  <Card title="Forgot Password" icon="mail">
+    Ask the user to enter their registered email address.
+
+    - Email input
+    - Submit button
+    - Confirmation message
+    - Return to login link
+  </Card>
+
+  <Card title="New Password" icon="key-round">
+    Allow the user to establish a new password.
+
+    - New password input
+    - Confirm password input
+    - Password requirements
+    - Submit button
+  </Card>
+</Columns>
+
+## Handling reset requests
+
+Your application should provide useful feedback without exposing sensitive account information.
+
+For example, after a user submits a recovery request, display a neutral confirmation message indicating that the request has been processed.
+
+<Warning>
+  Avoid revealing whether an email address is registered in your application. Account enumeration can expose information about your users.
+</Warning>
+
+## Reset link expiration
+
+Password reset links should have a limited validity period.
+
+This reduces the risk of unauthorized password changes if a recovery email is exposed or accessed by someone else.
+
+Your application should handle the following scenarios:
+
+<AccordionGroup>
+  <Accordion title="Valid reset link" icon="check-circle">
+    The user can continue to the password reset interface and submit a new password.
+  </Accordion>
+
+  <Accordion title="Expired reset link" icon="clock">
+    Inform the user that the recovery link is no longer valid and provide an option to request another one.
+  </Accordion>
+
+  <Accordion title="Invalid reset link" icon="alert-circle">
+    Reject invalid recovery information and prevent the password from being changed.
+  </Accordion>
+
+  <Accordion title="Already used reset link" icon="shield-alert">
+    A completed recovery link should not be reusable. Ask the user to request a new recovery link if another reset is required.
+  </Accordion>
+</AccordionGroup>
+
+## Frontend integration
+
+Your frontend communicates with Bludia's authentication API to request recovery emails and submit new passwords.
+
+The following example illustrates how you might organize the frontend workflow.

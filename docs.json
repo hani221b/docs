@@ -65,13 +65,28 @@
           },
           {
             "group": "Authentication & Security",
-            "pages": []
+            "pages": [
+              "untitled-page-12",
+              "untitled-page-13",
+              "untitled-page-14",
+              "untitled-page-15",
+              "untitled-page-16",
+              "untitled-page-17",
+              "untitled-page-18",
+              "untitled-page-19",
+              "untitled-page-20"
+            ]
           },
 
           {
             "group": "Hooks & Backend Logic",
             "pages": [
-              "core/webhooks"
+              "core/webhooks",
+              "untitled-page-23",
+              "untitled-page-24",
+              "untitled-page-25",
+              "untitled-page-26",
+              "untitled-page-27"
             ]
           },
 

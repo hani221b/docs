@@ -1,0 +1,263 @@
+---
+title: "Guards"
+---
+
+Authentication guards determine how Bludia identifies and authenticates users when they access protected resources.
+
+They act as a security boundary between public and authenticated parts of your application, ensuring that requests meet the required authentication conditions before accessing protected functionality.
+
+Instead of implementing authentication checks independently across your application, you can configure guards to manage how authenticated access is enforced.
+
+<Info>
+  Guards handle authentication, not the complete authorization process. They establish whether a request is authenticated. Roles, permissions, and row-level authorization determine what the authenticated user can access.
+</Info>
+
+## Why use guards?
+
+Most applications contain resources that should not be publicly accessible.
+
+For example:
+
+- Customers should authenticate before viewing their bookings.
+- Employees should authenticate before accessing internal dashboards.
+- Administrators should authenticate before managing application settings.
+- Public visitors should only access explicitly public resources.
+
+Guards provide a consistent way to enforce authentication requirements.
+
+## How guards work
+
+When a request reaches a protected endpoint, Bludia evaluates the configured authentication requirements.
+
+<Steps>
+  <Step title="Request received">
+    A client sends an HTTP request to a Bludia API endpoint.
+  </Step>
+  <Step title="Guard evaluation">
+    Bludia checks the request against the authentication requirements configured for the resource.
+  </Step>
+  <Step title="Authentication validation">
+    The supplied authentication credentials are validated.
+  </Step>
+  <Step title="Access decision">
+    If authentication succeeds, the request proceeds to the next security checks. Otherwise, access is rejected.
+  </Step>
+  <Step title="Authorization">
+    Roles, permissions, and record-level rules determine whether the authenticated user can perform the requested operation.
+  </Step>
+</Steps>
+
+<Frame>
+  <div>
+  <div>
+    <Badge color="info">Incoming Request</Badge>
+    **API Request**
+    <div>Client requests a protected resource</div>
+  </div>
+
+  <div>
+    <Icon icon="arrow-down" color="secondary" />
+  </div>
+
+  <div>
+    <Badge color="info">Authentication</Badge>
+    **Guard Evaluation**
+    <div>Validate the supplied credentials</div>
+  </div>
+
+  <div>
+    <Icon icon="arrow-down" color="secondary" />
+  </div>
+
+  <div>
+    <Columns cols={2}>
+      <Card title="Authenticated" icon="check-circle">
+        <Badge color="success">Continue</Badge>
+        <div>Proceed to authorization checks.</div>
+      </Card>
+
+      <Card title="Unauthenticated" icon="x-circle">
+        <Badge color="danger">Reject</Badge>
+        <div>Return an authentication error.</div>
+      </Card>
+    </Columns>
+  </div>
+
+  <div>
+    <Icon icon="arrow-down" color="secondary" />
+  </div>
+
+  <div>
+    <Badge color="success">Authorization</Badge>
+    **Permission Evaluation**
+    <div>Determine whether the user can perform the requested operation</div>
+  </div>
+</div>
+</Frame>
+
+## Public and protected resources
+
+A typical application has different levels of accessibility.
+
+<Columns cols={2}>
+  <Card title="Public Resources" icon="globe">
+    Resources that do not require an authenticated user.
+
+    Examples:
+
+    - Public product catalogs
+    - Public landing pages
+    - Public information endpoints
+  </Card>
+
+  <Card title="Protected Resources" icon="shield-check">
+    Resources that require valid authentication.
+
+    Examples:
+
+    - User profiles
+    - Customer bookings
+    - Internal dashboards
+    - Administrative operations
+  </Card>
+</Columns>
+
+The appropriate authentication requirements depend on your application's functionality and security model.
+
+## Guards vs. Roles & Permissions
+
+Guards and permissions work together, but they solve different problems.
+
+| Component | Responsibility |
+| --- | --- |
+| Guards | Determine whether a request is authenticated |
+| Roles | Organize users into access groups |
+| Permissions | Define which operations users can perform |
+| Row-Level Authorization | Determine which individual records users can access |
+
+For example, consider a CRM application:
+
+1. A guard verifies that the employee is authenticated.
+2. The user's role determines whether they are a manager or sales representative.
+3. Permissions determine whether they can create, update, or delete leads.
+4. Row-level authorization determines which leads they can access.
+
+<Info>
+  Authentication is not authorization. A successfully authenticated user should never automatically receive unrestricted access to your application's data.
+</Info>
+
+<CardGroup cols={2}>
+  <Card title={"Roles & Permissions"} icon="key-round" href="/authentication-security/roles-permissions">
+    Define access rules for different user roles.
+  </Card>
+
+  <Card title="Row-Level Authorization" icon="database" href="/authentication-security/row-level-authorization">
+    Control access to individual application records.
+  </Card>
+</CardGroup>
+
+## Configuring authentication guards
+
+When configuring guards, consider which resources require authentication and which authentication mechanism should be used.
+
+A typical configuration workflow includes:
+
+<Steps>
+  <Step title="Identify protected resources">
+    Determine which API endpoints and application operations require an authenticated user.
+  </Step>
+  <Step title="Choose authentication requirements">
+    Define the authentication mechanism and requirements appropriate for your application.
+  </Step>
+  <Step title="Apply guards">
+    Configure the relevant guards for the resources you want to protect.
+  </Step>
+  <Step title="Configure authorization">
+    Define roles, permissions, and record-level access rules for authenticated users.
+  </Step>
+  <Step title="Test access">
+    Verify that unauthenticated requests are rejected and authenticated users receive only their permitted access.
+  </Step>
+</Steps>
+
+## Handling authentication failures
+
+When a request fails authentication, your frontend should handle the response gracefully.
+
+Common scenarios include:
+
+<AccordionGroup>
+  <Accordion title="Missing credentials" icon="shield-alert">
+    The request does not contain the required authentication credentials. Ask the user to log in before continuing.
+  </Accordion>
+
+  <Accordion title="Invalid credentials" icon="x-circle">
+    The supplied credentials could not be validated. The request should be rejected.
+  </Accordion>
+
+  <Accordion title="Expired authentication" icon="clock">
+    The authentication credentials are no longer valid. Depending on your authentication configuration, the user may need to authenticate again.
+  </Accordion>
+
+  <Accordion title="Insufficient permissions" icon="lock">
+    The user is authenticated but does not have permission to perform the requested operation. This is an authorization failure, not an authentication failure.
+  </Accordion>
+</AccordionGroup>
+
+## Security best practices
+
+<AccordionGroup>
+  <Accordion title="Protect sensitive endpoints" icon="shield-check">
+    Require authentication for operations that expose private data or modify application resources.
+  </Accordion>
+
+  <Accordion title="Use least-privilege authorization" icon="key-round">
+    Do not assume that authentication grants access to every collection or operation. Apply permissions separately.
+  </Accordion>
+
+  <Accordion title="Protect administrative operations" icon="user-lock">
+    Restrict sensitive administrative functionality to appropriately authorized users.
+  </Accordion>
+
+  <Accordion title="Validate credentials on the backend" icon="server">
+    Never rely on frontend checks to determine whether a request is authenticated.
+  </Accordion>
+
+  <Accordion title="Test public endpoints" icon="globe">
+    Verify that public resources expose only the data and functionality intentionally made available.
+  </Accordion>
+
+  <Accordion title="Review access policies regularly" icon="clipboard-check">
+    Revisit guard and authorization configurations whenever your application's functionality changes.
+  </Accordion>
+</AccordionGroup>
+
+## Common issues
+
+| Issue | What to check |
+| --- | --- |
+| Protected endpoint returns unauthorized | Check authentication credentials and guard configuration |
+| Public endpoint requires login | Review the endpoint's authentication requirements |
+| Authenticated user receives forbidden | Check roles and permissions |
+| User accesses unexpected records | Review row-level authorization |
+| Authentication works in one frontend but not another | Compare authentication headers and credential handling |
+
+## What's next?
+
+<CardGroup cols={2}>
+  <Card title={"Roles & Permissions"} icon="key-round" href="/authentication-security/roles-permissions">
+    Configure roles and control application access.
+  </Card>
+
+  <Card title="Row-Level Authorization" icon="database" href="/authentication-security/row-level-authorization">
+    Protect individual records using authorization rules.
+  </Card>
+
+  <Card title="API Authentication" icon="lock" href="/api/authentication">
+    Learn how API requests are authenticated.
+  </Card>
+
+  <Card title="Security Best Practices" icon="shield-check" href="/authentication-security/security-best-practices">
+    Review security recommendations for production projects.
+  </Card>
+</CardGroup>

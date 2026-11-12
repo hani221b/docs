@@ -1,0 +1,247 @@
+---
+title: "Custom Login Fields"
+---
+
+Not every application identifies users by their email address.
+
+An employee management system might use employee IDs, a membership platform might use membership numbers, and an internal application might use usernames.
+
+Bludia allows you to customize the fields used during authentication so users can log in using identifiers that make sense for your application.
+
+Instead of forcing every application to follow the same login structure, you can adapt authentication to your project's requirements.
+
+<Info>
+  Custom Login Fields allow you to use alternative user identifiers during authentication without changing the underlying user identity system.
+</Info>
+
+## Why use custom login fields?
+
+Different applications have different authentication requirements.
+
+<Columns cols={2}>
+  <Card title="Username" icon="user">
+    Allow users to authenticate using a username instead of an email address.
+  </Card>
+
+  <Card title="Employee ID" icon="id-card">
+    Authenticate employees using their assigned identification numbers.
+  </Card>
+
+  <Card title="Membership Number" icon="badge-check">
+    Allow members to access their accounts using membership identifiers.
+  </Card>
+
+  <Card title="Phone Number" icon="phone">
+    Use phone numbers as account identifiers where supported by your authentication configuration.
+  </Card>
+</Columns>
+
+## How custom login fields work
+
+Normally, a login form asks users to provide an email address and password.
+
+With custom login fields, you can configure a different identifier that Bludia uses to locate the corresponding user account during authentication.
+
+For example, consider an employee management application.
+
+Instead of asking employees to enter their email addresses, you can allow them to authenticate using their employee ID.
+
+<Frame>
+  <div>
+  <div>
+    <Badge color="info">Default Login</Badge>
+    **Email Address**
+    <div>[user@example.com](mailto:user@example.com)</div>
+  </div>
+
+  <div>
+    <Icon icon="arrow-down" color="secondary" />
+  </div>
+
+  <div>
+    <Badge color="success">Custom Login</Badge>
+    **Employee ID**
+    <div>EMP-1024</div>
+  </div>
+
+  <div>
+    <Icon icon="arrow-down" color="secondary" />
+  </div>
+
+  <div>
+    <Badge color="success">Authentication</Badge>
+    **User Account**
+    <div>Bludia validates the identifier and password</div>
+  </div>
+</div>
+</Frame>
+
+The authentication process remains the same. Only the identifier supplied by the user changes.
+
+## Configuring custom login fields
+
+Custom login fields should be configured according to the user fields available in your project.
+
+A typical configuration workflow looks like this:
+
+<Steps>
+  <Step title="Choose a user identifier">
+    Decide which field users should provide when logging in.
+
+    Examples include `username`, `employee_id`, or `membership_number`.
+  </Step>
+  <Step title="Configure the user field">
+    Ensure the selected field exists in your user configuration and is suitable for identifying accounts.
+  </Step>
+  <Step title="Configure authentication">
+    Select or configure the field that Bludia should use to locate the user during login.
+  </Step>
+  <Step title="Update your frontend">
+    Change the login interface to collect the selected identifier instead of an email address.
+  </Step>
+  <Step title="Test authentication">
+    Verify that users can authenticate using the configured identifier and their password.
+  </Step>
+</Steps>
+
+## Frontend implementation
+
+Your frontend should display an input that matches the configured login identifier.
+
+For example, an employee application might use the following login interface:
+
+<Frame>
+  <div>
+  <div>
+    <div>
+      <Badge color="secondary">Example login interface</Badge>
+    </div>
+
+    <div>
+      **Welcome back**
+      <div>Sign in to your employee account.</div>
+    </div>
+
+    <div>
+      <label>Employee ID</label>
+
+      <input placeholder="Enter your employee ID" disabled />
+    </div>
+
+    <div>
+      <label>Password</label>
+
+      <input placeholder="Enter your password" disabled />
+    </div>
+
+    <div>
+      <button disabled>Sign in</button>
+    </div>
+
+    <div>
+      <text color="secondary" size="xs">Example interface for documentation purposes.</text>
+    </div>
+  </div>
+</div>
+</Frame>
+
+Your frontend sends the identifier and password to the configured Bludia authentication endpoint.
+
+The following example illustrates the request structure conceptually:
+
+<CodeGroup>
+
+```javascript JavaScript
+async function login(employeeId, password) {
+  const response = await fetch(
+    `${BLUDIA_URL}/your-login-endpoint`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-BLUDIA-API-KEY": BLUDIA_API_KEY
+      },
+      body: JSON.stringify({
+        employee_id: employeeId,
+        password
+      })
+    }
+  );
+
+
+
+  if (!response.ok) {
+    throw new Error("Authentication failed");
+  }
+
+
+
+  return response.json();
+}
+```
+
+</CodeGroup>
+
+<Warning>
+  This is an illustrative request structure, not a guaranteed Bludia authentication endpoint or payload. Use the actual endpoint, authentication headers, and request fields defined by your project's API documentation.
+</Warning>
+
+## Choosing the right identifier
+
+Consider the following factors when selecting a custom login field:
+
+| Identifier | Suitable for | Considerations |
+| --- | --- | --- |
+| Username | General applications | Must be unique |
+| Employee ID | Internal systems | Usually assigned by administrators |
+| Membership number | Membership platforms | Should be unique and stable |
+| Phone number | Mobile applications | Requires consistent formatting and ownership verification |
+
+<Info>
+  A login identifier should be unique within the relevant authentication scope. Duplicate identifiers can cause ambiguity when locating user accounts.
+</Info>
+
+## Security considerations
+
+Custom login fields change how users identify themselves, but they do not replace password security or authorization.
+
+Follow these recommendations:
+
+<AccordionGroup>
+  <Accordion title="Use unique identifiers" icon="fingerprint">
+    Ensure the configured login field uniquely identifies each account.
+  </Accordion>
+
+  <Accordion title="Validate user input" icon="check-circle">
+    Validate and normalize identifiers consistently to avoid unexpected authentication behavior.
+  </Accordion>
+
+  <Accordion title="Protect sensitive identifiers" icon="shield-check">
+    Avoid exposing internal employee IDs, private membership numbers, or other sensitive identifiers unnecessarily.
+  </Accordion>
+
+  <Accordion title="Use secure password handling" icon="lock">
+    Continue using Bludia's authentication infrastructure for password validation and credential management.
+  </Accordion>
+
+  <Accordion title="Apply rate limits" icon="gauge">
+    Protect login operations against brute-force attempts and automated credential guessing.
+  </Accordion>
+
+  <Accordion title="Keep authorization separate" icon="users">
+    Successfully authenticating with a custom identifier does not automatically grant access to application resources. Configure roles and permissions separately.
+  </Accordion>
+</AccordionGroup>
+
+## Common issues
+
+| Issue | What to check |
+| --- | --- |
+| Login fails with a valid identifier | Verify the configured login field and request payload |
+| Multiple accounts match | Ensure the identifier is unique |
+| Email login works but custom login fails | Check the custom authentication configuration |
+| Identifier is not recognized | Confirm that the user field exists and contains the expected value |
+| Phone number login fails | Check formatting and normalization |
+| User authenticates but cannot access resources | Review roles, permissions, and authorization rules |
+
+## What's next?

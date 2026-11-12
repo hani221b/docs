@@ -1,0 +1,251 @@
+---
+title: "Users"
+---
+
+---
+
+## title: "Users" description: "Manage application users, understand user accounts, and connect authenticated identities to your application data."
+
+# Users
+
+Users are the people who can access your application through Bludia's authentication system.
+
+Bludia provides built-in user management so you don't have to build and maintain your own authentication database, password handling, or account infrastructure.
+
+Every authenticated user has an identity that your application can use to personalize experiences, associate records, and enforce access policies.
+
+<Info>
+  Bludia manages authenticated users separately from regular application collections. This keeps account management independent from your application's business data.
+</Info>
+
+## Understanding user accounts
+
+A user account contains authentication-related information and account metadata.
+
+Typical user information includes:
+
+- Unique user identifier
+- Email address
+- Password credentials
+- Account status
+- Email verification status
+- Account timestamps
+- Additional configured user attributes
+
+<Warning>
+  Password credentials are managed by Bludia's authentication infrastructure. Never store passwords as ordinary collection fields or expose sensitive authentication information through your frontend.
+</Warning>
+
+## Users vs. Collections
+
+Bludia separates authentication identities from application data.
+
+For example, consider a booking application:
+
+<Columns cols={2}>
+  <Card title="Authentication Users" icon="users">
+    Stores account identities and authentication-related information.
+
+    - User identity
+    - Email address
+    - Account status
+    - Verification status
+  </Card>
+
+  <Card title="Application Collections" icon="database">
+    Stores the actual business data used by your application.
+
+    - Bookings
+    - Payments
+    - Customer profiles
+    - Reservations
+  </Card>
+</Columns>
+
+This separation makes it easier to manage authentication independently while keeping your application data flexible.
+
+## Managing users
+
+You can manage user accounts through your Bludia project dashboard and configured authentication workflows.
+
+Common user management operations include:
+
+<Steps>
+  <Step title="View users">
+    Inspect registered users and their available account information.
+  </Step>
+  <Step title="Inspect accounts">
+    Review individual user details and account status.
+  </Step>
+  <Step title="Manage accounts">
+    Perform supported account management operations, such as updating user information or managing account status.
+  </Step>
+  <Step title="Control access">
+    Use roles and permissions to determine which users can access administrative functionality.
+  </Step>
+</Steps>
+
+## User registration
+
+Users can create accounts through your application's registration flow when registration is enabled.
+
+Bludia handles the account creation process and associated authentication operations.
+
+<Steps>
+  <Step title="User submits registration">
+    Your frontend collects the required registration information.
+  </Step>
+  <Step title="Bludia processes the request">
+    Bludia validates the supplied information and creates the account.
+  </Step>
+  <Step title="User authenticates">
+    The user can authenticate through your configured login flow.
+  </Step>
+  <Step title="Application access">
+    Authenticated requests are evaluated against your project's authentication and authorization configuration.
+  </Step>
+</Steps>
+
+<Card title="Configure registration" icon="user-plus" href="/authentication-security/login-registration">
+  Learn how to configure login and registration for your application.
+</Card>
+
+## Connecting users to application data
+
+Most applications need to associate users with records they own or manage.
+
+For example, a booking application should know which user created each booking.
+
+You can connect authenticated users to your application collections using relationships and authorization rules.
+
+<Frame>
+  <div>
+  <div>
+    <Badge color="info">Authentication</Badge>
+    **User**
+    <div>Unique user identity</div>
+  </div>
+
+  <div>
+    <Icon icon="arrow-down" color="secondary" />
+  </div>
+
+  <div>
+    <Badge color="success">Relation</Badge>
+    **Bookings**
+    <div>Records associated with the user</div>
+  </div>
+</div>
+</Frame>
+
+Common examples:
+
+| Application | Relationship |
+| --- | --- |
+| Booking system | Users own bookings |
+| E-commerce | Users own orders |
+| CRM | Users manage assigned leads |
+| Project management | Users belong to projects |
+| Membership platform | Users have subscriptions |
+
+<Info>
+  Relationships connect users to application data, while row-level authorization determines which records they are allowed to access.
+</Info>
+
+<Card title="Learn about Relations" icon="git-branch" href="/database/relations">
+  Understand how to connect collections and application data.
+</Card>
+
+<Card title="Row-Level Authorization" icon="shield-check" href="/authentication-security/row-level-authorization">
+  Control access to individual records based on ownership and authorization rules.
+</Card>
+
+## User authentication
+
+Once an account exists, users can authenticate through your application's login flow.
+
+Bludia verifies the supplied credentials and establishes authentication according to your project's configuration.
+
+After authentication, requests to protected endpoints are evaluated against the configured access policies.
+
+<Card title="Authentication Overview" icon="lock" href="/authentication-security">
+  Understand how authentication and authorization work together in Bludia.
+</Card>
+
+## User permissions
+
+Authentication identifies a user. Authorization determines what that user can do.
+
+Bludia allows you to organize users into roles and assign permissions to control access to your application's functionality.
+
+<Columns cols={2}>
+  <Card title="Administrator" icon="shield-check">
+    Full administrative access to authorized project resources.
+  </Card>
+
+  <Card title="Manager" icon="user-cog">
+    Access to operational data and management functionality.
+  </Card>
+
+  <Card title="Regular User" icon="user">
+    Access to permitted application functionality and personal records.
+  </Card>
+
+  <Card title="Guest" icon="user-round">
+    Access to explicitly public resources.
+  </Card>
+</Columns>
+
+<Card title={"Roles & Permissions"} icon="key-round" href="/authentication-security/roles-permissions">
+  Configure roles and control what different users can access.
+</Card>
+
+## Security best practices
+
+Protecting user accounts is essential for every production application.
+
+<AccordionGroup>
+  <Accordion title="Protect authentication credentials" icon="lock">
+    Never expose passwords, private tokens, or sensitive authentication information through frontend code or public API responses.
+  </Accordion>
+
+  <Accordion title="Apply least-privilege access" icon="shield">
+    Give users only the permissions required to perform their tasks.
+  </Accordion>
+
+  <Accordion title="Protect user-owned records" icon="database">
+    Apply row-level authorization to prevent users from accessing records belonging to other users.
+  </Accordion>
+
+  <Accordion title="Restrict administrative operations" icon="user-lock">
+    Ensure that sensitive account management operations are available only to authorized administrators.
+  </Accordion>
+
+  <Accordion title="Review public endpoints" icon="globe">
+    Make sure public endpoints expose only information intended to be publicly accessible.
+  </Accordion>
+</AccordionGroup>
+
+<Card title="Security Best Practices" icon="shield-check" href="/authentication-security/security-best-practices">
+  Review the recommended security configuration before deploying your application.
+</Card>
+
+## What's next?
+
+<CardGroup cols={2}>
+  <Card title={"Login & Registration"} icon="log-in" href="/authentication-security/login-registration">
+    Configure how users create accounts and authenticate.
+  </Card>
+
+  <Card title={"Logout & Sessions"} icon="log-out" href="/authentication-security/logout-sessions">
+    Understand how authenticated sessions are managed.
+  </Card>
+
+  <Card title="Email Verification" icon="mail-check" href="/authentication-security/email-verification">
+    Verify user email addresses.
+  </Card>
+
+  <Card title="Password Reset" icon="key-round" href="/authentication-security/password-reset">
+    Allow users to recover account access.
+  </Card>
+</CardGroup>

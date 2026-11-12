@@ -1,0 +1,100 @@
+---
+title: "Overview"
+---
+
+Bludia provides the authentication and authorization infrastructure your application needs to manage users, control access, and protect sensitive data.
+
+Instead of building authentication systems, session management, and permission logic from scratch, you can configure these capabilities directly in your Bludia project.
+
+Bludia handles the underlying infrastructure while giving you control over how users authenticate and what they can access.
+
+## What you can do
+
+- **Manage users:** Create and manage application users, registration, login, and account recovery.
+- **Configure authentication:** Set up login methods, sessions, email verification, and password resets.
+- **Control access:** Define roles and permissions to determine what users can do.
+- **Protect records:** Apply row-level authorization to control access to individual records.
+- **Customize authentication:** Use custom login fields and authentication guards to support your application's requirements.
+- **Secure credentials:** Manage secrets and sensitive configuration without exposing them to your frontend.
+
+## How it works
+
+Bludia separates authentication from authorization.
+
+**Authentication** determines who a user is. It handles identity verification, login, registration, sessions, and account recovery.
+
+**Authorization** determines what an authenticated user is allowed to do. It controls access to collections, operations, and individual records.
+
+These capabilities work together to protect your application's data and functionality.
+
+## Core components
+
+### Users
+
+Manage the users who can access your application. Configure registration, login, logout, email verification, and password recovery.
+
+[Learn about Users](/authentication-security/users)
+
+### Login & Registration
+
+Configure how users create accounts and authenticate with your application, including custom login fields.
+
+[Learn about Login & Registration](/authentication-security/login-registration)
+
+### Guards
+
+Use authentication guards to define how authentication is applied to different parts of your application and API.
+
+[Learn about Guards](/authentication-security/guards)
+
+### Roles & Permissions
+
+Define roles and assign permissions to control which operations users can perform.
+
+For example, administrators may manage all records, while regular users can only create and manage their own data.
+
+[Learn about Roles & Permissions](/authentication-security/roles-permissions)
+
+### Row-Level Authorization
+
+Control access at the record level. Restrict users to specific records based on ownership, relationships, or other authorization rules.
+
+[Learn about Row-Level Authorization](/authentication-security/row-level-authorization)
+
+### Secret Management
+
+Store sensitive values such as API credentials, service tokens, and private configuration securely.
+
+[Learn about Secret Management](/authentication-security/secret-management)
+
+## Recommended setup
+
+When configuring security for a new project, we recommend following this order:
+
+1. **Configure authentication:** Decide how users will register and log in.
+2. **Set up user management:** Define the user fields and account requirements.
+3. **Configure guards:** Determine which endpoints and operations require authentication.
+4. **Create roles:** Define the different types of users in your application.
+5. **Assign permissions:** Control which operations each role can perform.
+6. **Configure record access:** Apply row-level authorization where necessary.
+7. **Review security:** Check secrets, access rules, and production settings before launch.
+
+## Security best practices
+
+Before deploying your application to production:
+
+- Require authentication for sensitive operations.
+- Follow the principle of least privilege when assigning permissions.
+- Use row-level authorization when users should only access their own records.
+- Never expose secret keys or private credentials in frontend code.
+- Verify that public endpoints only expose intentionally public data.
+- Test permissions using different user roles.
+- Review your authentication and authorization configuration regularly.
+
+See [Security Best Practices](/authentication-security/security-best-practices) for more details.
+
+## What's next?
+
+If you're setting up authentication for the first time, start with [Users](/authentication-security/users), then configure [Login & Registration](/authentication-security/login-registration) and [Roles & Permissions](/authentication-security/roles-permissions).
+
+For API-specific authentication, see the [API Authentication](/api/authentication) documentation.

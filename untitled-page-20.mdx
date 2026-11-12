@@ -1,0 +1,231 @@
+---
+title: "Roles & Permissions"
+---
+
+Not every user in your application should have access to the same functionality or data.
+
+An administrator may need full access to manage an application, while a manager may only need to access operational data. Regular users should only have access to the resources they are authorized to use.
+
+Bludia provides role-based access control (RBAC), allowing you to organize users into roles and define what each role can access and perform.
+
+Instead of implementing access checks throughout your frontend and backend, you can configure access policies centrally in your Bludia project.
+
+<Info>
+  Roles organize users into groups. Permissions define what those groups are allowed to do. Bludia evaluates access policies on the backend, so frontend restrictions alone are never sufficient for protecting application data.
+</Info>
+
+## Understanding roles and permissions
+
+Roles and permissions work together to determine what authenticated users can do.
+
+<Columns cols={2}>
+  <Card title="Roles" icon="users">
+    Define categories of users within your application.
+
+    Examples:
+
+    - Administrator
+    - Manager
+    - Employee
+    - Customer
+  </Card>
+
+  <Card title="Permissions" icon="shield-check">
+    Define which operations users are allowed to perform.
+
+    Examples:
+
+    - Read records
+    - Create records
+    - Update records
+    - Delete records
+  </Card>
+</Columns>
+
+A user receives access according to the roles and permissions assigned to their account.
+
+## How role-based access control works
+
+The authorization process typically follows these steps:
+
+<Steps>
+  <Step title="Create roles">
+    Define the different user categories required by your application.
+  </Step>
+  <Step title="Define permissions">
+    Determine which operations each role is allowed to perform.
+  </Step>
+  <Step title="Assign roles to users">
+    Associate users with the appropriate roles.
+  </Step>
+  <Step title="Evaluate requests">
+    When a user makes an API request, Bludia evaluates the configured access policies.
+  </Step>
+  <Step title="Allow or reject access">
+    The operation is permitted only when the applicable authorization requirements are satisfied.
+  </Step>
+</Steps>
+
+<Frame>
+  <div>
+  <div>
+    <Badge color="info">User</Badge>
+    **Authenticated User**
+    <div>Requests access to an application resource</div>
+  </div>
+
+  <div>
+    <Icon icon="arrow-down" color="secondary" />
+  </div>
+
+  <div>
+    <Badge color="info">Role</Badge>
+    **Assigned Role**
+    <div>Administrator, Manager, Employee, or Customer</div>
+  </div>
+
+  <div>
+    <Icon icon="arrow-down" color="secondary" />
+  </div>
+
+  <div>
+    <Badge color="info">Permissions</Badge>
+    **Access Evaluation**
+    <div>Check the requested operation against configured permissions</div>
+  </div>
+
+  <div>
+    <Icon icon="arrow-down" color="secondary" />
+  </div>
+
+  <Columns cols={2}>
+    <Card title="Allowed" icon="check-circle">
+      <Badge color="success">Granted</Badge>
+      <div>The operation can proceed.</div>
+    </Card>
+
+    <Card title="Denied" icon="x-circle">
+      <Badge color="danger">Rejected</Badge>
+      <div>The operation is not permitted.</div>
+    </Card>
+  </Columns>
+</div>
+</Frame>
+
+## Example: CRM access control
+
+Consider a CRM application with three different types of users.
+
+Each role requires different permissions depending on its responsibilities.
+
+<AccordionGroup>
+  <Accordion title="Administrator" icon="shield-check">
+    Administrators manage the entire CRM application.
+
+    | Operation | Access |
+    | --- | --- |
+    | View leads | Allowed |
+    | Create leads | Allowed |
+    | Update leads | Allowed |
+    | Delete leads | Allowed |
+    | Manage users | Allowed |
+  </Accordion>
+
+  <Accordion title="Manager" icon="user-cog">
+    Managers oversee sales operations and manage team activities.
+
+    | Operation | Access |
+    | --- | --- |
+    | View leads | Allowed |
+    | Create leads | Allowed |
+    | Update leads | Allowed |
+    | Delete leads | Restricted |
+    | Manage users | Restricted |
+  </Accordion>
+
+  <Accordion title="Sales Representative" icon="user">
+    Sales representatives work with assigned leads and customer information.
+
+    | Operation | Access |
+    | --- | --- |
+    | View leads | Allowed |
+    | Create leads | Allowed |
+    | Update leads | Allowed |
+    | Delete leads | Restricted |
+    | Manage users | Restricted |
+  </Accordion>
+</AccordionGroup>
+
+<Info>
+  This is an illustrative permission model. Actual access depends on the roles and policies configured in your Bludia project.
+</Info>
+
+## Collection permissions
+
+Your application collections contain business data, and different user roles may require different levels of access to each collection.
+
+For example, a CRM application might have the following collections:
+
+| Collection | Administrator | Manager | Employee |
+| --- | --- | --- | --- |
+| Leads | Full access | Read / Write | Read / Write |
+| Customers | Full access | Read / Write | Read |
+| Employees | Full access | Read | Restricted |
+| Settings | Full access | Restricted | Restricted |
+
+This allows you to define access policies based on the responsibilities of each user group.
+
+## Common permission operations
+
+Most application authorization models need to control the following operations:
+
+<Columns cols={2}>
+  <Card title="Read" icon="eye">
+    Allow users to retrieve and view collection records.
+  </Card>
+
+  <Card title="Create" icon="plus-circle">
+    Allow users to create new records.
+  </Card>
+
+  <Card title="Update" icon="pencil">
+    Allow users to modify existing records.
+  </Card>
+
+  <Card title="Delete" icon="trash-2">
+    Allow users to remove existing records.
+  </Card>
+</Columns>
+
+Depending on your application, additional permissions may be required for administrative operations or custom functionality.
+
+## Configuring roles and permissions
+
+When setting up access control for a new project, we recommend the following workflow:
+
+<Steps>
+  <Step title="Identify user categories">
+    List the different types of users who will interact with your application.
+
+    For example: administrators, managers, employees, and customers.
+  </Step>
+  <Step title="Create roles">
+    Create a role for each user category that requires a distinct access policy.
+  </Step>
+  <Step title="Define collection access">
+    Determine which collections each role should be able to access.
+  </Step>
+  <Step title="Configure operations">
+    Define whether each role can read, create, update, or delete records.
+  </Step>
+  <Step title="Assign roles">
+    Associate each user with the appropriate role.
+  </Step>
+  <Step title="Test authorization">
+    Test the application using accounts with different roles to verify that access restrictions work as expected.
+  </Step>
+</Steps>
+
+## Roles vs. row-level authorization
+
+Roles and permissions control access at a broader level, but sometimes applications need more precise

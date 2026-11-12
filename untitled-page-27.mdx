@@ -1,0 +1,331 @@
+---
+title: "Best Practices"
+---
+
+# Hooks Best Practices
+
+Hooks allow you to extend Bludia's built-in backend functionality with custom business logic and automated workflows.
+
+As your application grows, hooks can become an important part of its backend architecture. Following good development practices helps keep your hooks reliable, secure, maintainable, and efficient.
+
+This guide covers recommended practices for designing, implementing, and managing hooks in production applications.
+
+## Keep Hooks Focused
+
+Each hook should have a clear and well-defined responsibility.
+
+Avoid combining unrelated operations into a single large hook. Smaller hooks are easier to understand, test, debug, and maintain.
+
+**Recommended approach:**
+
+- Use separate hooks for unrelated business operations.
+- Keep custom code concise and readable.
+- Avoid unnecessary conditional logic.
+- Separate validation from post-operation workflows when appropriate.
+
+For example, an order management application might use separate hooks for:
+
+- Calculating order totals.
+- Validating order status transitions.
+- Sending order confirmation emails.
+- Updating inventory quantities.
+
+This makes individual operations easier to maintain.
+
+## Choose the Correct Lifecycle Event
+
+Select the lifecycle event based on when your logic needs to execute.
+
+| Event | Recommended Usage |
+| --- | --- |
+| `before_create` | Validate or transform incoming data before creating a record. |
+| `after_create` | Trigger notifications or create related records. |
+| `before_update` | Validate changes or enforce business rules. |
+| `after_update` | Synchronize data or react to completed updates. |
+| `before_delete` | Check deletion requirements or prevent invalid deletions. |
+| `after_delete` | Perform follow-up operations after deletion. |
+
+For example, if you need to prevent an order from being created with an invalid amount, use `before_create`.
+
+If you need to notify an administrator after an order has been created, use `after_create`.
+
+See Lifecycle Events for more information.
+
+## Validate Incoming Data
+
+Never assume that incoming data is always valid or complete.
+
+Even if your frontend performs validation, backend hooks should independently verify business-specific requirements.
+
+Recommended practices:
+
+- Check required values before using them.
+- Validate expected data types.
+- Handle missing or null values.
+- Verify business rules before modifying records.
+- Reject invalid state transitions.
+- Normalize values when necessary.
+
+For example, a booking application should verify that the requested booking date is valid and that the selected resource is available before accepting a booking.
+
+Backend validation helps protect your application regardless of which client sends the request.
+
+## Handle Errors Properly
+
+Custom code should account for unexpected conditions.
+
+Avoid writing hooks that assume every operation will succeed.
+
+Common failure scenarios include:
+
+- Missing record data.
+- Invalid input values.
+- External API failures.
+- Network timeouts.
+- Unexpected runtime exceptions.
+
+Recommended practices:
+
+- Validate inputs before processing them.
+- Handle expected failures explicitly.
+- Return meaningful error information where supported.
+- Avoid silently ignoring failures.
+- Use execution logs to investigate unexpected behavior.
+
+For example, if an external email service becomes unavailable, your hook should handle the failed request appropriately rather than assuming the notification was delivered.
+
+See Logs & Errors for more information.
+
+## Optimize Execution Performance
+
+Hooks add processing to the operations that trigger them.
+
+Inefficient custom code can increase API response times and affect the overall application experience.
+
+Follow these recommendations:
+
+**Avoid Unnecessary Operations**
+
+Only perform the work required by the current lifecycle event.
+
+**Minimize External Requests**
+
+External API calls can introduce network latency and additional failure points.
+
+**Avoid Large Data Processing**
+
+Do not unnecessarily retrieve or process large collections inside a hook.
+
+**Use Efficient Queries**
+
+Retrieve only the records and fields required by your custom logic.
+
+**Keep Execution Logic Lightweight**
+
+Avoid expensive computations when a simpler approach is sufficient.
+
+For example, when creating an order, retrieve only the product information needed to calculate its total instead of loading an entire product collection.
+
+## Be Careful with External APIs
+
+Hooks are useful for integrating Bludia with third-party services, but external dependencies introduce additional complexity.
+
+When communicating with external APIs:
+
+- Use HTTPS endpoints.
+- Protect API credentials.
+- Configure appropriate request timeouts.
+- Validate external API responses.
+- Handle unsuccessful HTTP responses.
+- Account for network failures.
+- Avoid making unnecessary repeated requests.
+
+For example, when synchronizing a customer with an external CRM, verify that the external service accepted the request before treating the synchronization as successful.
+
+### Avoid Duplicate Operations
+
+External API requests may occasionally succeed even when your application does not receive the expected response.
+
+Retrying the same operation without additional safeguards can create duplicate records or transactions.
+
+Where supported, use idempotency keys or unique external references to prevent duplicate operations.
+
+## Protect Sensitive Information
+
+Custom hooks execute backend logic and may interact with application data, authentication information, and external services.
+
+Treat custom code as security-sensitive application logic.
+
+**Never Hardcode Credentials**
+
+Avoid storing API keys, passwords, access tokens, or private credentials directly inside custom code.
+
+**Validate External Input**
+
+Do not trust data simply because it originates from your own frontend.
+
+**Avoid Exposing Internal Information**
+
+Do not return database credentials, private configuration, or sensitive execution details to frontend clients.
+
+**Limit Data Access**
+
+Only retrieve and modify the information required by the hook.
+
+**Protect Execution Logs**
+
+Avoid writing confidential information into logs or error messages.
+
+## Avoid Unnecessary Dependencies Between Hooks
+
+Hooks should remain as independent as reasonably possible.
+
+When multiple hooks modify the same data or depend on one another, the application can become difficult to maintain.
+
+For example, consider an application where:
+
+1. A customer creation hook creates an invoice.
+2. The invoice creation hook updates the customer.
+3. The customer update hook creates another invoice.
+
+This type of dependency can lead to unexpected execution chains or recursive behavior.
+
+Recommended practices:
+
+- Avoid circular dependencies.
+- Keep execution responsibilities clear.
+- Be careful when hooks trigger additional operations.
+- Do not assume a specific execution order unless Bludia explicitly guarantees it.
+- Design workflows to prevent repeated or recursive execution.
+
+## Design for Data Consistency
+
+Hooks frequently modify related records or maintain additional business information.
+
+When doing so, consider what happens if one operation succeeds and another fails.
+
+For example, an order creation workflow might involve:
+
+- Creating an order.
+- Updating product inventory.
+- Creating a payment record.
+- Sending a notification.
+
+If one operation fails, the application may be left with incomplete business data.
+
+Recommended practices:
+
+- Identify operations that must succeed together.
+- Use transactions where supported and appropriate.
+- Validate related records before modifying them.
+- Avoid assuming that multiple independent operations are atomic.
+- Consider recovery procedures for partially completed workflows.
+
+## Make Hooks Idempotent Where Possible
+
+An idempotent operation produces the same intended result when executed multiple times with the same input.
+
+This is particularly important for workflows involving external integrations, retries, or repeated requests.
+
+For example, a hook that creates a payment record should check whether the payment has already been processed before creating another one.
+
+Recommended practices:
+
+- Use unique business references.
+- Check existing records before creating duplicates.
+- Avoid incrementing values blindly.
+- Design external synchronization around stable identifiers.
+- Make repeated execution safe whenever possible.
+
+## Test Before Production
+
+Always test custom hooks before relying on them in production applications.
+
+Testing should cover more than the expected successful scenario.
+
+Consider testing:
+
+| Scenario | What to Verify |
+| --- | --- |
+| Valid input | The expected operation completes successfully. |
+| Missing values | The hook handles incomplete data correctly. |
+| Invalid values | Business validation works as expected. |
+| Large input | Execution remains efficient. |
+| External API failure | Errors are handled appropriately. |
+| Duplicate execution | Repeated operations do not create unintended results. |
+| Related record failure | Data consistency is preserved. |
+
+Test hooks with realistic application data and edge cases before enabling them in critical workflows.
+
+## Monitor Hook Executions
+
+Production applications require ongoing monitoring.
+
+Do not assume that a hook will continue working correctly simply because it passed initial testing.
+
+Periodically review execution logs to identify:
+
+- Repeated execution failures.
+- Unexpected execution times.
+- External API problems.
+- Invalid application data.
+- Unexpected workflow behavior.
+
+Investigating problems early helps prevent small issues from becoming larger application failures.
+
+See Logs & Errors for more information.
+
+## Common Mistakes to Avoid
+
+| Mistake | Recommended Approach |
+| --- | --- |
+| Writing large hooks | Split unrelated logic into smaller hooks. |
+| Ignoring invalid input | Validate data before processing. |
+| Making unnecessary API requests | Minimize external dependencies. |
+| Hardcoding credentials | Protect sensitive configuration. |
+| Ignoring execution errors | Implement appropriate error handling. |
+| Creating circular hook dependencies | Keep workflows independent. |
+| Assuming operations are atomic | Consider partial failures and data consistency. |
+| Ignoring duplicate execution | Design idempotent operations. |
+| Skipping production testing | Test edge cases before deployment. |
+
+## Production Readiness Checklist
+
+Before enabling custom hooks in a production application, review the following checklist.
+
+- [ ] Each hook has a clear responsibility.
+- [ ] The correct lifecycle event is selected.
+- [ ] Incoming data is validated.
+- [ ] Missing and unexpected values are handled.
+- [ ] Execution errors are handled appropriately.
+- [ ] External requests have appropriate timeouts.
+- [ ] Sensitive credentials are protected.
+- [ ] Duplicate operations are considered.
+- [ ] Hook dependencies are understood.
+- [ ] Data consistency has been considered.
+- [ ] Custom code has been tested with edge cases.
+- [ ] Execution logs are monitored.
+
+## Related Documentation
+
+<CardGroup cols={2}>
+  <Card title="Hooks Overview" icon="workflow" href="/hooks/overview">
+    Understand how hooks extend Bludia's backend.
+  </Card>
+
+  <Card title="Lifecycle Events" icon="git-branch" href="/hooks/lifecycle">
+    Choose the right event for your custom logic.
+  </Card>
+
+  <Card title="Custom Code" icon="code" href="/hooks/custom-code">
+    Learn how to write custom backend logic.
+  </Card>
+
+  <Card title="Runtime" icon="terminal" href="/hooks/runtime">
+    Understand the hook execution environment.
+  </Card>
+
+  <Card title={"Logs & Errors"} icon="file-text" href="/hooks/logs">
+    Monitor executions and troubleshoot failures.
+  </Card>
+</CardGroup>

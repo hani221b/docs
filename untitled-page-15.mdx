@@ -1,0 +1,219 @@
+---
+title: "Logout & Sessions"
+---
+
+Authentication doesn't end when a user successfully logs in. Your application also needs a reliable way to maintain authentication state and securely terminate access when users log out.
+
+Bludia provides authentication infrastructure to manage authenticated access to your application, allowing you to focus on the user experience rather than implementing session management from scratch.
+
+This guide explains how logout and authentication sessions fit into your Bludia application.
+
+## Understanding sessions
+
+An authenticated session represents a user's authenticated state after successfully logging in.
+
+Once a user authenticates, Bludia provides the configured authentication credentials that your frontend uses when making requests to protected API endpoints.
+
+<Frame>
+  <div>
+  <div>
+    <Badge color="success">Authenticated</Badge>
+    **User Login**
+    <div>User successfully submits valid credentials</div>
+  </div>
+
+  <div>
+    <Icon icon="arrow-down" color="secondary" />
+  </div>
+
+  <div>
+    <Badge color="info">Session</Badge>
+    **Authentication Established**
+    <div>Bludia returns the configured authentication result</div>
+  </div>
+
+  <div>
+    <Icon icon="arrow-down" color="secondary" />
+  </div>
+
+  <div>
+    <Badge color="success">Active</Badge>
+    **Protected API Requests**
+    <div>Frontend includes authentication credentials with requests</div>
+  </div>
+</div>
+</Frame>
+
+The exact authentication mechanism and credential lifecycle depend on your project's authentication configuration.
+
+## Authentication lifecycle
+
+A typical authentication lifecycle consists of the following stages:
+
+<Steps>
+  <Step title="Login">
+    The user submits valid credentials through your application's login interface.
+  </Step>
+  <Step title="Session establishment">
+    Bludia returns the configured authentication result.
+  </Step>
+  <Step title="Authenticated requests">
+    Your frontend includes the required authentication credentials when accessing protected endpoints.
+  </Step>
+  <Step title="Session termination">
+    The user logs out, or the authentication session is otherwise invalidated according to the configured mechanism.
+  </Step>
+  <Step title="Unauthenticated state">
+    The frontend clears its local authentication state and requires the user to authenticate again before accessing protected resources.
+  </Step>
+</Steps>
+
+## Logging out
+
+Logout allows users to terminate their authenticated access to your application.
+
+When a user logs out, your application should ensure that the authentication state is properly handled on both the backend and frontend.
+
+A typical logout flow looks like this:
+
+<Steps>
+  <Step title="User requests logout">
+    The user selects the logout option in your application.
+  </Step>
+  <Step title="Send logout request">
+    Your frontend sends the logout request to Bludia using the current authentication credentials.
+  </Step>
+  <Step title="Terminate authentication">
+    Bludia processes the logout operation according to the configured authentication mechanism.
+  </Step>
+  <Step title="Clear local authentication state">
+    Your frontend removes locally stored authentication credentials and resets the authenticated user state.
+  </Step>
+  <Step title="Redirect user">
+    Redirect the user to the login page or another public page.
+  </Step>
+</Steps>
+
+<Warning>
+  Clearing authentication credentials from the frontend is not a substitute for server-side session or token invalidation. Use the configured Bludia logout operation where supported.
+</Warning>
+
+## Session management
+
+Session management determines how authenticated access is maintained and terminated.
+
+Your application should account for the following scenarios:
+
+<AccordionGroup>
+  <Accordion title="Active sessions" icon="shield-check">
+    Users with valid authentication credentials can access protected resources according to their assigned permissions.
+  </Accordion>
+
+  <Accordion title="Expired sessions" icon="clock">
+    When authentication credentials expire or become invalid, protected requests should no longer be treated as authenticated.
+  </Accordion>
+
+  <Accordion title="Logged-out sessions" icon="log-out">
+    After logout, the frontend should clear its authentication state and stop sending the invalidated credentials.
+  </Accordion>
+
+  <Accordion title="Multiple devices" icon="monitor-smartphone">
+    Consider how your application should handle users accessing the same account from multiple browsers or devices. Session invalidation behavior depends on your authentication configuration.
+  </Accordion>
+</AccordionGroup>
+
+## Frontend implementation
+
+Your frontend is responsible for maintaining the user interface's authentication state.
+
+For example, after a successful logout, your application should:
+
+- Clear locally stored authentication credentials.
+- Remove cached authenticated user information where appropriate.
+- Reset protected application state.
+- Redirect the user to a public route.
+- Prevent authenticated-only interfaces from remaining accessible.
+
+<CodeGroup>
+
+```javascript JavaScript
+async function logout() {
+  try {
+    // Call your configured Bludia logout endpoint.
+    await bludia.auth.logout();
+
+    // Clear local authentication state.
+    // Redirect the user to the login page.
+  } catch (error) {
+    console.error("Logout failed:", error);
+  }
+}
+```
+
+</CodeGroup>
+
+<Info>
+  The example illustrates the intended application flow. Replace `bludia.auth.logout()` with the actual logout method provided by your Bludia API client or your configured HTTP integration.
+</Info>
+
+## Security best practices
+
+Authentication state should be handled carefully, especially when your application manages sensitive information.
+
+<CardGroup cols={2}>
+  <Card title="Protect credentials" icon="lock">
+    Never expose authentication tokens or credentials in URLs, logs, or public application data.
+  </Card>
+
+  <Card title="Use HTTPS" icon="shield-check">
+    Always transmit authentication information over secure HTTPS connections.
+  </Card>
+
+  <Card title="Clear local state" icon="trash-2">
+    Remove locally stored credentials and sensitive cached data when users log out.
+  </Card>
+
+  <Card title="Handle expiration" icon="clock">
+    Handle expired or invalid authentication credentials gracefully and redirect users when necessary.
+  </Card>
+</CardGroup>
+
+## Common issues
+
+<AccordionGroup>
+  <Accordion title="User remains logged in after logout">
+    Check whether your frontend has cleared all locally stored authentication credentials and cached user state. Also verify that the backend logout operation successfully invalidates the relevant credentials where supported.
+  </Accordion>
+
+  <Accordion title="Unauthorized errors after login">
+    Ensure that your frontend includes the correct authentication credentials with protected API requests.
+  </Accordion>
+
+  <Accordion title="Session expires unexpectedly">
+    Check the configured authentication mechanism and credential expiration behavior.
+  </Accordion>
+
+  <Accordion title="Logout fails">
+    Verify the logout request, authentication headers, API response, and network connectivity.
+  </Accordion>
+</AccordionGroup>
+
+## What's next?
+
+<CardGroup cols={2}>
+  <Card title={"Login & Registration"} icon="log-in" href="/authentication-security/login-registration">
+    Learn how users authenticate and create accounts.
+  </Card>
+
+  <Card title="Email Verification" icon="mail-check" href="/authentication-security/email-verification">
+    Configure email verification for user accounts.
+  </Card>
+
+  <Card title="Password Reset" icon="key-round" href="/authentication-security/password-reset">
+    Allow users to recover access to their accounts.
+  </Card>
+
+  <Card title="Guards" icon="shield" href="/authentication-security/guards">
+    Configure authentication requirements for protected resources.
+  </Card>
+</CardGroup>

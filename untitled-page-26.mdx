@@ -1,0 +1,246 @@
+---
+title: "Logs & Errors"
+---
+
+# Logs & Errors
+
+Bludia provides hook execution logs to help you monitor custom code, investigate failures, and understand how your backend workflows behave.
+
+Every time a hook is executed, its execution result can be used to identify whether the operation completed successfully or encountered an error.
+
+Logs are particularly useful when developing custom workflows, integrating external services, or troubleshooting unexpected application behavior.
+
+## Why Use Hook Logs?
+
+Hook logs give you visibility into what happens during custom code execution.
+
+You can use them to:
+
+- Monitor successful and failed hook executions.
+- Investigate runtime errors.
+- Identify invalid input data.
+- Troubleshoot external API integrations.
+- Understand unexpected hook behavior.
+- Debug custom business logic.
+- Verify that automated workflows are executing as expected.
+
+For example, if an order confirmation email is not being delivered, execution logs can help determine whether the hook failed during execution or encountered an issue while communicating with the external email service.
+
+## Understanding Execution Results
+
+A hook execution produces a result that indicates whether the associated custom code completed successfully.
+
+Common execution outcomes include:
+
+| Result | Description |
+| --- | --- |
+| `success` | The hook completed execution successfully. |
+| `failed` | The hook encountered an error during execution. |
+
+The execution result helps you identify which hooks require investigation.
+
+## Understanding Log Information
+
+A hook execution log may contain information about the associated execution.
+
+Typical log information includes:
+
+| Information | Description |
+| --- | --- |
+| Hook | The hook associated with the execution. |
+| Event | The lifecycle event that triggered the hook. |
+| Collection | The collection involved in the operation. |
+| Execution Status | Whether execution succeeded or failed. |
+| Duration | The time taken to execute the hook. |
+| Error Message | Details about an execution failure, when available. |
+| Timestamp | When the execution occurred. |
+
+The available information depends on the execution configuration and the type of event.
+
+## Common Hook Errors
+
+Understanding common runtime errors makes troubleshooting easier.
+
+### Syntax Errors
+
+Syntax errors occur when custom code contains invalid syntax.
+
+Examples:
+
+- Missing brackets or parentheses.
+- Invalid variable declarations.
+- Incorrect function definitions.
+- Unsupported language syntax.
+
+**How to resolve:**
+
+Review your custom code and correct the syntax before executing the hook again.
+
+### Invalid Input Data
+
+A hook may fail when it receives unexpected or incomplete input.
+
+Examples:
+
+- Missing required values.
+- Unexpected data types.
+- Invalid record identifiers.
+- Incorrectly formatted values.
+
+**How to resolve:**
+
+Validate incoming data and ensure your custom code handles missing or unexpected values.
+
+### Missing Execution Context
+
+Some hooks depend on information provided by Bludia during execution.
+
+An error may occur when custom code assumes that a context value is always available.
+
+**How to resolve:**
+
+Check the lifecycle event and verify which context information is available for that event.
+
+### External API Failures
+
+Hooks that communicate with third-party services may encounter external failures.
+
+Examples:
+
+- Authentication failures.
+- Invalid API endpoints.
+- HTTP error responses.
+- Network connectivity issues.
+- External service downtime.
+
+**How to resolve:**
+
+Verify the external API configuration, check authentication credentials, and implement appropriate error handling.
+
+### Execution Timeouts
+
+An execution may fail when custom code takes longer than the allowed execution time.
+
+Common causes include:
+
+- Slow external API requests.
+- Unnecessary processing.
+- Large data operations.
+- Inefficient custom logic.
+
+**How to resolve:**
+
+Optimize the code, reduce unnecessary operations, and configure appropriate timeouts for external requests.
+
+### Unexpected Runtime Errors
+
+Runtime errors occur when custom code encounters an unexpected condition during execution.
+
+Examples:
+
+- Accessing unavailable properties.
+- Calling undefined functions.
+- Invalid operations.
+- Unexpected exceptions.
+
+**How to resolve:**
+
+Review the error message and execution context to identify the operation that caused the failure.
+
+## Troubleshooting Workflow
+
+When a hook does not behave as expected, follow this troubleshooting process.
+
+### 1. Identify the Failed Execution
+
+Locate the execution associated with the affected hook.
+
+Check its execution status and timestamp.
+
+### 2. Review the Error Message
+
+If the execution failed, inspect the available error information.
+
+Look for syntax errors, invalid values, missing context, or external service failures.
+
+### 3. Review the Custom Code
+
+Open the associated hook and inspect the code.
+
+Pay particular attention to:
+
+- Input validation.
+- Record data access.
+- External API requests.
+- Conditional statements.
+- Error handling.
+
+### 4. Verify the Lifecycle Event
+
+Ensure that the hook is associated with the correct lifecycle event.
+
+For example, logic that requires modifying incoming record data should generally execute during `before_create` or `before_update`.
+
+### 5. Test the Changes
+
+Update the custom code and test it using different input values and edge cases.
+
+Verify that the expected operation completes successfully.
+
+### 6. Monitor Subsequent Executions
+
+Review subsequent execution results to confirm that the issue has been resolved.
+
+## Logging Best Practices
+
+**Keep Error Messages Useful**
+
+Provide meaningful error information that helps identify what went wrong.
+
+**Avoid Logging Sensitive Information**
+
+Never include passwords, API keys, authentication tokens, or other confidential information in log messages.
+
+**Use Clear Error Handling**
+
+Handle expected failures explicitly instead of allowing unexpected conditions to propagate without useful context.
+
+**Monitor External Dependencies**
+
+When a hook communicates with an external service, account for failed requests, unexpected responses, and network timeouts.
+
+**Keep Custom Code Maintainable**
+
+Organize complex logic into smaller, understandable operations whenever possible.
+
+**Investigate Repeated Failures**
+
+Repeated execution failures may indicate an underlying problem with your code, configuration, or external dependencies.
+
+## Important Considerations
+
+- A successful hook execution does not necessarily guarantee that an external service completed its intended operation.
+- Error messages should be treated as debugging information, not as a substitute for proper error handling.
+- Avoid exposing internal execution details to frontend clients.
+- Do not assume that failed hooks are automatically retried unless retry behavior is explicitly supported by the execution configuration.
+- Test custom code before enabling it in production workflows.
+
+## Related Documentation
+
+<CardGroup cols={2}>
+  <Card title="Hooks Overview" icon="workflow" href="/hooks/overview">
+    Understand how hooks extend Bludia's backend.
+  </Card>
+
+  <Card title="Lifecycle Events" icon="git-branch" href="/hooks/lifecycle">
+    Learn when hooks are triggered.
+  </Card>
+
+  <Card title="Custom Code" icon="code" href="/hooks/custom-code">
+    Write custom backend logic for your application.
+  </Card>
+
+  <Card title="Runtime" icon="terminal" href="/hooks/runtime">
+    Understand how Bludia executes custom code.
+  </Card>
+</CardGroup>

@@ -1,0 +1,242 @@
+---
+title: "Login & Registration"
+---
+
+---
+
+## title: "Login & Registration" description: "Configure user registration and login flows to authenticate users in your Bludia applications."
+
+# Login & Registration
+
+Bludia provides built-in authentication capabilities that allow users to create accounts and securely access your applications.
+
+Instead of implementing password handling, credential validation, and authentication infrastructure yourself, you can use Bludia to manage the authentication process while integrating it with your frontend.
+
+Whether you're building a customer portal, SaaS platform, booking system, or internal application, you can configure authentication to match your requirements.
+
+<Info>
+  Authentication is managed by Bludia. Your frontend is responsible for collecting user credentials and communicating with the Bludia API.
+</Info>
+
+## Authentication overview
+
+Bludia supports two fundamental authentication operations:
+
+<Columns cols={2}>
+  <Card title="Registration" icon="user-plus">
+    Allow new users to create accounts and join your application.
+
+    - Collect registration information
+    - Validate credentials
+    - Create user accounts
+  </Card>
+
+  <Card title="Login" icon="log-in">
+    Allow existing users to authenticate and access protected resources.
+
+    - Submit credentials
+    - Verify account information
+    - Establish an authenticated session
+  </Card>
+</Columns>
+
+## How registration works
+
+Registration allows new users to create accounts in your application.
+
+A typical registration flow looks like this:
+
+<Steps>
+  <Step title="Collect user information">
+    Your frontend displays a registration form and collects the required information, such as email address and password.
+  </Step>
+  <Step title="Submit registration request">
+    Your frontend sends the registration information to the Bludia authentication API.
+  </Step>
+  <Step title="Validate and create account">
+    Bludia processes the registration request, validates the supplied information, and creates the user account.
+  </Step>
+  <Step title="Complete registration">
+    The user can proceed according to your configured authentication and email verification requirements.
+  </Step>
+</Steps>
+
+<Frame>
+  <div>
+  <div>
+    <Badge color="info">Frontend</Badge>
+    **Registration Form**
+    <div>Collect email and password</div>
+  </div>
+
+  <div>
+    <Icon icon="arrow-down" color="secondary" />
+  </div>
+
+  <div>
+    <Badge color="success">Bludia API</Badge>
+    **Account Creation**
+    <div>Validate and create user account</div>
+  </div>
+
+  <div>
+    <Icon icon="arrow-down" color="secondary" />
+  </div>
+
+  <div>
+    <Badge color="success">Result</Badge>
+    **Registered User**
+    <div>Account ready for the configured authentication flow</div>
+  </div>
+</div>
+</Frame>
+
+## How login works
+
+Once a user has an account, they can authenticate using your application's login form.
+
+<Steps>
+  <Step title="Collect credentials">
+    Your frontend asks the user for their configured login credentials.
+  </Step>
+  <Step title="Submit login request">
+    The credentials are sent to the Bludia authentication API over HTTPS.
+  </Step>
+  <Step title="Verify credentials">
+    Bludia validates the supplied credentials against the user account.
+  </Step>
+  <Step title="Establish authentication">
+    When authentication succeeds, Bludia returns the configured authentication result.
+  </Step>
+  <Step title="Access protected resources">
+    Your frontend uses the authentication result when communicating with protected API endpoints.
+  </Step>
+</Steps>
+
+<Info>
+  The authentication response and subsequent request requirements depend on your project's configured authentication method. Refer to the API Authentication documentation for the exact integration details.
+</Info>
+
+## Custom login fields
+
+Not every application identifies users using an email address.
+
+Depending on your requirements, you may want users to authenticate using another identifier.
+
+Examples include:
+
+- Username
+- Employee ID
+- Membership number
+- Phone number
+- Custom account identifier
+
+Bludia supports configurable login fields so you can adapt authentication to your application's user management requirements.
+
+<Card title="Custom Login Fields" icon="sliders-horizontal" href="/authentication-security/custom-login-fields">
+  Learn how to configure alternative identifiers for user authentication.
+</Card>
+
+## Email verification
+
+You may want to verify user email addresses before allowing access to certain application features.
+
+Email verification helps ensure that users have access to the email address associated with their accounts.
+
+A typical verification flow involves:
+
+1. A user registers an account.
+2. Bludia initiates the configured email verification process.
+3. The user receives a verification message.
+4. The user completes the verification process.
+5. The account's verification status is updated.
+
+You can use verification requirements as part of your application's authentication and authorization rules.
+
+<Card title="Email Verification" icon="mail-check" href="/authentication-security/email-verification">
+  Configure and manage email verification for your users.
+</Card>
+
+## Password security
+
+Bludia manages password credentials as part of its authentication infrastructure.
+
+When implementing login and registration forms, follow these recommendations:
+
+- Always transmit credentials over HTTPS.
+- Never store passwords in frontend storage.
+- Never log passwords or authentication credentials.
+- Avoid exposing sensitive user information in API responses.
+- Use the built-in password recovery functionality instead of implementing your own password reset mechanism.
+
+<Card title="Password Reset" icon="key-round" href="/authentication-security/password-reset">
+  Learn how users can securely recover access to their accounts.
+</Card>
+
+## Frontend integration
+
+Your frontend communicates with Bludia's authentication API to register users and authenticate existing accounts.
+
+Bludia can be integrated with any frontend capable of making HTTP requests.
+
+Common integration options include:
+
+<Columns cols={2}>
+  <Card title="JavaScript / TypeScript" icon="code">
+    Integrate authentication into any JavaScript application using HTTP requests.
+  </Card>
+
+  <Card title="React" icon="atom">
+    Build registration and login interfaces for React applications.
+  </Card>
+
+  <Card title="Next.js" icon="layers">
+    Integrate authentication into server-rendered and client-rendered applications.
+  </Card>
+
+  <Card title="Flutter" icon="smartphone">
+    Authenticate users in Flutter mobile applications.
+  </Card>
+</Columns>
+
+See [Frontend Integration](/frontend-integration/overview) for more information.
+
+## Common authentication issues
+
+<AccordionGroup>
+  <Accordion title="Invalid credentials" icon="alert-circle">
+    The supplied login credentials could not be verified. Check the submitted identifier and password.
+  </Accordion>
+
+  <Accordion title="Account already exists" icon="user-round-x">
+    Registration may fail when an account already exists with the supplied unique identifier.
+  </Accordion>
+
+  <Accordion title="Email verification required" icon="mail-warning">
+    Your application's configuration may require users to verify their email addresses before accessing protected resources.
+  </Accordion>
+
+  <Accordion title="Unauthorized API request" icon="shield-alert">
+    The authentication information may be missing, invalid, or expired. Check your API authentication configuration.
+  </Accordion>
+</AccordionGroup>
+
+## What's next?
+
+<CardGroup cols={2}>
+  <Card title={"Logout & Sessions"} icon="log-out" href="/authentication-security/logout-sessions">
+    Learn how users end their sessions and manage authentication state.
+  </Card>
+
+  <Card title="Email Verification" icon="mail-check" href="/authentication-security/email-verification">
+    Configure email verification workflows.
+  </Card>
+
+  <Card title="Password Reset" icon="key-round" href="/authentication-security/password-reset">
+    Implement secure account recovery.
+  </Card>
+
+  <Card title="API Authentication" icon="lock" href="/api/authentication">
+    Understand how to authenticate API requests.
+  </Card>
+</CardGroup>

@@ -1,0 +1,58 @@
+---
+title: "Database overview"
+description: "How Bludia stores data: collections (tables), typed fields (columns), records (rows), relations, validation, computed fields, trash, history, and import/export."
+keywords: ["database", "data model", "schema", "postgresql", "collections", "records"]
+icon: "database"
+---
+
+Bludia's database is where your application data lives. You design the schema in the dashboard; Bludia stores records in PostgreSQL, validates every write, and exposes each collection through the REST API.
+
+```text
+Project
+└── Collection: bookings              (slug used in the API: /collections/bookings)
+    ├── Fields: customer (relation), service (relation), date (datetime), status (select)
+    └── Records:
+        ├── #101  { customer: 25, date: "2026-12-01T10:00", status: "confirmed" }
+        └── #102  { customer: 31, date: "2026-12-02T14:30", status: "pending" }
+```
+
+## Features
+
+<CardGroup cols={2}>
+  <Card title="Collections" icon="table" color="#3B82F6" href="/database/collections">
+    Create and organize the types of data your app stores.
+  </Card>
+  <Card title="Fields" icon="text-cursor-input" color="#3B82F6" href="/database/fields">
+    14 field types: text, number, date, select, relation, file, and more.
+  </Card>
+  <Card title="Validation" icon="badge-check" color="#10B981" href="/database/validation">
+    Required, unique, length, ranges, patterns, formats, and conditional rules.
+  </Card>
+  <Card title="Records" icon="rows-3" color="#3B82F6" href="/database/records">
+    Create, edit, bulk-edit, trash, restore, and view history.
+  </Card>
+  <Card title="Relations" icon="link" color="#8B5CF6" href="/database/relations">
+    One-to-one, one-to-many, and many-to-many links between collections.
+  </Card>
+  <Card title="Computed fields" icon="calculator" color="#F59E0B" href="/database/computed-fields">
+    Values calculated from other fields and related records.
+  </Card>
+  <Card title="Import & export" icon="arrow-down-up" color="#14B8A6" href="/database/import-export">
+    Bring in CSV or SQL data and export records.
+  </Card>
+  <Card title="Querying via API" icon="filter" color="#0EA5E9" href="/api/querying">
+    Filters, conditions, sorting, pagination, and relation expansion.
+  </Card>
+</CardGroup>
+
+## Key behaviors
+
+| Behavior | Detail |
+| :-- | :-- |
+| Validation on every write | Dashboard, API, imports, and hooks go through the same field rules. |
+| Partial updates | On update, omitted fields keep their value; `null` or `""` clears a field. |
+| Soft delete | Deleted records go to the trash and can be restored or permanently deleted. |
+| Record history | Every record keeps a change history you can view in the dashboard. |
+| Optimistic concurrency | Send the record `version` (or `If-Match`) on update to avoid overwriting someone else's change; a stale version returns `409`. |
+| Ownership | Records created by a signed-in end user are owned by that user; row policies use this. |
+| Passwords never returned | Values of `password` fields are hashed and never included in responses. |

@@ -1,0 +1,105 @@
+---
+title: "Records"
+description: "Records are the items stored in a collection. Create, edit, bulk update, soft delete, restore, permanently delete, and view history of records from the dashboard or the REST API."
+keywords: ["records", "rows", "crud", "trash", "restore", "soft delete", "history", "bulk update", "version", "409 conflict"]
+icon: "rows-3"
+---
+
+A **record** is one item in a collection: one customer, one booking, one task.
+
+## Record shape
+
+In API responses, a record is a flat JSON object: system fields plus one key per field.
+
+```json
+{
+  "id": 101,
+  "slug": null,
+  "created_at": "2026-11-20T09:15:00.000000Z",
+  "updated_at": "2026-11-20T09:15:00.000000Z",
+  "published_at": "2026-11-20T09:15:00.000000Z",
+  "children": [],
+  "customer": { "id": 25, "label": "Sarah Ahmed" },
+  "service": { "id": 3, "label": "Haircut" },
+  "date": "2026-12-01T10:00:00Z",
+  "status": "confirmed",
+  "notes": null
+}
+```
+
+## Operations
+
+| Action | Dashboard | REST API |
+| :-- | :-- | :-- |
+| List | Records view with search, filters, sorting | `GET /collections/{slug}/records` |
+| Get one | Open a record | `GET /collections/{slug}/{id}` |
+| Create | **Add record** | `POST /collections/{slug}` |
+| Update | Edit a record | `PUT /collections/{slug}/{id}` |
+| Delete (to trash) | Delete | `DELETE /collections/{slug}/{id}` |
+| Bulk update / delete | Select rows → action | Dashboard only |
+| Restore from trash | Trash view → Restore | Dashboard only |
+| Delete permanently | Trash view → Delete forever | Dashboard only |
+| View history | Record → History | Dashboard only |
+| Export | Export button | Dashboard only |
+
+See the [API reference](/api-reference/overview) for request details.
+
+## Create
+
+```bash
+curl -X POST "$BASE_URL/collections/bookings" \
+  -H "Content-Type: application/json" \
+  -H "X-BLUDIA-API-KEY: $BLUDIA_API_KEY" \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  -d '{ "customer": 25, "service": 3, "date": "2026-12-01T10:00:00Z", "status": "pending" }'
+```
+
+- Keys must match field names. Unknown keys are ignored.
+- You can also send the system fields `slug` and `published_at`.
+- The response is `201 Created` with `{ "data": { ... } }`.
+- When a signed-in end user creates a record, they become its **owner**. [Row policies](/authorization/row-level-security) of type `owner` use this.
+
+## Update
+
+Updates are **partial**:
+
+| You send | Result |
+| :-- | :-- |
+| A field with a value | The field is updated |
+| A field set to `null` or `""` | The field is cleared |
+| Nothing for a field | The field keeps its current value |
+
+```bash
+curl -X PUT "$BASE_URL/collections/bookings/101" \
+  -H "Content-Type: application/json" \
+  -H "X-BLUDIA-API-KEY: $BLUDIA_API_KEY" \
+  -d '{ "status": "confirmed" }'
+```
+
+### Prevent lost updates
+
+Each record has a `version` that increases on every change. Send the version you loaded, in the body or in an `If-Match` header. If someone else changed the record in the meantime, Bludia returns **`409 Conflict`** and saves nothing.
+
+<CodeGroup>
+  ```bash Body
+  -d '{ "status": "confirmed", "version": 3 }'
+  ```
+
+  ```bash Header
+  -H 'If-Match: "3"'
+  ```
+</CodeGroup>
+
+## Delete, trash, and restore
+
+`DELETE` moves a record to the **trash** (soft delete). It disappears from lists and lookups but can be restored from the dashboard. List responses report the trash size in `meta.trashed`. From the trash you can restore records or delete them permanently.
+
+<Warning>Permanent deletion can't be undone.</Warning>
+
+## History
+
+Every change to a record is recorded. Open a record in the dashboard and select **History** to see what changed, when, and by whom.
+
+## Hooks and records
+
+Writes trigger [hooks](/hooks/lifecycle-events): `beforeInsert`/`afterInsert` on create, `beforeUpdate`/`afterUpdate` on update, and `beforeDelete`/`afterDelete` on delete. A before hook can change the record or reject the write.

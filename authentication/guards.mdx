@@ -1,0 +1,83 @@
+---
+title: "Authentication guards"
+description: "An authentication guard turns a collection into a login system. Configure the collection, login field, token lifetimes (jwt_ttl, refresh_ttl), registration, password reset, email verification, and multiple sessions."
+keywords: ["guard", "auth guard", "login field", "custom login field", "jwt_ttl", "refresh_ttl", "allow_registration", "multiple sessions", "username login", "phone login"]
+icon: "shield"
+---
+
+An **authentication guard** connects login to one of your collections. A project can have several guards, for example `customers` for your shop and `staff` for your back office, each with its own users, roles, and settings.
+
+```text
+Guard "customers"  → collection customers, login field email
+Guard "staff"      → collection employees, login field username
+```
+
+The guard **slug** appears in auth URLs: `/auth/customers/login`, `/auth/staff/login`.
+
+## Create a guard
+
+<Steps>
+  <Step title="Prepare the collection">
+    Make sure it has a field to log in with, such as `email`, `username`, or `phone`. Mark that field **unique**.
+  </Step>
+  <Step title="Create the guard">
+    Go to **Authentication** → **Guards** → **Create guard**. Enter a name (the slug is generated from it), pick the collection, and pick the login field.
+  </Step>
+  <Step title="Review what Bludia adds">
+    - A `password` field on the collection, if it doesn't have one. Values are hashed and never returned.
+    - A default role named **User** (slug `user`), assigned automatically to everyone who registers.
+  </Step>
+</Steps>
+
+## Settings
+
+| Setting | Default | What it does |
+| :-- | :-- | :-- |
+| **Name** / **slug** | | Display name and URL identifier (`/auth/{slug}/...`). Unique per project. |
+| **Collection** | | Where user records live |
+| **Login field** | | The field users log in with (any field: email, username, phone, employee ID…) |
+| **Access token lifetime** (`jwt_ttl`) | `900` s (15 min) | How long an access token is valid |
+| **Refresh token lifetime** (`refresh_ttl`) | `1209600` s (14 days) | How long a refresh token is valid |
+| **Allow registration** | On | Off: `/register` returns `403 registration_disabled` (create users in the dashboard instead) |
+| **Allow password reset** | On | Off: forgot/reset return `403 password_reset_disabled` |
+| **Email verification** | Off | On: new accounts start as `pending` and receive a verification code by email |
+| **Allow multiple sessions** | On | Off: each login signs the user out of other devices |
+| **Remember me** | On | Lets clients keep long-lived sessions |
+| **Default guard** | Off | Marks the project's main guard |
+| **Status** | `active` | |
+
+## Custom login fields
+
+The login field can be any field on the collection. Users always send it as `login` when logging in:
+
+<CodeGroup>
+  ```json Email
+  { "login": "sarah@example.com", "password": "…" }
+  ```
+
+  ```json Username
+  { "login": "sarah_a", "password": "…" }
+  ```
+
+  ```json Phone
+  { "login": "+971501234567", "password": "…" }
+  ```
+</CodeGroup>
+
+When registering, send it under its **field name** instead, for example `{ "email": "…", "password": "…" }`.
+
+<Tip>Add a `format` rule (`email` or `phone`) and **unique** to the login field so bad or duplicate values are rejected.</Tip>
+
+## Multiple guards
+
+Use more than one guard when groups of users are truly separate: different collections, sign-up rules, or token lifetimes. Use **roles** within one guard when they're the same kind of user with different access, such as `user` and `admin`.
+
+| Scenario | Use |
+| :-- | :-- |
+| Customers and internal staff in different collections | Two guards |
+| Free and premium customers | One guard, two roles |
+| Students, teachers, parents with different profile fields | Three guards (or one guard + roles if one collection fits) |
+
+## Social login
+
+Guards can store identity provider settings (client ID and secret per provider). Social sign-in flows are not available yet during the beta.

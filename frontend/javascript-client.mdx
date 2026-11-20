@@ -1,0 +1,154 @@
+---
+title: "JavaScript client"
+description: "A copy-paste JavaScript/TypeScript client for the Bludia API: sends X-BLUDIA-API-KEY and Bearer headers, refreshes expired access tokens once with a shared in-flight refresh, and exposes login, register, logout, me, list, get, create, update, and remove."
+keywords: ["javascript client", "typescript", "fetch wrapper", "sdk", "token refresh", "api client"]
+icon: "file-code"
+---
+
+Bludia doesn't require an SDK. This ~100-line client covers what most apps need. Copy it into `src/lib/bludia.js`.
+
+```javascript src/lib/bludia.js expandable
+const BASE_URL = import.meta.env.VITE_BLUDIA_BASE_URL; // https://YOUR_API_HOST/ext/api/v1
+const API_KEY = import.meta.env.VITE_BLUDIA_API_KEY;   // an end_users key
+const GUARD = import.meta.env.VITE_BLUDIA_GUARD ?? "users";
+
+const REFRESH_KEY = "bludia_refresh_token";
+let accessToken = null;
+let refreshing = null; // shared promise so parallel requests refresh once
+
+export class BludiaError extends Error {
+  constructor(status, body) {
+    super(body?.message ?? `HTTP ${status}`);
+    this.status = status;
+    this.code = body?.error;
+    this.details = body?.errors;
+    this.requestId = body?.request_id;
+  }
+}
+
+function saveSession(session) {
+  accessToken = session.access_token;
+  localStorage.setItem(REFRESH_KEY, session.refresh_token);
+}
+
+function clearSession() {
+  accessToken = null;
+  localStorage.removeItem(REFRESH_KEY);
+}
+
+async function raw(path, { method = "GET", body, auth = true } = {}) {
+  const headers = { Accept: "application/json", "X-BLUDIA-API-KEY": API_KEY };
+  if (body !== undefined) headers["Content-Type"] = "application/json";
+  if (auth && accessToken) headers.Authorization = `Bearer ${accessToken}`;
+
+  const res = await fetch(`${BASE_URL}${path}`, {
+    method,
+    headers,
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  });
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new BludiaError(res.status, data);
+  return data;
+}
+
+async function refresh() {
+  const refreshToken = localStorage.getItem(REFRESH_KEY);
+  if (!refreshToken) throw new BludiaError(401, { message: "Not signed in" });
+  refreshing ??= raw(`/auth/${GUARD}/refresh`, {
+    method: "POST",
+    body: { refresh_token: refreshToken },
+    auth: false,
+  })
+    .then(({ session }) => saveSession(session))
+    .catch((err) => { clearSession(); throw err; })
+    .finally(() => { refreshing = null; });
+  return refreshing;
+}
+
+async function request(path, options) {
+  if (!accessToken && localStorage.getItem(REFRESH_KEY)) await refresh();
+  try {
+    return await raw(path, options);
+  } catch (err) {
+    if (err.status !== 401 || options?.auth === false) throw err;
+    await refresh();               // token expired: refresh once and retry
+    return raw(path, options);
+  }
+}
+
+function qs(params = {}) {
+  const q = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) {
+    if (v === undefined || v === null) continue;
+    if (k === "filters" && typeof v === "object") {
+      for (const [field, value] of Object.entries(v)) {
+        if (Array.isArray(value)) value.forEach((x) => q.append(`filters[${field}][]`, x));
+        else if (typeof value === "object") for (const [sub, x] of Object.entries(value)) q.append(`filters[${field}][${sub}]`, x);
+        else q.append(`filters[${field}]`, value);
+      }
+    } else q.append(k, Array.isArray(v) ? v.join(",") : v);
+  }
+  const s = q.toString();
+  return s ? `?${s}` : "";
+}
+
+export const auth = {
+  async register(fields) {
+    const res = await raw(`/auth/${GUARD}/register`, { method: "POST", body: fields, auth: false });
+    saveSession(res.session);
+    return res;
+  },
+  async login(login, password) {
+    const { session } = await raw(`/auth/${GUARD}/login`, { method: "POST", body: { login, password }, auth: false });
+    saveSession(session);
+    return session;
+  },
+  me: () => request(`/auth/${GUARD}/me`),
+  async logout() {
+    const refresh_token = localStorage.getItem(REFRESH_KEY);
+    try { if (refresh_token) await request(`/auth/${GUARD}/logout`, { method: "POST", body: { refresh_token } }); }
+    finally { clearSession(); }
+  },
+  isSignedIn: () => Boolean(accessToken || localStorage.getItem(REFRESH_KEY)),
+};
+
+export const records = {
+  list: (collection, params) => request(`/collections/${collection}/records${qs(params)}`),
+  get: (collection, id) => request(`/collections/${collection}/${id}`).then((r) => r.data),
+  create: (collection, data) => request(`/collections/${collection}`, { method: "POST", body: data }).then((r) => r.data),
+  update: (collection, id, data) => request(`/collections/${collection}/${id}`, { method: "PUT", body: data }).then((r) => r.data),
+  remove: (collection, id) => request(`/collections/${collection}/${id}`, { method: "DELETE" }),
+};
+```
+
+## Usage
+
+```javascript
+import { auth, records, BludiaError } from "./lib/bludia";
+
+await auth.login("sarah@example.com", "correct horse battery");
+
+const { data, meta } = await records.list("orders", {
+  filters: { status: ["pending", "confirmed"], total: { min: 100 } },
+  with: ["order_items"],
+  sort: "created_at",
+  order: "desc",
+  limit: 20,
+  page: 1,
+});
+
+const order = await records.create("orders", { customer: 25, status: "pending" });
+await records.update("orders", order.id, { status: "confirmed" });
+
+try {
+  await records.remove("orders", 999);
+} catch (err) {
+  if (err instanceof BludiaError && err.status === 404) console.log("Already gone");
+}
+```
+
+## Notes
+
+- Uses Vite-style `import.meta.env`. For Create React App use `process.env.REACT_APP_*`; for Next.js client code use `process.env.NEXT_PUBLIC_*`.
+- The refresh token is kept in `localStorage` for simplicity. For stricter security, keep it in an httpOnly cookie set by your own server. See [Sessions & tokens](/authentication/sessions-and-tokens#storing-tokens).
+- Refresh tokens rotate, so the client stores the new one after every refresh and shares one refresh between parallel requests.

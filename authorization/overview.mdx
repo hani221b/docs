@@ -1,0 +1,75 @@
+---
+title: "Authorization overview"
+description: "How Bludia decides what an end user can do: role-based collection permissions (read, create, update, delete, export, import) checked per request, then row-level security policies that filter which records are visible."
+keywords: ["authorization", "access control", "rbac", "permissions", "row level security", "rls", "multi-tenant"]
+icon: "shield-check"
+---
+
+Authentication tells Bludia **who** is calling. Authorization decides **what they can do**. For requests made with an `end_users` key, Bludia applies two layers:
+
+<CardGroup cols={2}>
+  <Card title="1. Collection permissions" icon="lock-keyhole" color="#10B981" href="/authorization/roles-and-permissions">
+    *Can this user's role read / create / update / delete records in `orders` at all?*
+
+    No → `403 permission_denied`.
+  </Card>
+  <Card title="2. Row-level security" icon="rows-3" color="#10B981" href="/authorization/row-level-security">
+    *Which `orders` records can they see and change?*
+
+    Not visible → excluded from lists, `404` on direct access.
+  </Card>
+</CardGroup>
+
+```text
+GET /collections/orders/records   (end user #42, role "customer")
+
+Layer 1  role "customer" has can_read on orders?   ✓
+Layer 2  row policies for "customer" on orders:
+         allow  owner          → orders created by #42
+         deny   field_equals   → status = "archived"
+Result   #42's own orders, except archived ones
+```
+
+## How HTTP methods map to permissions
+
+| Request | Permission checked |
+| :-- | :-- |
+| `GET` records list or one record | `can_read` |
+| `POST /collections/{slug}` | `can_create` |
+| `PUT /collections/{slug}/{id}` | `can_update` |
+| `DELETE /collections/{slug}/{id}` | `can_delete` |
+
+For update and delete, the record must also be visible through row policies.
+
+## Who is subject to authorization
+
+| Caller | Collection permissions | Row policies |
+| :-- | :-- | :-- |
+| End user (`end_users` key + Bearer token) | ✓ Enforced | ✓ Enforced |
+| `platform` key | Bypassed | Bypassed |
+| Team member in the dashboard | Uses **project roles** instead | Not applied |
+| Hook code | Runs with the project's access | Not applied |
+
+## Secure by default
+
+- A user with **no role** can't access any collection.
+- A role with **no permission row** for a collection can't access it.
+- A role with **no allow row policy** on a collection sees only records **it created**.
+- Unknown or broken policies **fail closed** (match nothing).
+
+## Typical setups
+
+<AccordionGroup>
+  <Accordion title="Personal data app (notes, to-dos)">
+    Role `user`: read/create/update/delete on `notes`. No row policy needed: users see only their own notes by default.
+  </Accordion>
+  <Accordion title="Public catalog + private orders">
+    Role `customer`: read on `products` with an allow policy `field_equals status = published`; read/create on `orders` with the default owner behavior.
+  </Accordion>
+  <Accordion title="Team workspace">
+    Role `member`: read/update on `projects` with a `relation` policy, *projects linked to me through members*.
+  </Accordion>
+  <Accordion title="Staff back office">
+    Run your back office on your own server with a `platform` key, or use a separate `staff` guard with role `admin`, full permissions, and allow policies wide enough for staff work.
+  </Accordion>
+</AccordionGroup>

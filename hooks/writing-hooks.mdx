@@ -1,0 +1,218 @@
+---
+title: "Writing hooks"
+description: "Step-by-step: create a Bludia hook for a collection and event, write it in Go with the bludia SDK, build it, make the version current, and test it. Includes complete examples."
+keywords: ["write hook", "create hook", "go hook", "hook example", "tutorial", "deploy hook"]
+icon: "code"
+---
+
+## Create a hook
+
+<Steps>
+  <Step title="Open Hooks">In your project, go to **Hooks** → **Create hook**.</Step>
+  <Step title="Choose collection and event">For example `bookings` + `beforeInsert`. Each collection can have one hook per event.</Step>
+  <Step title="Write the code">The editor starts with a Go `main` function. Your code runs once per event.</Step>
+  <Step title="Save">Saving creates a new **version** and starts a build. Wait for the build to succeed.</Step>
+  <Step title="Make it current">Set the version as **current**. Only the current version of an **active** hook runs.</Step>
+  <Step title="Test it">Create or edit a record in the dashboard or through the API, then check the hook's **Executions**.</Step>
+</Steps>
+
+## Structure of a hook
+
+```go
+package main
+
+import "bludia" // the Bludia SDK, added to every build automatically
+
+func main() {
+	ctx := bludia.GetContext()  // access the event
+	record, _ := ctx.Record()   // field values by field name
+
+	// ... your logic ...
+
+	ctx.SetRecord(record)       // before* hooks only: save changes
+}
+```
+
+- **One file, one `main`.** It runs once per event.
+- **Field names, not IDs.** `record["email"]`, `ctx.Collection("orders")`.
+- **Query by regular fields.** Hook queries can filter on regular fields and on `id`, `status`, `slug`, `created_at`, `updated_at`, but not on relation fields. Store a lookup value (such as an email or SKU) in a text field when a hook needs it.
+- **Stop early** with `bludia.Abort("message")` followed by `return`.
+- Standard library packages that TinyGo supports (`strings`, `time`, `strconv`, `encoding/json`, `fmt`…) are available.
+
+## Examples
+
+<AccordionGroup>
+  <Accordion title="Prevent double bookings (beforeInsert on bookings)" icon="calendar-x">
+    ```go
+    package main
+
+    import "bludia"
+
+    func main() {
+    	ctx := bludia.GetContext()
+    	rec, err := ctx.Record()
+    	if err != nil {
+    		bludia.Abort("Invalid booking")
+    		return
+    	}
+
+    	clash, err := ctx.Collection("bookings").
+    		Where("room", bludia.Eq, rec["room"]).
+    		Where("starts_at", bludia.Eq, rec["starts_at"]).
+    		Where("status", bludia.Neq, "cancelled").
+    		Exists()
+    	if err != nil {
+    		bludia.Abort("Could not check availability")
+    		return
+    	}
+    	if clash {
+    		bludia.Abort("This time slot is already booked")
+    		return
+    	}
+
+    	rec["status"] = "confirmed"
+    	ctx.SetRecord(rec)
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Generate a reference number (beforeInsert on invoices)" icon="hash">
+    ```go
+    package main
+
+    import (
+    	"fmt"
+    	"time"
+
+    	"bludia"
+    )
+
+    func main() {
+    	ctx := bludia.GetContext()
+    	rec, _ := ctx.Record()
+
+    	count, err := ctx.Collection("invoices").Limit(200).Count()
+    	if err != nil {
+    		bludia.Abort("Could not number the invoice")
+    		return
+    	}
+
+    	rec["number"] = fmt.Sprintf("INV-%d-%05d", time.Now().Year(), count+1)
+    	ctx.SetRecord(rec)
+    }
+    ```
+
+    `Count()` counts the rows a query returns: 50 by default, at most 200. For higher volumes, keep a counter record instead.
+  </Accordion>
+
+  <Accordion title="Send a confirmation email (afterInsert on bookings)" icon="mail">
+    ```go
+    package main
+
+    import "bludia"
+
+    func main() {
+    	ctx := bludia.GetContext()
+    	rec, _ := ctx.Record()
+
+    	// bookings stores the customer's email in a text field
+    	email, _ := rec["customer_email"].(string)
+    	customer, err := ctx.Collection("customers").
+    		Where("email", bludia.Eq, email).
+    		First()
+    	if err != nil || customer == nil {
+    		bludia.Log(bludia.Warn, "Customer not found; no email sent")
+    		return
+    	}
+
+    	res, err := ctx.Msg().Send(bludia.MsgSendRequest{
+    		Channel:  "email",
+    		Template: "Booking confirmed",
+    		To:       email,
+    		Data: map[string]any{
+    			"name": customer["full_name"],
+    			"date": rec["starts_at"],
+    		},
+    	})
+    	if err != nil || !res.Accepted {
+    		bludia.LogWith(bludia.Error, "Email not queued", res)
+    	}
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Decrease stock (afterInsert on order_items)" icon="package-minus">
+    ```go
+    package main
+
+    import "bludia"
+
+    func main() {
+    	ctx := bludia.GetContext()
+    	item, _ := ctx.Record()
+
+    	// order_items stores the product SKU in a text field
+    	product, err := ctx.Collection("products").Where("sku", bludia.Eq, item["sku"]).First()
+    	if err != nil || product == nil {
+    		return
+    	}
+
+    	stock, _ := product["stock"].(float64)
+    	qty, _ := item["quantity"].(float64)
+
+    	err = ctx.Collection("products").
+    		Where("id", bludia.Eq, product["id"]).
+    		Update(map[string]any{"stock": stock - qty})
+    	if err != nil {
+    		bludia.LogWith(bludia.Error, "Stock update failed", map[string]any{"product": product["id"]})
+    	}
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Lock fields for end users (beforeUpdate on users)" icon="lock">
+    ```go
+    package main
+
+    import "bludia"
+
+    var protected = []string{"role", "plan", "status"}
+
+    func main() {
+    	ctx := bludia.GetContext()
+    	rec, _ := ctx.Record()
+
+    	for _, f := range protected {
+    		if _, ok := rec[f]; ok {
+    			bludia.Abort(f + " can't be changed here")
+    			return
+    		}
+    	}
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Numbers and types
+
+Records arrive as JSON, so in Go:
+
+| Field type | Go type after `ctx.Record()` |
+| :-- | :-- |
+| Text, select, date, datetime | `string` |
+| Number | `float64` or `string` (exact decimals) |
+| Boolean | `bool` |
+| Multi select, many-to-many | `[]any` |
+| Empty | `nil` |
+
+Use type assertions with the `, ok` form and handle the missing case.
+
+## Manifest (optional)
+
+Each version can include a manifest to raise or lower resource limits:
+
+```json
+{ "timeout_ms": 5000, "memory_limit_bytes": 33554432, "fuel_limit": 10000000 }
+```
+
+See [Runtime & limits](/hooks/runtime-and-limits).

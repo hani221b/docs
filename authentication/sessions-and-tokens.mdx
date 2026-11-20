@@ -1,0 +1,90 @@
+---
+title: "Sessions & tokens"
+description: "How Bludia end-user sessions work: JWT access tokens (default 15 minutes), opaque refresh tokens (default 14 days) with rotation, POST /auth/{guard}/refresh, logout, and logout-all."
+keywords: ["session", "access token", "refresh token", "jwt", "token expiry", "refresh", "logout", "logout all devices", "token rotation"]
+icon: "refresh-cw"
+---
+
+A session is a pair of tokens:
+
+| Token | Format | Lifetime (default) | Sent as | Purpose |
+| :-- | :-- | :-- | :-- | :-- |
+| **Access token** | JWT (HS256) | 15 minutes (`jwt_ttl` = 900 s) | `Authorization: Bearer …` | Authenticates API requests |
+| **Refresh token** | Random 80-char string | 14 days (`refresh_ttl` = 1,209,600 s) | Request body | Gets a new token pair |
+
+Change the lifetimes in the [guard settings](/authentication/guards#settings).
+
+## Refresh a session
+
+`POST /auth/{guard}/refresh` — API key only, no Bearer token.
+
+```bash
+curl -X POST "$BASE_URL/auth/users/refresh" \
+  -H "Content-Type: application/json" \
+  -H "X-BLUDIA-API-KEY: $BLUDIA_PUBLIC_KEY" \
+  -d '{ "refresh_token": "q3Jx..." }'
+```
+
+Returns a **new session** (`access_token` and `refresh_token`), the same shape as login.
+
+<Warning>
+  **Refresh tokens rotate.** Each refresh revokes the refresh token you sent. Always store the new one. Reusing an old refresh token returns `401 invalid_or_expired_token`.
+</Warning>
+
+### When to refresh
+
+- **Proactively:** shortly before `expires_in` runs out.
+- **Reactively:** when a request returns `401`, refresh once and retry.
+
+If two browser tabs refresh at the same time, one of them will use a token that was just rotated. Share one refresh in progress across your app (see the [JavaScript client](/frontend/javascript-client)).
+
+## Log out
+
+`POST /auth/{guard}/logout` — needs the Bearer token. Revokes one refresh token (this device).
+
+```bash
+curl -X POST "$BASE_URL/auth/users/logout" \
+  -H "Content-Type: application/json" \
+  -H "X-BLUDIA-API-KEY: $BLUDIA_PUBLIC_KEY" \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  -d '{ "refresh_token": "q3Jx..." }'
+```
+
+```json
+{ "message": "Logged out." }
+```
+
+## Log out everywhere
+
+`POST /auth/{guard}/logout-all` — needs the Bearer token. Revokes **all** of the user's refresh tokens.
+
+```json
+{ "message": "All sessions revoked." }
+```
+
+Use it for "Sign out of all devices" or after a security concern.
+
+<Note>
+  Logout revokes refresh tokens. Access tokens are stateless and stay valid until they expire (15 minutes by default). Keep `jwt_ttl` short, and delete tokens from the client on logout.
+</Note>
+
+## What ends a session
+
+| Event | Effect |
+| :-- | :-- |
+| Access token expires | Refresh to continue |
+| Refresh token expires (`refresh_ttl`) | User must log in again |
+| `logout` | That refresh token is revoked |
+| `logout-all` | All refresh tokens revoked |
+| Password reset | All refresh tokens revoked |
+| New login with *multiple sessions* off | Other refresh tokens revoked |
+
+## Storing tokens
+
+| Platform | Access token | Refresh token |
+| :-- | :-- | :-- |
+| Web SPA | In memory | `localStorage`/`sessionStorage`, or an httpOnly cookie set by your own server |
+| Next.js / server-rendered | httpOnly, `Secure`, `SameSite` cookie set by your server | httpOnly cookie |
+| iOS / Android / Flutter | Memory | Keychain / Keystore / secure storage |
+
+Never log tokens or put them in URLs.

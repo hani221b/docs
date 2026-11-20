@@ -1,0 +1,72 @@
+---
+title: "Templates"
+description: "Message templates store reusable subjects and HTML bodies with {{variable}} placeholders. Variables are replaced with values from hook data or auth flows, for example {{token}} for email verification."
+keywords: ["email template", "message template", "variables", "placeholders", "html email", "personalization"]
+icon: "file-text"
+---
+
+A **template** is reusable message content. Hooks refer to templates by **name**.
+
+## Template settings
+
+| Setting | Required | Description |
+| :-- | :-- | :-- |
+| **Name** | Yes | Unique, descriptive name, for example `Booking confirmed` |
+| **Channel type** | Yes | `email` (`sms`, `whatsapp` coming soon) |
+| **Subject** | For email | Can include variables |
+| **Content** | Yes | The body. HTML for email. Can include variables |
+| **Variables** | No | List the variables the template expects, as documentation for your team |
+| **Active** | No | Inactive templates aren't used |
+
+## Variables
+
+Write variables as `{{name}}`. When the message is sent, each `{{key}}` is replaced with the matching value from the data you pass.
+
+```html
+Subject: Your booking on {{date}} is confirmed
+
+<h1>Hi {{name}},</h1>
+<p>Your <strong>{{service}}</strong> booking on {{date}} is confirmed.</p>
+<p>Reference: {{reference}}</p>
+```
+
+```go
+ctx.Msg().Send(bludia.MsgSendRequest{
+	Channel:  "email",
+	Template: "Booking confirmed",
+	To:       email,
+	Data: map[string]any{
+		"name":      "Sarah",
+		"service":   "Haircut",
+		"date":      "1 Dec 2026, 10:00",
+		"reference": "BK-00042",
+	},
+})
+```
+
+| Rule | Detail |
+| :-- | :-- |
+| Matching | Exact key match: `{{name}}` needs `"name"` in `Data` |
+| Nesting | Keys are flat. Pass `"customer_name"`, not a nested object |
+| Missing values | Placeholders without a value are left as written; always pass every variable |
+| Formatting | Values are inserted as text. Format dates and money before sending |
+
+## Built-in templates for authentication
+
+| Flow | Variable available |
+| :-- | :-- |
+| Email verification | `{{token}}`: the 6-character verification code |
+
+## Tips
+
+<AccordionGroup>
+  <Accordion title="Keep HTML simple">
+    Email clients support limited CSS. Use inline styles and simple tables for layout.
+  </Accordion>
+  <Accordion title="Name templates by event">
+    `Booking confirmed`, `Password changed`, `Invoice due` make hook code easy to read.
+  </Accordion>
+  <Accordion title="Escape user content">
+    Variables are inserted as-is. If a value comes from user input, escape it in your hook before sending.
+  </Accordion>
+</AccordionGroup>

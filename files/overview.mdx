@@ -1,0 +1,49 @@
+---
+title: "Files & storage"
+description: "Upload and manage files in a Bludia project: up to 100 MB per file by default, public or private visibility, time-limited signed URLs (1 hour default), custom metadata, soft delete and restore, and file fields on records."
+keywords: ["files", "storage", "upload", "file field", "attachments", "images", "signed url", "presigned url", "private files", "public files"]
+icon: "folder-open"
+---
+
+Bludia stores files for your project, such as product images, invoices, and attachments, and links them to records through **File** fields.
+
+## Features
+
+| Feature | Detail |
+| :-- | :-- |
+| Upload size | Up to **100 MB** per file by default |
+| Visibility | **Public** (anyone with the link) or **private** (signed URLs only) |
+| Signed URLs | Time-limited links for private files; **1 hour** by default |
+| Metadata | Attach your own key-value data, such as `alt` text or `document_type` |
+| Integrity | Checksums are stored to verify files |
+| Delete & restore | Deleted files can be restored |
+| File fields | Attach files to records (File field type, Premium plan) |
+
+## Upload and manage
+
+Manage files in **Files** in your project, or through a record's File field in the records view.
+
+- **Upload:** drag files in or choose them. Set visibility and optional metadata.
+- **Change visibility:** switch a file between public and private at any time.
+- **Edit metadata:** merge new keys into existing metadata or replace it.
+- **Move:** move a file to another location.
+- **Delete / restore:** deleted files can be restored.
+
+## Public vs private
+
+<CardGroup cols={2}>
+  <Card title="Public" icon="globe" color="#10B981">
+    Product photos, logos, public documents. Served through a stable URL anyone can open.
+  </Card>
+  <Card title="Private" icon="lock" color="#EF4444">
+    Invoices, IDs, contracts. Only reachable through a **signed URL** that expires (default 3,600 s).
+  </Card>
+</CardGroup>
+
+## Files on records
+
+Add a **File** field to a collection (for example `receipt` on `expenses`). In API responses, file fields contain the file's details, so your app can display or download it.
+
+<Tip>Store large or private documents as private files and generate a signed URL when a user needs to download one.</Tip>
+
+<Note>File uploads and changes require a Bludia account; guest projects can view files but not upload or modify them.</Note>

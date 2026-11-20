@@ -1,0 +1,106 @@
+---
+title: "Booking system with notifications"
+description: "Guide: a booking backend that rejects double bookings with a beforeInsert hook, emails confirmations with an afterInsert hook and template, and sends a daily summary with a scheduled task."
+keywords: ["booking system", "appointments", "reservations", "email confirmation", "double booking", "hooks example", "guide"]
+icon: "calendar-check"
+---
+
+You'll combine hooks, messaging, and scheduled tasks to automate a booking flow.
+
+```text
+POST /collections/bookings
+  └─ beforeInsert: slot free?  no → reject "This time slot is already booked"
+  └─ saved
+  └─ afterInsert: email "Booking confirmed" to the customer
+Every day 18:00 → scheduled task: email tomorrow's booking count to the manager
+```
+
+<Steps>
+  <Step title="Collections">
+    `bookings` with fields: `room` (Select), `starts_at` (DateTime, required, `timezone_required`), `customer_name` (Text), `customer_email` (Text, format `email`), `status` (Select: pending, confirmed, cancelled).
+  </Step>
+
+  <Step title="Email channel and template">
+    Create an SMTP [channel](/messaging/channels) and a [template](/messaging/templates) named `Booking confirmed`:
+
+    ```html
+    Subject: Your booking on {{date}} is confirmed
+    <p>Hi {{name}}, your booking in {{room}} on {{date}} is confirmed.</p>
+    ```
+  </Step>
+
+  <Step title="beforeInsert: block double bookings">
+    ```go
+    package main
+
+    import "bludia"
+
+    func main() {
+    	ctx := bludia.GetContext()
+    	rec, _ := ctx.Record()
+
+    	taken, err := ctx.Collection("bookings").
+    		Where("room", bludia.Eq, rec["room"]).
+    		Where("starts_at", bludia.Eq, rec["starts_at"]).
+    		Where("status", bludia.Neq, "cancelled").
+    		Exists()
+    	if err != nil {
+    		bludia.Abort("Could not check availability, please try again")
+    		return
+    	}
+    	if taken {
+    		bludia.Abort("This time slot is already booked")
+    		return
+    	}
+
+    	rec["status"] = "confirmed"
+    	ctx.SetRecord(rec)
+    }
+    ```
+  </Step>
+
+  <Step title="afterInsert: send the confirmation">
+    ```go
+    package main
+
+    import "bludia"
+
+    func main() {
+    	ctx := bludia.GetContext()
+    	rec, _ := ctx.Record()
+
+    	to, _ := rec["customer_email"].(string)
+    	if to == "" {
+    		return
+    	}
+
+    	res, err := ctx.Msg().Send(bludia.MsgSendRequest{
+    		Channel:  "email",
+    		Template: "Booking confirmed",
+    		To:       to,
+    		Data: map[string]any{
+    			"name": rec["customer_name"],
+    			"room": rec["room"],
+    			"date": rec["starts_at"],
+    		},
+    	})
+    	if err != nil || !res.Accepted {
+    		bludia.LogWith(bludia.Error, "Confirmation not queued", map[string]any{"to": to})
+    	}
+    }
+    ```
+  </Step>
+
+  <Step title="Daily summary task">
+    Create a [scheduled task](/automation/scheduled-tasks):
+
+    - **Schedule:** cron `0 18 * * *`, your timezone
+    - **Query:** `bookings` where `starts_at` is tomorrow and `status` = confirmed, aggregate `count`
+    - **Trigger:** value > 0
+    - **Action:** `notification` to `manager@example.com`, subject `{{matched_count}} bookings tomorrow`
+  </Step>
+
+  <Step title="Test">
+    Create two bookings for the same room and time. The second must fail with *"This time slot is already booked"*. Check the hook's [executions](/hooks/logs-and-debugging) and your inbox.
+  </Step>
+</Steps>

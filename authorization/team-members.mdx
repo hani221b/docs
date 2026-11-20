@@ -1,0 +1,39 @@
+---
+title: "Team members"
+description: "Invite colleagues to a Bludia project and control what they can do in the dashboard with project roles and permissions, such as managing API keys, collections, relations, and hooks."
+keywords: ["team", "invite", "collaborators", "project roles", "dashboard permissions", "members"]
+icon: "users"
+---
+
+**Team members** are people who build and manage your project in the Bludia dashboard. They're different from [end users](/authentication/overview), who use your app.
+
+| | Team members | End users |
+| :-- | :-- | :-- |
+| Who | Developers, admins, colleagues | Your customers, staff, students… |
+| Account | Bludia account | Record in your collection |
+| Signs in at | bludia.com | Your app, through a guard |
+| Access controlled by | **Project roles** | Guard roles + row policies |
+
+## Invite a team member
+
+<Steps>
+  <Step title="Open the team settings">In your project, go to **Settings** → **Team**.</Step>
+  <Step title="Invite by email">Enter their email and choose a project role.</Step>
+  <Step title="They accept">They get an email invitation. After accepting, the project appears in their dashboard.</Step>
+</Steps>
+
+## Project roles
+
+Project roles bundle dashboard permissions, such as:
+
+| Area | Example permissions |
+| :-- | :-- |
+| API keys | `api.view`, `api.create`, `api.update`, `api.revoke` |
+| Data model | Create and edit collections, fields, and relations |
+| Records | View, create, edit, delete records |
+| Logic | Manage hooks, messaging, scheduled tasks |
+| Project | Settings, invitations, deletion |
+
+Create roles in **Settings** → **Roles**, pick their permissions from the full list, and assign them to members. Give each person the smallest role that lets them do their job, for example a *Content editor* role that can edit records but not API keys or hooks.
+
+<Tip>Only grant API key permissions to people who need them. A `platform` key gives full access to all project data.</Tip>

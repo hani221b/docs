@@ -1,745 +1,152 @@
 ---
-title: "Concepts"
+title: "Core concepts"
+description: "The vocabulary of Bludia: projects, collections, fields, records, relations, API keys, authentication guards, end users, roles, row policies, hooks, messaging, and reports."
+keywords: ["concepts", "terminology", "architecture", "how bludia works"]
+icon: "lightbulb"
 ---
 
-# Bludia Concepts
+Bludia has a small set of building blocks. Once you know them, the rest of the docs read quickly.
 
-Understanding a few core concepts will make it much easier to work with Bludia.
+## The building blocks at a glance
 
-Bludia is built around a simple idea: **your application is composed of data, APIs, users, permissions, backend logic, and infrastructure.** Bludia provides the building blocks for each of these layers while allowing your frontend and application-specific code to remain under your control.
+| Concept | One-line definition | Analogy |
+| :-- | :-- | :-- |
+| **Project** | One isolated backend: data, users, keys, hooks, settings | A database + API server |
+| **Collection** | A type of data with a set of fields, addressed by its slug | A table |
+| **Field** | A typed attribute on a collection, with validation rules | A column |
+| **Record** | One item stored in a collection | A row |
+| **Relation** | A link between two collections (1:1, 1:N, N:N) | A foreign key or join table |
+| **API key** | Credential that identifies your app to the API (`X-BLUDIA-API-KEY`) | An app secret |
+| **Authentication guard** | Turns a collection (for example `users`) into a login system | An auth provider |
+| **End user** | A person who signs in to *your* app through a guard | Your customer |
+| **Team member** | A person who manages the project in the Bludia dashboard | Your colleague |
+| **Role** | A named group of end users with per-collection permissions | A user group |
+| **Row policy** | A rule that limits which records a role can see and change | Row-level security |
+| **Hook** | Go code that runs before or after a record is written | A database trigger |
+| **Channel / template** | Email delivery settings and reusable message content | Mail config + email template |
 
-This page explains the concepts you will encounter throughout the Bludia documentation.
-
-## Projects
-
-A **Project** represents an application or backend environment in Bludia.
-
-A project contains the resources required to build and run your application, including:
-
-- Collections
-- Records
-- API configuration
-- Authentication
-- Roles and permissions
-- Hooks
-- Messaging configuration
-- Reports
-- Other project-level settings
-
-You can think of a project as the boundary around one application and its backend infrastructure.
-
-For example, if you are building a booking platform, you might create:
+## How the pieces fit together
 
 ```text
-Booking Platform
-│
-├── Customers
-├── Bookings
-├── Services
-├── Staff
-├── Authentication
-├── Roles & Permissions
-├── Hooks
-└── Reports
+Project
+├── Collections ── Fields ── Records
+│        └── Relations between collections
+├── API keys            → who may call the API (platform or end_users)
+├── Authentication guards
+│        └── Roles → Collection permissions + Row policies
+├── Hooks               → before/after insert, update, delete
+├── Messaging           → channels + templates
+├── Files, reports, dashboards, PDF templates
+└── Scheduled tasks
 ```
 
-Projects keep these resources isolated from other applications.
+<AccordionGroup>
+  <Accordion title="Projects" icon="folder-kanban">
+    A **project** is the boundary around one application. Collections, records, keys, guards, hooks, and settings never leak between projects. Team members are invited per project. See [Projects](/projects).
+  </Accordion>
 
-Learn more in [Projects](/core/projects).
+  <Accordion title="Collections, fields, and records" icon="database">
+    A **collection** defines a type of data, like `customers` or `bookings`. Each collection has a **slug** used in API URLs: `/collections/customers/records`.
 
----
+    **Fields** define the shape of each record: type (text, number, date, select, relation, file…), whether it's required or unique, and [validation rules](/database/validation).
 
-## Collections
+    **Records** are the stored items. Every record has system fields: `id`, `slug`, `created_at`, `updated_at`, `published_at`. In API responses, field values appear as top-level keys named after the field.
+  </Accordion>
 
-A **Collection** is the primary way you model application data in Bludia.
+  <Accordion title="Relations" icon="link">
+    **Relations** connect collections: `one_to_one`, `one_to_many`, or `many_to_many`. You can expand related records in API responses with the `with` query parameter. See [Relations](/database/relations).
+  </Accordion>
 
-A collection is conceptually similar to a database table. It defines the type of records your application stores and the fields available on those records.
+  <Accordion title="API keys: platform vs end_users" icon="key">
+    Every API request carries an **API key** in the `X-BLUDIA-API-KEY` header. A key has an **auth type**:
 
-For example:
+    - **`platform`**: acts with full project access. Use only on trusted servers.
+    - **`end_users`**: requires a signed-in end user's `Authorization: Bearer <access_token>` on data routes. Role permissions and row policies apply. Use in browser and mobile apps.
+
+    See [API authentication](/api/authentication).
+  </Accordion>
+
+  <Accordion title="Authentication guards and end users" icon="key-round">
+    An **authentication guard** connects login to one of your collections. You pick the collection (for example `users`) and the login field (for example `email`); Bludia adds a password field. End users then register and log in at `/auth/{guard}/register` and `/auth/{guard}/login` and receive a short-lived JWT access token plus a refresh token.
+
+    End users are records in your own collection, so you can add any profile fields you like. See [Authentication](/authentication/overview).
+  </Accordion>
+
+  <Accordion title="Authentication vs authorization" icon="shield-check">
+    - **Authentication** answers *who is this?* (guards, login, tokens).
+    - **Authorization** answers *what may they do?* (roles, collection permissions, row policies).
+
+    Bludia checks both on every end-user request: first the collection permission for the action (`read`, `create`, `update`, `delete`), then the row policies that filter which records are visible. See [Authorization](/authorization/overview).
+  </Accordion>
+
+  <Accordion title="Roles, permissions, and row policies" icon="users">
+    A **role** belongs to a guard. Each guard starts with a default role, `user`, which new registrations get automatically.
+
+    **Collection permissions** grant a role actions on a collection: `can_read`, `can_create`, `can_update`, `can_delete`, plus `can_export`, `can_import`, `can_execute_actions`, `can_manage_schema`.
+
+    **Row policies** narrow access to specific records, for example *only records I created* (`owner`), *records where `status` = `published`* (`field_equals`), or *records linked to me through a relation* (`relation`). With no allow policy, end users see only records they created. See [Row-level security](/authorization/row-level-security).
+  </Accordion>
+
+  <Accordion title="Hooks" icon="webhook">
+    A **hook** is Go code attached to one collection and one event: `beforeInsert`, `afterInsert`, `beforeUpdate`, `afterUpdate`, `beforeDelete`, or `afterDelete`. Bludia compiles it to WebAssembly and runs it in a sandbox.
+
+    - **Before** hooks run synchronously: they can change the record or reject the operation.
+    - **After** hooks run asynchronously after the write is committed: use them for notifications and side effects.
+
+    See [Hooks](/hooks/overview).
+  </Accordion>
+
+  <Accordion title="Messaging" icon="mail">
+    A **channel** stores delivery settings (for example an SMTP email account). A **template** stores reusable content with `{{variables}}`. Hooks and authentication flows (like email verification) send messages through them. See [Messaging](/messaging/overview).
+  </Accordion>
+
+  <Accordion title="Reports, dashboards, and scheduled tasks" icon="chart-column">
+    **Reports** query and aggregate records. **Dashboards** show widgets (stats, record lists). **PDF templates** render records into documents. **Scheduled tasks** run queries and actions once, on an interval, or on a cron schedule.
+  </Accordion>
+</AccordionGroup>
+
+## End users vs team members
+
+This distinction matters and is easy to mix up:
+
+<CardGroup cols={2}>
+  <Card title="End users" icon="user" color="#8B5CF6">
+    People who use **your app**. They live as records in your collection, sign in through a guard, and are controlled by guard roles and row policies.
+
+    [Authentication →](/authentication/overview)
+  </Card>
+  <Card title="Team members" icon="users" color="#3B82F6">
+    People who build and manage **the Bludia project** in the dashboard. They have Bludia accounts and project roles.
+
+    [Team members →](/authorization/team-members)
+  </Card>
+</CardGroup>
+
+## The request lifecycle
+
+What happens when your app calls `POST /collections/bookings`:
 
 ```text
-Collection: customers
-
-Fields:
-├── name
-├── email
-├── phone
-└── company
+1. API key check        X-BLUDIA-API-KEY valid, not revoked or expired     → else 401/403
+2. CORS check           Origin is in the key's allowed origins             → else 403
+3. Rate limit           Requests per minute for this key                   → else 429
+4. End-user check       (end_users keys) valid Bearer access token         → else 401
+5. Permission check     (end_users keys) a role has can_create on bookings → else 403
+6. Validation           Body matches field types and rules                 → else 422
+7. beforeInsert hook    May modify the record or abort                     → abort = nothing saved
+8. Write                Record saved; owner = signed-in end user
+9. afterInsert hook     Runs asynchronously after commit
+10. Response            201 Created with the record
 ```
 
-Another collection might contain bookings:
-
-```text
-Collection: bookings
-
-Fields:
-├── customer
-├── service
-├── date
-├── status
-└── notes
-```
-
-Collections are used by the dashboard, API, authentication system, authorization system, hooks, and other Bludia services.
-
-Learn more in [Collections](/database/collections).
-
----
-
-## Records
-
-A **Record** is an individual piece of data stored inside a collection.
-
-If `customers` is a collection, each customer is a record.
-
-```text
-customers
-│
-├── Record #1 → John Smith
-├── Record #2 → Sarah Ahmed
-└── Record #3 → David Wilson
-```
-
-Records can be created, retrieved, updated, searched, filtered, and deleted through the Bludia dashboard and API, depending on the permissions available to the requesting user.
-
-Learn more in [Records](/database/records).
-
----
-
-## Fields
-
-A **Field** defines a piece of data stored on a record.
-
-For example, a `customers` collection might contain:
-
-```text
-name       → Text
-email      → Email
-age        → Number
-active     → Boolean
-created_at → Date/Time
-```
-
-Fields determine the structure and type of your application's data.
-
-Bludia uses field definitions when validating records, exposing data through the API, performing queries, and displaying information in the dashboard.
-
-Learn more in [Fields](/database/fields).
-
----
-
-## Relations
-
-Applications rarely consist of isolated collections.
-
-A customer can have many bookings. A booking can belong to a customer. A product can belong to a category.
-
-**Relations** allow collections to reference one another.
-
-For example:
-
-```text
-Customers
-    │
-    │ one-to-many
-    ▼
-Bookings
-```
-
-A customer might have:
-
-```text
-Customer #25
-│
-├── Booking #101
-├── Booking #104
-└── Booking #117
-```
-
-Relations allow your data model to represent these real-world relationships.
-
-Learn more in [Relations](/database/relations).
-
----
-
-## API
-
-The **Bludia API** is the interface between your application and your Bludia backend.
-
-Your frontend does not need direct access to the underlying database. Instead, it communicates with Bludia through the API.
-
-```text
-React / Next.js / Flutter
-          │
-          │ HTTPS
-          ▼
-      Bludia API
-          │
-          ▼
-       Bludia Data
-```
-
-The API provides operations for working with project resources such as collections and records.
-
-It can also be used by external systems and services.
-
-Learn more in [API](/api/overview).
-
----
-
-## API Keys
-
-An **API Key** identifies and authorizes an application or integration when communicating with Bludia.
-
-API keys can be used when an application needs to access project APIs.
-
-For example:
-
-```text
-Your Application
-      │
-      │ API Key
-      ▼
-Bludia API
-```
-
-API keys should be treated as credentials. They should never be unnecessarily exposed in public source code or committed to a repository.
-
-Learn more in [API Keys](/api/api-keys).
-
----
-
-## Authentication
-
-**Authentication** answers one fundamental question:
-
-> Who is this user?
-
-Bludia authentication allows your application to establish the identity of users interacting with your backend.
-
-A typical flow looks like:
-
-```text
-User
- │
- │ Login
- ▼
-Bludia Authentication
- │
- │ Authenticated session
- ▼
-Your Application
-```
-
-Authentication is separate from authorization.
-
-Authentication identifies a user. Authorization determines what that user is allowed to do.
-
-Learn more in [Authentication](/authentication/overview).
-
----
-
-## Authentication Guards
-
-An **Authentication Guard** connects authentication to a user collection in a Bludia project.
-
-For example:
-
-```text
-users collection
-       │
-       ▼
-Customer Guard
-       │
-       ▼
-Customer authentication
-```
-
-A project can use authentication guards to define how users authenticate against a particular collection.
-
-This makes authentication part of the project's data model instead of requiring a completely separate user database.
-
-Learn more in [Authentication Guards](/authentication/guards).
-
----
-
-## Authorization
-
-**Authorization** answers a different question:
-
-> What is this user allowed to do?
-
-For example, a user may be authenticated but still not have permission to delete a booking.
-
-```text
-Authentication
-      │
-      ▼
-Who are you?
-      │
-      ▼
-Authorization
-      │
-      ▼
-What can you do?
-```
-
-Bludia provides authorization capabilities such as roles and permissions to control access to application resources.
-
-Learn more in [Authorization & Security](/security/overview).
-
----
-
-## Roles
-
-A **Role** is a collection of permissions that represents a type of user.
-
-For example:
-
-```text
-Administrator
-├── records.read
-├── records.create
-├── records.update
-└── records.delete
-
-Staff
-├── records.read
-└── records.update
-
-Customer
-└── records.read
-```
-
-Roles make it easier to manage permissions for groups of users.
-
-Learn more in [Roles](/security/roles).
-
----
-
-## Permissions
-
-A **Permission** defines an allowed operation.
-
-Examples might include:
-
-```text
-records.read
-records.create
-records.update
-records.delete
-```
-
-Permissions can be assigned to roles and used by your application's authorization rules.
-
-Together, roles and permissions provide the foundation for role-based access control.
-
-Learn more in [Permissions](/security/permissions).
-
----
-
-## Row-Level Authorization
-
-Traditional authorization often answers:
-
-> Can this user access this resource?
-
-**Row-level authorization** goes further:
-
-> Can this user access this specific record?
-
-For example, a customer may be allowed to read bookings, but only bookings belonging to that customer.
-
-```text
-Customer A
-   │
-   ├── Booking #101 ✓
-   ├── Booking #102 ✓
-   └── Booking #103 ✗
-```
-
-This is especially useful for multi-user applications, SaaS products, portals, and business systems where users should only access their own data.
-
-Learn more in [Row-Level Authorization](/security/row-level-authorization).
-
----
-
-## Hooks
-
-A **Hook** is custom backend logic that runs at a defined point in a Bludia operation or lifecycle.
-
-For example:
-
-```text
-Create Record
-      │
-      ▼
-Before Create Hook
-      │
-      ▼
-Record Created
-      │
-      ▼
-After Create Hook
-```
-
-Hooks allow you to extend Bludia beyond its built-in configuration.
-
-They can be used for:
-
-- Validation
-- Business rules
-- Data transformation
-- Notifications
-- Integrations
-- Custom calculations
-- Backend automation
-
-Hooks are particularly useful when your application has business logic that cannot be represented through configuration alone.
-
-Learn more in [Hooks](/hooks/overview).
-
----
-
-## Hook Versions
-
-Bludia stores versions of hook code so that changes to backend logic can be managed independently.
-
-Conceptually:
-
-```text
-Hook
-│
-├── Version 1
-├── Version 2
-└── Version 3 ← Active
-```
-
-This allows you to evolve backend logic while maintaining a history of previous versions.
-
-Learn more in [Hook Versions](/hooks/versions).
-
----
-
-## Messaging
-
-**Messaging** allows your backend to communicate with users through supported messaging channels.
-
-Email is one example.
-
-A typical flow can look like:
-
-```text
-Application Event
-      │
-      ▼
-Bludia
-      │
-      ▼
-Message Template
-      │
-      ▼
-Email Provider
-      │
-      ▼
-User
-```
-
-Messaging can be triggered by your application or backend logic such as Hooks.
-
-Learn more in [Messaging](/messaging/overview).
-
----
-
-## Message Templates
-
-A **Message Template** defines reusable content for messages sent by your application.
-
-Instead of hard-coding email content inside backend logic, you can create a template and reuse it whenever that message needs to be sent.
-
-For example:
-
-```text
-Template:
-Booking Confirmation
-
-Subject:
-Your booking has been confirmed
-
-Body:
-Hello {{customer.name}},
-your booking for {{booking.date}} is confirmed.
-```
-
-This separates application logic from message presentation.
-
-Learn more in [Message Templates](/messaging/templates).
-
----
-
-## Reports
-
-**Reports** transform application data into information that can be analyzed or presented to users.
-
-A report can be based on your project's records and may include operations such as:
-
-- Filtering
-- Grouping
-- Aggregation
-- Sorting
-- Calculations
-- Tables
-- Charts
-
-For example:
-
-```text
-Bookings
-   │
-   ├── Filter → Current month
-   ├── Group → Service
-   └── Aggregate → Count
-          │
-          ▼
-     Booking Report
-```
-
-Reports are useful for dashboards, management systems, analytics, and operational applications.
-
-Learn more in [Reports](/reports/overview).
-
----
-
-## Hosting
-
-Bludia is designed to provide more than backend APIs.
-
-**Hosting** represents the infrastructure used to run your application and its backend services in production.
-
-This includes capabilities such as:
-
-- Deployments
-- Domains
-- SSL
-- Logs
-- Backups
-- Environment configuration
-- Production infrastructure
-
-The goal is to give you a single platform for building and running the backend of your application.
-
-Learn more in [Hosting & Deployment](/hosting/overview).
-
----
-
-## Environments
-
-An **Environment** represents a separate execution context for your application.
-
-A typical development workflow might eventually look like:
-
-```text
-Development
-     │
-     ▼
-Staging
-     │
-     ▼
-Production
-```
-
-Keeping environments separate helps prevent development changes from unintentionally affecting production data and applications.
-
-Use environments according to the capabilities available in your Bludia plan and project configuration.
-
-Learn more in [Environments](/core/environments).
-
----
-
-## Frontend
-
-Bludia does not require you to use a specific frontend technology.
-
-Your frontend is responsible for the user interface and client-side application experience.
-
-It communicates with Bludia through the API.
-
-Common examples include:
-
-- React
-- Next.js
-- Flutter
-- JavaScript
-- TypeScript
-- Mobile applications
-- Custom applications
-
-The separation looks like:
-
-```text
-Frontend
-   │
-   │ API
-   ▼
-Bludia
-   │
-   ├── Data
-   ├── Auth
-   ├── Authorization
-   └── Backend Logic
-```
-
-This separation allows you to change or rebuild your frontend without necessarily rebuilding your backend.
-
-Learn more in [Frontend Integration](/frontend/overview).
-
----
-
-## External Integrations
-
-Bludia applications can communicate with services outside the platform.
-
-External integrations can be used for things such as:
-
-- Third-party APIs
-- Payment providers
-- External services
-- Custom applications
-- Webhooks
-- Email providers
-
-Hooks and API integrations can be used to connect Bludia with the rest of your technology stack.
-
-Learn more in [Integrations](/integrations/overview).
-
----
-
-## Project Data vs Application Logic
-
-One of the most important architectural concepts in Bludia is the distinction between **data** and **logic**.
-
-Your collections define your application's data model.
-
-Your Hooks and other backend capabilities define behavior.
-
-For example:
-
-```text
-Collection
-customers
-│
-├── name
-├── email
-└── status
-
-          +
-
-Hook
-"After customer creation"
-│
-├── Validate customer
-├── Send welcome email
-└── Notify internal system
-```
-
-This allows Bludia to provide a structured backend while still giving developers room to implement application-specific behavior.
-
----
-
-## Bludia as Backend Infrastructure
-
-Bludia is best understood as a collection of backend capabilities rather than a single feature.
-
-At a high level:
-
-```text
-                    Your Application
-                          │
-                          ▼
-                    ┌───────────┐
-                    │   Bludia  │
-                    └─────┬─────┘
-                          │
-       ┌──────────────────┼──────────────────┐
-       │                  │                  │
-       ▼                  ▼                  ▼
-     Data             Authentication     Authorization
-       │                  │                  │
-       └──────────────────┼──────────────────┘
-                          │
-                          ▼
-                       Hooks
-                          │
-                          ▼
-                     Messaging
-                          │
-                          ▼
-                      Reports
-                          │
-                          ▼
-                     Infrastructure
-```
-
-You can use only the parts your application needs.
-
-A simple internal tool may primarily need collections, API access, and permissions.
-
-A production SaaS application may use collections, authentication, authorization, hooks, messaging, reports, and hosting together.
-
----
-
-## The Bludia Development Model
-
-The recommended way to think about building with Bludia is:
-
-```text
-1. Model
-   ↓
-2. Expose
-   ↓
-3. Secure
-   ↓
-4. Extend
-   ↓
-5. Connect
-   ↓
-6. Deploy
-```
-
-### Model
-
-Define your collections, fields, records, and relationships.
-
-### Expose
-
-Use the Bludia API to make your backend available to your applications.
-
-### Secure
-
-Configure authentication, roles, permissions, and authorization rules.
-
-### Extend
-
-Add custom backend behavior with Hooks and integrations.
-
-### Connect
-
-Connect your frontend, mobile application, or external services.
-
-### Deploy
-
-Run your application in a production environment using Bludia's infrastructure.
-
-This model lets you start with a simple backend and add complexity only when your application requires it.
-
-## Where to go next
-
-If you're new to Bludia, continue with the [Quickstart](/quickstart) to create your first project.
-
-If you already have an application and want to understand how to connect it, start with the [API Overview](/api/overview).
-
-For database design, see [Database](/database/overview).
-
-For authentication and access control, see [Authentication](/authentication/overview) and [Authorization & Security](/security/overview).
-
-For custom backend behavior, see [Hooks](/hooks/overview).
+## The development model
+
+<Steps>
+  <Step title="Model">Collections, fields, relations.</Step>
+  <Step title="Expose">API keys and the REST API.</Step>
+  <Step title="Secure">Guards, roles, collection permissions, row policies.</Step>
+  <Step title="Extend">Hooks, messaging, scheduled tasks.</Step>
+  <Step title="Connect">Your frontend, mobile app, or server.</Step>
+</Steps>
+
+Start simple. You can add authentication, policies, and hooks later without changing your frontend's data calls.

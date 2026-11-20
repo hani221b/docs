@@ -1,0 +1,89 @@
+---
+title: "Row-level security"
+description: "Row policies limit which records an end user can see and change. Policy types: owner (records I created), field_equals (field compared to a value), relation (records linked to me). Allow and deny effects, priorities, and the default owner-only rule."
+keywords: ["row level security", "rls", "row policies", "owner policy", "multi tenant", "data isolation", "only see own records", "field_equals", "relation policy"]
+icon: "rows-3"
+---
+
+**Row policies** decide *which records* an end user can access in a collection, after [collection permissions](/authorization/roles-and-permissions) decide *whether* they can access it at all. Policies filter queries inside the database, so a user can never reach a record their policies exclude.
+
+## The default: owner only
+
+If none of a user's roles has an **allow** policy on a collection, the user sees **only records they created**.
+
+```text
+orders (no allow policies for role "customer")
+├── #101  created by user 42   ✓ visible to user 42
+├── #102  created by user 57   ✗
+└── #103  created by user 42   ✓
+```
+
+Records created through the API by a signed-in user are owned by that user. Users who register own their own user record, so they can read and update their profile out of the box.
+
+## Policy types
+
+| Type | Matches records where… | Example |
+| :-- | :-- | :-- |
+| `owner` | the record was created by the current user | My orders |
+| `field_equals` | a field compares to a fixed value | `status = "published"`, `price > 0` |
+| `relation` | the record is linked to the current user's record through a relation | Projects where I'm a member |
+
+`field_equals` supports the operators `=`, `!=`, `<>`, `>`, `>=`, `<`, `<=`.
+
+## Allow and deny
+
+Each policy has an **effect**:
+
+- **allow:** the record is visible if it matches **at least one** allow policy.
+- **deny:** the record is hidden if it matches **any** deny policy. Deny wins.
+
+```text
+visible = (matches any allow policy  OR  [no allow policies] and created by me)
+          AND matches no deny policy
+```
+
+Policies also have a **priority** (higher first), an **enabled** switch, and the **roles** they apply to.
+
+## Create a policy
+
+<Steps>
+  <Step title="Open the guard's policies">**Authentication** → **Guards** → *your guard* → **Row policies** → **Create policy**.</Step>
+  <Step title="Pick the collection and type">For example `products`, type `field_equals`.</Step>
+  <Step title="Configure it">Field `status`, operator `=`, value `published`, effect `allow`.</Step>
+  <Step title="Attach roles">Choose which roles the policy applies to, for example `customer`.</Step>
+</Steps>
+
+## Recipes
+
+<AccordionGroup>
+  <Accordion title="Users see only their own records" icon="user">
+    Nothing to configure: this is the default. Make it explicit with an **allow `owner`** policy if you also add other allow policies.
+  </Accordion>
+  <Accordion title="Everyone sees published content" icon="newspaper">
+    **allow `field_equals`** `status = published` for role `user` on `articles`.
+  </Accordion>
+  <Accordion title="Own drafts + all published" icon="file-pen">
+    Two allow policies on `articles`: **`owner`** and **`field_equals status = published`**. A record matching either is visible.
+  </Accordion>
+  <Accordion title="Team members see their team's projects" icon="users">
+    Add a `many_to_many` relation between `projects` and `users` (members). Create an **allow `relation`** policy on `projects` using that relation.
+  </Accordion>
+  <Accordion title="Hide archived records" icon="archive">
+    **deny `field_equals`** `archived = true`. Applies on top of any allow policies.
+  </Accordion>
+  <Accordion title="Admins see everything" icon="crown">
+    Run admin tools on your own server with a `platform` key, which isn't filtered by row policies. If admins must use an `end_users` key, give role `admin` an allow `field_equals` policy on a field every record has a value for, such as `tenant = "acme"`.
+  </Accordion>
+</AccordionGroup>
+
+## What users see
+
+| Request | Record not visible |
+| :-- | :-- |
+| `GET /collections/{slug}/records` | Left out of `data`; not counted in `meta.total` |
+| `GET /collections/{slug}/{id}` | `404` |
+| `PUT` / `DELETE /collections/{slug}/{id}` | `404` |
+
+<Note>
+  Row policies apply to `end_users` keys. `platform` keys, hooks, and the dashboard aren't filtered. Policies of type `expression` or `custom` aren't supported and match nothing.
+</Note>

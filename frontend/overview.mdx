@@ -1,0 +1,67 @@
+---
+title: "Frontend integration"
+description: "Connect any frontend to Bludia over HTTPS: browser and mobile apps use an end_users API key with allowed origins plus the signed-in user's Bearer token; servers can use a platform key. Works with React, Next.js, Vue, Svelte, Flutter, Swift, Kotlin, and any HTTP client."
+keywords: ["frontend", "react", "next.js", "vue", "flutter", "mobile", "integration", "connect app", "client"]
+icon: "monitor-smartphone"
+---
+
+Bludia is a plain JSON REST API, so any framework or language can use it. No SDK is required.
+
+## Pick an architecture
+
+<CardGroup cols={2}>
+  <Card title="Browser or mobile → Bludia" icon="smartphone" color="#10B981">
+    The app calls Bludia directly with an **`end_users`** key and the user's Bearer token. Permissions and row policies protect the data.
+
+    Best for SPAs (React, Vue, Svelte) and mobile apps.
+  </Card>
+  <Card title="Your server → Bludia" icon="server" color="#3B82F6">
+    Your server (Next.js, Express, Laravel, Django…) calls Bludia, often with a **`platform`** key, and renders or proxies data to the browser.
+
+    Best for SSR, admin tools, and logic you keep on your own server.
+  </Card>
+</CardGroup>
+
+```text
+Direct:   Browser ──(end_users key + Bearer)──► Bludia
+Server:   Browser ──► Your server ──(platform key)──► Bludia
+Hybrid:   Browser ──(end_users key + Bearer)──► Bludia   (user data)
+          Your server ──(platform key)──► Bludia          (admin jobs)
+```
+
+## Checklist for a browser app
+
+<Steps>
+  <Step title="Create an end_users key">Add your origins, for example `http://localhost:5173` and `https://app.example.com`. See [CORS](/api/cors).</Step>
+  <Step title="Set up a guard and roles">So users can sign up and have permissions. See [Authentication](/authentication/overview).</Step>
+  <Step title="Store config in env vars">
+    ```bash .env
+    VITE_BLUDIA_BASE_URL=https://YOUR_API_HOST/ext/api/v1
+    VITE_BLUDIA_API_KEY=bludia_production_...
+    VITE_BLUDIA_GUARD=users
+    ```
+  </Step>
+  <Step title="Add a small client">Handles headers, token refresh, and errors. See [JavaScript client](/frontend/javascript-client).</Step>
+  <Step title="Build screens">Login, sign-up, lists, and forms. See [React](/frontend/react).</Step>
+</Steps>
+
+<Warning>Only `end_users` keys belong in browser or mobile code. A `platform` key bypasses all permissions.</Warning>
+
+## Guides
+
+<CardGroup cols={3}>
+  <Card title="JavaScript client" icon="file-code" href="/frontend/javascript-client">A drop-in `fetch` wrapper with auto refresh.</Card>
+  <Card title="React" icon="atom" href="/frontend/react">Auth context, protected routes, data hooks.</Card>
+  <Card title="Server-side" icon="server" href="/frontend/server-side">Next.js route handlers, Node, Python.</Card>
+</CardGroup>
+
+## Other platforms
+
+| Platform | Notes |
+| :-- | :-- |
+| Flutter / Dart | Use `http` or `dio`; store the refresh token with `flutter_secure_storage` |
+| iOS (Swift) | `URLSession`; refresh token in Keychain |
+| Android (Kotlin) | Retrofit or Ktor; refresh token in EncryptedSharedPreferences |
+| Vue, Svelte, Angular | Use the [JavaScript client](/frontend/javascript-client) as is |
+
+Mobile apps don't send an `Origin` header, so allowed origins don't apply to them.

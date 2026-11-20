@@ -1,0 +1,192 @@
+---
+title: "Filtering, sorting & pagination"
+description: "Query parameters for GET /collections/{collection}/records: page, limit (max 100), sort, order, filters[field] with match modes and ranges, conditions on system columns, and with for related records."
+keywords: ["filter", "filters", "search", "sort", "order by", "pagination", "page", "limit", "conditions", "query parameters", "match_mode", "range filter"]
+icon: "filter"
+---
+
+`GET /collections/{collection}/records` accepts these query parameters:
+
+| Parameter | Type | Default | Description |
+| :-- | :-- | :-- | :-- |
+| `page` | integer | `1` | Page number, starting at 1 |
+| `limit` | integer | `20` | Records per page, **max 100** |
+| `sort` | string | `created_at` | `created_at`, `updated_at`, `published_at`, or `id` |
+| `order` | string | `desc` | `asc` or `desc` |
+| `filters[<field>]` | various | | Filter by a field's value. See below |
+| `conditions` | array or JSON | | Filter on system columns with operators |
+| `with` | string | | Related collections to include under `children` |
+
+## Pagination
+
+```bash
+curl -G "$BASE_URL/collections/orders/records" \
+  -H "X-BLUDIA-API-KEY: $BLUDIA_API_KEY" \
+  -d page=2 -d limit=50
+```
+
+```json
+"meta": { "page": 2, "limit": 50, "total": 342, "pages": 7, "trashed": 4 }
+```
+
+| `meta` key | Meaning |
+| :-- | :-- |
+| `page` | Current page |
+| `limit` | Page size used |
+| `total` | Records matching your filters |
+| `pages` | Total pages (`ceil(total / limit)`) |
+| `trashed` | Matching records in the trash |
+
+Loop until `page` equals `pages` to read everything:
+
+```javascript
+async function fetchAll(slug) {
+  const all = [];
+  for (let page = 1; ; page++) {
+    const res = await fetch(`${BASE_URL}/collections/${slug}/records?limit=100&page=${page}`, { headers });
+    const { data, meta } = await res.json();
+    all.push(...data);
+    if (page >= meta.pages) return all;
+  }
+}
+```
+
+## Sorting
+
+```text
+?sort=updated_at&order=asc
+```
+
+Sorting is available on system columns: `created_at`, `updated_at`, `published_at`, `id`. Other values fall back to `created_at`.
+
+## Filters
+
+Use `filters[<field name>]`. How the value is matched depends on the field type.
+
+<Tabs>
+  <Tab title="Text" icon="type">
+    A plain value means **contains** and is case-insensitive:
+
+    ```text
+    ?filters[name]=ahmed
+    ```
+
+    Choose a match mode with the structured form:
+
+    ```text
+    ?filters[email][value]=@example.com&filters[email][match_mode]=ends_with
+    ?filters[code][value]=INV-&filters[code][match_mode]=starts_with&filters[code][case_sensitive]=true
+    ?filters[notes][match_mode]=is_empty
+    ```
+
+    | `match_mode` | Matches when the field… |
+    | :-- | :-- |
+    | `contains` (default) | contains the value |
+    | `not_contains` | doesn't contain it |
+    | `starts_with` / `not_starts_with` | starts / doesn't start with it |
+    | `ends_with` / `not_ends_with` | ends / doesn't end with it |
+    | `exact` / `not_exact` | equals / doesn't equal it |
+    | `is_empty` / `is_not_empty` | is empty / has a value |
+    | `regex` / `not_regex` | matches / doesn't match a regular expression |
+
+    Aliases: `eq`, `equals` → `exact`; `ne`, `neq` → `not_exact`; `like` → `contains`; `prefix` → `starts_with`; `suffix` → `ends_with`.
+  </Tab>
+  <Tab title="Number" icon="hash">
+    Use a range with `min` and/or `max` (inclusive):
+
+    ```text
+    ?filters[total][min]=100&filters[total][max]=500
+    ?filters[stock][max]=0
+    ```
+  </Tab>
+  <Tab title="Date" icon="calendar">
+    Use `from` and/or `to`. `to` includes the whole day:
+
+    ```text
+    ?filters[due_date][from]=2026-12-01&filters[due_date][to]=2026-12-31
+    ```
+  </Tab>
+  <Tab title="Boolean" icon="toggle-left">
+    ```text
+    ?filters[completed]=true
+    ```
+  </Tab>
+  <Tab title="Select" icon="list">
+    One value, or any of several:
+
+    ```text
+    ?filters[status]=confirmed
+    ?filters[status][]=pending&filters[status][]=confirmed
+    ```
+  </Tab>
+  <Tab title="Relation" icon="link">
+    Filter by related record IDs:
+
+    ```text
+    ?filters[customer]=25
+    ?filters[customer][]=25&filters[customer][]=31
+    ```
+  </Tab>
+</Tabs>
+
+Multiple filters are combined with **AND**. Empty filter values are ignored.
+
+## Conditions on system columns
+
+`conditions` filters on record columns: `id`, `created_at`, `updated_at`, `published_at`, `status`. Send a JSON array or nested query parameters.
+
+<CodeGroup>
+  ```text JSON form
+  ?conditions=[{"field":"created_at","op":">=","value":"2026-11-01"}]
+  ```
+
+  ```text Query form
+  ?conditions[0][field]=id&conditions[0][op]=in&conditions[0][value][]=4&conditions[0][value][]=9
+  ```
+</CodeGroup>
+
+| `op` | Value |
+| :-- | :-- |
+| `=`, `!=`, `<>`, `>`, `>=`, `<`, `<=` | A single value |
+| `in`, `not_in` | An array of values |
+| `between` | An array of exactly two values |
+| `like`, `ilike` | Text; matched as *contains* |
+| `null`, `not_null` | No value needed |
+
+Invalid conditions are skipped silently.
+
+## Include related records
+
+```text
+?with=orders
+?with=orders,invoices
+?with=orders.order_items
+```
+
+See [Relations](/database/relations#expand-related-records-with-with).
+
+## Full example
+
+Recent confirmed orders over 100 for one customer, with items:
+
+```bash
+curl -G "$BASE_URL/collections/orders/records" \
+  -H "X-BLUDIA-API-KEY: $BLUDIA_API_KEY" \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  --data-urlencode "filters[status]=confirmed" \
+  --data-urlencode "filters[customer]=25" \
+  --data-urlencode "filters[total][min]=100" \
+  --data-urlencode "with=order_items" \
+  --data-urlencode "sort=created_at" \
+  --data-urlencode "order=desc" \
+  --data-urlencode "limit=25"
+```
+
+<Tip>
+  In JavaScript, build query strings with `URLSearchParams` so brackets are encoded correctly:
+  ```javascript
+  const q = new URLSearchParams({ "filters[status]": "confirmed", limit: "25" });
+  ```
+</Tip>
+
+For end users, results are also limited by [row policies](/authorization/row-level-security); `meta.total` counts only records they can see.

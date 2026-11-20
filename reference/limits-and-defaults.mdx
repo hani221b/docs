@@ -1,0 +1,70 @@
+---
+title: "Limits & defaults"
+description: "All Bludia limits and default values in one table: API rate limits, page size, token lifetimes, password rules, upload sizes, hook timeouts and memory, query caps, scheduled task bounds, and reset token lifetimes."
+keywords: ["limits", "quotas", "defaults", "max", "maximum", "timeouts", "size limits"]
+icon: "ruler"
+---
+
+## API
+
+| Item | Default | Limit |
+| :-- | :-- | :-- |
+| Requests per API key | 1,000 / minute | 10 – 100,000 / minute (configurable) |
+| Auth endpoints (`/auth/{guard}/*`) | | 10 / minute per IP and route |
+| Page size (`limit`) | 20 | 100 |
+| Sort columns | `created_at` | `created_at`, `updated_at`, `published_at`, `id` |
+| CORS preflight cache | 3,600 s | |
+
+## Authentication
+
+| Item | Default | Notes |
+| :-- | :-- | :-- |
+| Access token lifetime (`jwt_ttl`) | 900 s (15 min) | Per guard |
+| Refresh token lifetime (`refresh_ttl`) | 1,209,600 s (14 days) | Per guard |
+| Password minimum length | 8 | Add stricter rules on the field |
+| Password reset token | 60 min, single use | |
+| Email verification code | 6 characters | |
+| Registration | On | Per guard |
+| Password reset | On | Per guard |
+| Email verification | Off | Per guard |
+| Multiple sessions | On | Per guard |
+
+## Data
+
+| Item | Limit |
+| :-- | :-- |
+| CSV import file | 50 MB (default) |
+| SQL import file | 2 GB |
+| Database exports running at once | 1 per project |
+| File upload | 100 MB per file (default) |
+| Signed URL lifetime | 3,600 s default |
+
+## Hooks
+
+| Item | Default | Max |
+| :-- | :-- | :-- |
+| Timeout | 10,000 ms | 30,000 ms |
+| Memory | 32 MB | 128 MB |
+| Fuel | 10,000,000 | 100,000,000 |
+| Rows per query | 50 | 200 |
+| Hooks per collection and event | 1 | 1 |
+
+## Scheduled tasks
+
+| Item | Range |
+| :-- | :-- |
+| Actions per task | 1 – 10 |
+| Execution timeout | 1 – 600 s |
+| Max attempts | 1 – 10 |
+| Retry delay | 0 – 86,400 s |
+| Max catch-up runs | 1 – 10 |
+| Manual "run now" | 20 / minute |
+
+## Other
+
+| Item | Limit |
+| :-- | :-- |
+| PDF generation | 30 / minute |
+| Dashboard grid width | 12 columns |
+
+<Note>Limits may change during the beta. Plan-specific limits are shown in your dashboard's usage page.</Note>

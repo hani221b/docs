@@ -1,0 +1,45 @@
+---
+title: "Dashboards"
+description: "Create dashboards in Bludia with widgets on a 12-column grid: stat (count, sum, avg, min, max with filters), record list, collection, and activity widgets."
+keywords: ["dashboard", "widgets", "kpi", "stat card", "admin dashboard", "metrics"]
+icon: "layout-dashboard"
+---
+
+A **dashboard** is a page of widgets that summarize your project's data at a glance.
+
+## Widget types
+
+<CardGroup cols={2}>
+  <Card title="Stat" icon="hash" color="#14B8A6">
+    One number: `count`, `sum`, `avg`, `min`, or `max` of a field, with optional filters. *Open tickets: 37.*
+  </Card>
+  <Card title="Record list" icon="list" color="#14B8A6">
+    A short list of records, such as *latest 10 orders*.
+  </Card>
+  <Card title="Collection" icon="table" color="#14B8A6">
+    A view of a collection's records.
+  </Card>
+  <Card title="Activity" icon="activity" color="#14B8A6">
+    Recent changes across your data.
+  </Card>
+</CardGroup>
+
+Widget filters support `eq`, `neq`, `gt`, `gte`, `lt`, `lte`, `contains`, `is_null`, and `not_null`.
+
+## Build a dashboard
+
+<Steps>
+  <Step title="Create it">Go to **Dashboards** → **Create dashboard** and name it, for example `Sales overview`.</Step>
+  <Step title="Add widgets">Pick a type, a collection, and the metric or fields. Preview before saving.</Step>
+  <Step title="Arrange">Drag and resize widgets on the 12-column grid (width 1–12).</Step>
+</Steps>
+
+## Example: sales overview
+
+| Widget | Type | Config |
+| :-- | :-- | :-- |
+| Revenue this month | Stat | `sum(total)` on `orders`, `created_at` ≥ first of month |
+| Open deals | Stat | `count` on `deals`, `stage` neq `closed` |
+| Average deal size | Stat | `avg(value)` on `deals` |
+| Latest orders | Record list | `orders`, newest first, 10 rows |
+| Recent activity | Activity | |

@@ -1,0 +1,72 @@
+---
+title: "FAQ"
+description: "Frequently asked questions about Bludia: what it is, pricing tier features, frontends, security of API keys, user authentication, multi-tenancy, custom business logic, data export, database access, and beta status."
+keywords: ["faq", "questions", "help", "is bludia", "can bludia", "does bludia"]
+icon: "circle-help"
+---
+
+## General
+
+<AccordionGroup>
+  <Accordion title="What is Bludia?">
+    A backend platform. You model data in a dashboard, and Bludia gives you a REST API, user authentication, permissions, row-level security, server-side hooks, email, files, reports, and scheduled tasks. See [Introduction](/introduction).
+  </Accordion>
+  <Accordion title="Is Bludia production ready?">
+    Bludia is in **beta**. You can build real apps, but APIs and features may change. Keep regular [exports](/hosting/backups-and-exports).
+  </Accordion>
+  <Accordion title="Which frontends work with Bludia?">
+    Anything that can make HTTPS requests: React, Next.js, Vue, Svelte, Angular, Flutter, Swift, Kotlin, React Native, and server languages. See [Frontend integration](/frontend/overview).
+  </Accordion>
+  <Accordion title="Is there an SDK?">
+    Not required. The API is plain REST and JSON. A copy-paste [JavaScript client](/frontend/javascript-client) is provided, and the [OpenAPI spec](/api-reference/openapi.json) can generate clients for other languages. Hooks use the Go `bludia` SDK.
+  </Accordion>
+  <Accordion title="What database does Bludia use?">
+    PostgreSQL, managed by Bludia. You work with collections and records rather than SQL, and you can export everything as a PostgreSQL file.
+  </Accordion>
+  <Accordion title="Can I try it without an account?">
+    Yes. A guest gets a temporary project to explore. Signing up claims it. Keys, guards, hooks, messaging, and uploads need an account.
+  </Accordion>
+</AccordionGroup>
+
+## Security
+
+<AccordionGroup>
+  <Accordion title="Is it safe to put an API key in my frontend?">
+    Only an **`end_users`** key with **allowed origins**. It can't access data without a signed-in user's token, and permissions and row policies apply. Never ship a `platform` key. See [API authentication](/api/authentication).
+  </Accordion>
+  <Accordion title="How do I make users see only their own data?">
+    It's the default: with no allow row policy, end users only see records they created. Add [row policies](/authorization/row-level-security) to share more.
+  </Accordion>
+  <Accordion title="Can I build a multi-tenant SaaS?">
+    Yes. Use row policies (`owner`, `relation` to a team/organization, or `field_equals` on a tenant field) so each customer only sees their organization's data.
+  </Accordion>
+  <Accordion title="How are passwords stored?">
+    Hashed with bcrypt. Password values are never returned by the API.
+  </Accordion>
+</AccordionGroup>
+
+## Building
+
+<AccordionGroup>
+  <Accordion title="How do I add custom business logic?">
+    Write a [hook](/hooks/overview) in Go. Before hooks validate or change data; after hooks send emails and update other records.
+  </Accordion>
+  <Accordion title="Can hooks call external APIs?">
+    Not directly: hooks run in a sandbox without network access. Write to an outbox collection and process it from your own server.
+  </Accordion>
+  <Accordion title="How do I send emails?">
+    Add an SMTP [channel](/messaging/channels) and a [template](/messaging/templates), then call `ctx.Msg().Send(...)` from an after hook.
+  </Accordion>
+  <Accordion title="Does Bludia support social login (Google, Apple)?">
+    Not yet. Guards can store provider settings, and sign-in flows are planned.
+  </Accordion>
+  <Accordion title="Can I use GraphQL or realtime subscriptions?">
+    Not currently. Bludia provides a REST API.
+  </Accordion>
+  <Accordion title="How do I move my existing data?">
+    Import a SQL dump or CSV files. See [Migrate existing data](/guides/migrate-existing-data).
+  </Accordion>
+  <Accordion title="Can I get my data out?">
+    Yes: export records per collection or the whole database as PostgreSQL. See [Backups & exports](/hosting/backups-and-exports).
+  </Accordion>
+</AccordionGroup>

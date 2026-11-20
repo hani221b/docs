@@ -1,0 +1,65 @@
+---
+title: "Logs & debugging"
+description: "Every hook execution is recorded with status, event, duration, fuel used, peak memory, error details, and your log lines. Filter executions by hook or event and debug failed hooks."
+keywords: ["hook logs", "debugging", "executions", "errors", "troubleshoot hooks", "log levels"]
+icon: "bug"
+---
+
+## Executions
+
+Open **Hooks** → **Executions** (all hooks) or a single hook's **Executions** tab. Each run shows:
+
+| Field | Description |
+| :-- | :-- |
+| Status | `running`, `success`, or `error` |
+| Event | For example `before_insert` |
+| Duration | Milliseconds |
+| Fuel used / peak memory | Resources consumed |
+| Error | Code, message, and category (`user` for your `Abort`, `system` for runtime failures) |
+| Logs | Lines written with `bludia.Log` / `bludia.LogWith` |
+
+Filter by hook or event type to narrow the list.
+
+## Add useful logs
+
+```go
+bludia.Log(bludia.Info, "Checking availability")
+bludia.LogWith(bludia.Debug, "Incoming record", rec)
+bludia.LogWith(bludia.Warn, "Low stock", map[string]any{"sku": rec["sku"], "left": stock})
+```
+
+| Level | Use for |
+| :-- | :-- |
+| `Debug` | Details you need only while developing |
+| `Info` | Normal milestones |
+| `Warn` | Unexpected but handled situations |
+| `Error` | Failures |
+
+<Warning>Don't log passwords, tokens, or full personal data. Logs are visible to team members.</Warning>
+
+## Common problems
+
+<AccordionGroup>
+  <Accordion title="The hook never runs">
+    - Is the hook **active**?
+    - Is a **compiled** version set as **current**?
+    - Is it attached to the right collection and event? `afterUpdate` doesn't fire on create.
+  </Accordion>
+  <Accordion title="Build failed">
+    Open the failed version's build output. Common causes: a missing import, an unused variable or import (Go treats these as errors), or a package TinyGo doesn't support.
+  </Accordion>
+  <Accordion title="My changes to the record aren't saved">
+    - Call `ctx.SetRecord(record)` after changing it.
+    - Changes are only applied in **before** hooks.
+    - Use the field **name** as the key, for example `record["status"]`.
+  </Accordion>
+  <Accordion title="Writes fail with my Abort message unexpectedly">
+    Log the values you're checking. On update, the record may contain only the fields sent in that request.
+  </Accordion>
+  <Accordion title="Query returns nothing">
+    Check the collection slug and field names. Relation fields can't be filtered in hook queries; filter on a regular field instead.
+  </Accordion>
+  <Accordion title="Timed out">
+    Reduce the number of queries (each is a round trip), lower `Limit`, or raise `timeout_ms` in the manifest (max 30 s).
+  </Accordion>
+</AccordionGroup>

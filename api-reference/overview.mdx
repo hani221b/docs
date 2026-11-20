@@ -1,0 +1,46 @@
+---
+title: "API reference"
+description: "Complete reference for the Bludia public REST API v1 at https://YOUR_API_HOST/ext/api/v1: record CRUD per collection and end-user authentication endpoints, with headers, parameters, and response schemas."
+keywords: ["api reference", "endpoints", "openapi", "swagger", "rest reference"]
+icon: "braces"
+---
+
+This tab documents every public endpoint, generated from Bludia's OpenAPI specification. Use the **Try it** panel on each page to send real requests: set your host, API key, and (for end users) access token.
+
+## Base URL and auth
+
+```text
+Base URL:   https://YOUR_API_HOST/ext/api/v1
+Headers:    X-BLUDIA-API-KEY: <api key>                      (always)
+            Authorization: Bearer <access_token>             (end_users keys, data + account routes)
+```
+
+## Endpoints
+
+| Method | Path | Summary | Auth |
+| :-- | :-- | :-- | :-- |
+| `GET` | `/collections/{collection}/records` | List records | Key (+ Bearer for end users) |
+| `POST` | `/collections/{collection}` | Create a record | Key (+ Bearer) |
+| `GET` | `/collections/{collection}/{id}` | Get a record | Key (+ Bearer) |
+| `PUT` | `/collections/{collection}/{id}` | Update a record | Key (+ Bearer) |
+| `DELETE` | `/collections/{collection}/{id}` | Delete a record | Key (+ Bearer) |
+| `POST` | `/auth/{guard}/register` | Register | Key |
+| `POST` | `/auth/{guard}/login` | Log in | Key |
+| `POST` | `/auth/{guard}/refresh` | Refresh session | Key |
+| `POST` | `/auth/{guard}/password/forgot` | Request password reset | Key |
+| `POST` | `/auth/{guard}/password/reset` | Reset password | Key |
+| `POST` | `/auth/{guard}/email/verify` | Verify email | Key |
+| `GET` | `/auth/{guard}/me` | Current user | Key + Bearer |
+| `POST` | `/auth/{guard}/logout` | Log out | Key + Bearer |
+| `POST` | `/auth/{guard}/logout-all` | Log out everywhere | Key + Bearer |
+| `POST` | `/auth/{guard}/email/resend` | Resend verification code | Key + Bearer |
+
+## Related guides
+
+<CardGroup cols={3}>
+  <Card title="Authentication" icon="lock" href="/api/authentication">Platform vs end-user keys.</Card>
+  <Card title="Querying" icon="filter" href="/api/querying">Filters, sorting, pagination.</Card>
+  <Card title="Errors" icon="triangle-alert" href="/api/errors">Status codes and bodies.</Card>
+</CardGroup>
+
+<Note>The OpenAPI file is at [`/api-reference/openapi.json`](/api-reference/openapi.json). Import it into Postman, Insomnia, or a code generator.</Note>

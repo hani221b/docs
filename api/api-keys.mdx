@@ -1,0 +1,90 @@
+---
+title: "API keys"
+description: "Create and manage Bludia API keys: name, auth type (platform or end_users), environment, rate limit, expiry, and allowed origins. Keys look like bludia_production_abc123_... and are shown only once."
+keywords: ["api key", "create api key", "revoke key", "rotate key", "x-bludia-api-key", "key format", "environment"]
+icon: "key"
+---
+
+An **API key** identifies an app or integration calling your project's API. Send it on every request:
+
+```http
+X-BLUDIA-API-KEY: bludia_production_k3x9qa_7Hc0V2...
+```
+
+## Key format
+
+```text
+bludia_<environment>_<6-char id>_<40-char secret>
+```
+
+The first part (for example `bludia_production_k3x9qa`) is the key **prefix**. It's shown in the dashboard so you can tell keys apart. Bludia stores only a SHA-256 hash of the full key.
+
+<Warning>The full key is **shown once**, when you create it. Copy it into your secret manager or environment variables right away. If you lose it, create a new key.</Warning>
+
+## Create a key
+
+Go to **API** → **API Keys** → **Create key** and fill in:
+
+| Setting | Required | Values | Default | Notes |
+| :-- | :-- | :-- | :-- | :-- |
+| **Name** | Yes | Text, up to 255 chars | | For example `Web app` or `Nightly sync` |
+| **Auth type** | Yes | `end_users`, `platform` | | See [API authentication](/api/authentication) |
+| **Environment** | No | `production`, `staging`, `development` | `production` | Appears in the key prefix |
+| **Permissions** | Yes | Collections and actions (`read`, `create`, `update`, `delete`) | | Documents what the key is for |
+| **Rate limit** | No | 10 to 100,000 requests per minute | 1,000 | See [Rate limits](/api/rate-limits) |
+| **Expires at** | No | A future date | Never | Expired keys return `403` |
+| **Allowed origins** | No | List of origins, or `*` | None | Required for browser apps. See [CORS](/api/cors) |
+
+<Note>
+  For `end_users` keys, what each user can do is enforced by their [role permissions](/authorization/roles-and-permissions) and [row policies](/authorization/row-level-security). A `platform` key has full access to the project, so keep it secret.
+</Note>
+
+## Recommended setup
+
+| App | Auth type | Allowed origins | Where the key lives |
+| :-- | :-- | :-- | :-- |
+| Web app (React, Vue, SPA) | `end_users` | `https://app.example.com` | Frontend env var (public) |
+| Mobile app | `end_users` | none needed (no `Origin` header) | App config |
+| Next.js server / API routes | `platform` or `end_users` | none needed | Server env var (secret) |
+| Cron job, ETL, admin script | `platform` | none needed | Secret manager |
+| Local development | `end_users` | `http://localhost:3000` | `.env.local` |
+
+Use separate keys per app and environment so you can revoke one without affecting the others.
+
+## Edit, rotate, and revoke
+
+- **Edit:** you can change a key's name, environment label, permissions, rate limit, expiry, and allowed origins. The secret never changes.
+- **Rotate:** create a new key, deploy it, then revoke the old one.
+- **Revoke:** revoked keys stop working immediately and return `403 API key revoked.`
+
+The keys list shows each key's prefix, auth type, environment, rate limit, expiry, **last used** time, and **last IP**. Use these to spot unused or leaked keys.
+
+## Key errors
+
+| Status | Body | Cause |
+| :-- | :-- | :-- |
+| `401` | `{"message":"Missing API key."}` | No `X-BLUDIA-API-KEY` header |
+| `401` | `{"message":"Invalid API key."}` | Wrong or mistyped key |
+| `403` | `{"message":"API key revoked."}` | Key was revoked |
+| `403` | `{"message":"API key expired."}` | Past the key's expiry |
+| `403` | `CORS blocked` | Browser origin isn't in allowed origins |
+| `429` | `{"message":"Rate limit exceeded."}` | Too many requests this minute |
+
+## Security tips
+
+<AccordionGroup>
+  <Accordion title="Keep platform keys server-side">
+    Load them from environment variables or a secret manager. Never commit them to Git.
+  </Accordion>
+  <Accordion title="Restrict browser keys with allowed origins">
+    List exact origins such as `https://app.example.com`. Avoid `*` in production.
+  </Accordion>
+  <Accordion title="Set expiries on temporary keys">
+    Keys for contractors, demos, or one-off migrations should expire.
+  </Accordion>
+  <Accordion title="Review last used">
+    Revoke keys that haven't been used in a long time.
+  </Accordion>
+</AccordionGroup>
+
+Only team members whose project role allows it can view, create, update, or revoke keys.

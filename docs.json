@@ -2,151 +2,222 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Bludia Documentation",
-
+  "description": "Bludia is a backend platform: collections, a REST API, end-user authentication, role-based access control, row-level security, hooks, messaging, files, reports, and scheduled tasks for your app.",
   "colors": {
     "primary": "#3B82F6",
     "light": "#60A5FA",
     "dark": "#1D4ED8"
   },
-
   "favicon": {
     "light": "/images/Group21(1).png",
     "dark": "/images/Group21(1).png"
   },
-
   "logo": {
     "light": "/images/logo.png",
     "dark": "/images/logo.png"
   },
-
   "navigation": {
     "tabs": [
       {
         "tab": "Documentation",
         "groups": [
           {
-            "group": "Getting Started",
+            "group": "Get started",
             "pages": [
               "introduction",
+              "quickstart",
               "concepts",
-              "quick-start",
-              "projects",
-              {
-                "group": "Email & Messaging",
-                "pages": []
-              }
+              "projects"
             ]
           },
-
           {
             "group": "Database",
             "pages": [
-              "untitled-page-5",
-              "untitled-page-3",
-              "core/fields",
-              "core/records",
-              "untitled-page-8",
-              "core/relations",
-              "untitled-page-9",
-              "untitled-page-10",
-              "untitled-page-11"
+              "database/overview",
+              "database/collections",
+              "database/fields",
+              "database/validation",
+              "database/records",
+              "database/relations",
+              "database/computed-fields",
+              "database/import-export"
             ]
           },
-
           {
-            "group": "API",
+            "group": "REST API",
             "pages": [
-              "core/api",
-              "untitled-page-4",
-              "core/keys",
-              "untitled-page-6",
-              "untitled-page-7"
+              "api/overview",
+              "api/authentication",
+              "api/api-keys",
+              "api/querying",
+              "api/errors",
+              "api/rate-limits",
+              "api/cors"
             ]
           },
           {
-            "group": "Authentication & Security",
+            "group": "Authentication",
             "pages": [
-              "untitled-page-12",
-              "untitled-page-13",
-              "untitled-page-14",
-              "untitled-page-15",
-              "untitled-page-16",
-              "untitled-page-17",
-              "untitled-page-18",
-              "untitled-page-19",
-              "untitled-page-20"
+              "authentication/overview",
+              "authentication/guards",
+              "authentication/register-and-login",
+              "authentication/sessions-and-tokens",
+              "authentication/email-verification",
+              "authentication/password-reset",
+              "authentication/current-user"
             ]
           },
-
           {
-            "group": "Hooks & Backend Logic",
+            "group": "Authorization & security",
             "pages": [
-              "core/webhooks",
-              "untitled-page-23",
-              "untitled-page-24",
-              "untitled-page-25",
-              "untitled-page-26",
-              "untitled-page-27"
+              "authorization/overview",
+              "authorization/roles-and-permissions",
+              "authorization/row-level-security",
+              "authorization/team-members",
+              "authorization/security-checklist"
             ]
           },
-
           {
-            "group": "Files & Storage",
-            "pages": []
+            "group": "Hooks",
+            "pages": [
+              "hooks/overview",
+              "hooks/lifecycle-events",
+              "hooks/writing-hooks",
+              "hooks/sdk-reference",
+              "hooks/versions",
+              "hooks/runtime-and-limits",
+              "hooks/logs-and-debugging",
+              "hooks/best-practices"
+            ]
           },
           {
-            "group": "Reports & Analytics",
-            "pages": []
+            "group": "Messaging",
+            "pages": [
+              "messaging/overview",
+              "messaging/channels",
+              "messaging/templates"
+            ]
           },
-
           {
-            "group": "Frontend Integration",
-            "pages": []
+            "group": "Files & storage",
+            "pages": [
+              "files/overview"
+            ]
           },
           {
-            "group": "Hosting & Operations",
-            "pages": []
+            "group": "Reports & automation",
+            "pages": [
+              "reports/overview",
+              "reports/dashboards",
+              "reports/pdf-templates",
+              "automation/scheduled-tasks"
+            ]
           },
-
           {
-            "group": "Guides",
-            "pages": []
+            "group": "Frontend integration",
+            "pages": [
+              "frontend/overview",
+              "frontend/javascript-client",
+              "frontend/react",
+              "frontend/server-side"
+            ]
           },
-
+          {
+            "group": "Hosting & operations",
+            "pages": [
+              "hosting/overview",
+              "hosting/backups-and-exports"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Guides",
+        "groups": [
+          {
+            "group": "Build an app",
+            "pages": [
+              "guides/build-crm",
+              "guides/customer-portal",
+              "guides/booking-notifications"
+            ]
+          },
           {
             "group": "Migration",
-            "pages": []
-          },
-
+            "pages": [
+              "guides/migrate-existing-data"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
           {
-            "group": "Troubleshooting",
-            "pages": []
+            "group": "Overview",
+            "pages": [
+              "api-reference/overview"
+            ]
           },
-
+          {
+            "group": "Endpoints",
+            "openapi": "api-reference/openapi.json"
+          }
+        ]
+      },
+      {
+        "tab": "Reference",
+        "groups": [
           {
             "group": "Reference",
-            "pages": []
+            "pages": [
+              "reference/at-a-glance",
+              "reference/limits-and-defaults",
+              "reference/glossary",
+              "reference/faq"
+            ]
+          },
+          {
+            "group": "Troubleshooting",
+            "pages": [
+              "troubleshooting/common-errors"
+            ]
           }
         ]
       }
     ],
-
     "global": {
       "anchors": [
         {
           "anchor": "API Reference",
           "href": "/api-reference/overview",
-          "icon": "brackets"
+          "icon": "braces"
         },
         {
           "anchor": "Guides",
           "href": "/guides/build-crm",
           "icon": "book-open"
+        },
+        {
+          "anchor": "Bludia at a glance",
+          "href": "/reference/at-a-glance",
+          "icon": "sparkles"
         }
       ]
     }
   },
-
+  "api": {
+    "playground": {
+      "display": "interactive"
+    },
+    "examples": {
+      "languages": [
+        "curl",
+        "javascript",
+        "python"
+      ]
+    }
+  },
   "navbar": {
     "links": [
       {
@@ -160,7 +231,6 @@
       "href": "https://bludia.com"
     }
   },
-
   "contextual": {
     "options": [
       "copy",
@@ -173,22 +243,28 @@
       "vscode"
     ]
   },
-
+  "seo": {
+    "indexing": "all",
+    "metatags": {
+      "og:site_name": "Bludia Docs",
+      "og:type": "website"
+    }
+  },
+  "search": {
+    "prompt": "Search Bludia docs: collections, API keys, auth guards, hooks..."
+  },
   "footer": {
     "socials": {
       "x": "https://x.com/Bludia",
       "linkedin": "https://www.linkedin.com/company/bludia"
     }
   },
-
   "icons": {
     "library": "lucide"
   },
-
   "appearance": {
     "default": "system"
   },
-
   "background": {
     "decoration": "gradient",
     "color": {
@@ -196,8 +272,133 @@
       "dark": "#0F172A"
     }
   },
-
   "fonts": {
     "family": "Ubuntu"
-  }
+  },
+  "redirects": [
+    {
+      "source": "/quick-start",
+      "destination": "/quickstart"
+    },
+    {
+      "source": "/core/api",
+      "destination": "/api/overview"
+    },
+    {
+      "source": "/core/keys",
+      "destination": "/api/api-keys"
+    },
+    {
+      "source": "/core/fields",
+      "destination": "/database/fields"
+    },
+    {
+      "source": "/core/records",
+      "destination": "/database/records"
+    },
+    {
+      "source": "/core/relations",
+      "destination": "/database/relations"
+    },
+    {
+      "source": "/core/webhooks",
+      "destination": "/hooks/overview"
+    },
+    {
+      "source": "/untitled-page-2",
+      "destination": "/quickstart"
+    },
+    {
+      "source": "/untitled-page-3",
+      "destination": "/database/collections"
+    },
+    {
+      "source": "/untitled-page-4",
+      "destination": "/api/authentication"
+    },
+    {
+      "source": "/untitled-page-5",
+      "destination": "/database/overview"
+    },
+    {
+      "source": "/untitled-page-6",
+      "destination": "/api/errors"
+    },
+    {
+      "source": "/untitled-page-7",
+      "destination": "/api/rate-limits"
+    },
+    {
+      "source": "/untitled-page-8",
+      "destination": "/api/querying"
+    },
+    {
+      "source": "/untitled-page-9",
+      "destination": "/api/querying"
+    },
+    {
+      "source": "/untitled-page-10",
+      "destination": "/database/computed-fields"
+    },
+    {
+      "source": "/untitled-page-11",
+      "destination": "/database/import-export"
+    },
+    {
+      "source": "/untitled-page-12",
+      "destination": "/authentication/overview"
+    },
+    {
+      "source": "/untitled-page-13",
+      "destination": "/authentication/current-user"
+    },
+    {
+      "source": "/untitled-page-14",
+      "destination": "/authentication/register-and-login"
+    },
+    {
+      "source": "/untitled-page-15",
+      "destination": "/authentication/sessions-and-tokens"
+    },
+    {
+      "source": "/untitled-page-16",
+      "destination": "/authentication/email-verification"
+    },
+    {
+      "source": "/untitled-page-17",
+      "destination": "/authentication/password-reset"
+    },
+    {
+      "source": "/untitled-page-18",
+      "destination": "/authentication/guards"
+    },
+    {
+      "source": "/untitled-page-19",
+      "destination": "/authentication/guards"
+    },
+    {
+      "source": "/untitled-page-20",
+      "destination": "/authorization/roles-and-permissions"
+    },
+    {
+      "source": "/untitled-page-23",
+      "destination": "/hooks/lifecycle-events"
+    },
+    {
+      "source": "/untitled-page-24",
+      "destination": "/hooks/writing-hooks"
+    },
+    {
+      "source": "/untitled-page-25",
+      "destination": "/hooks/runtime-and-limits"
+    },
+    {
+      "source": "/untitled-page-26",
+      "destination": "/hooks/logs-and-debugging"
+    },
+    {
+      "source": "/untitled-page-27",
+      "destination": "/hooks/best-practices"
+    }
+  ]
 }

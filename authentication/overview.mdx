@@ -1,0 +1,98 @@
+---
+title: "Authentication overview"
+description: "Bludia end-user authentication: attach a guard to a collection such as users, then register, log in, refresh, and log out users over the API. Sessions use short-lived JWT access tokens (15 min default) and rotating refresh tokens (14 days default)."
+keywords: ["authentication", "login", "sign up", "register", "jwt", "end users", "user accounts", "auth guard"]
+icon: "key-round"
+---
+
+Bludia authenticates **your app's users** (end users) against a collection in your own project. There's no separate user database: a user is a record in a collection like `users`, `customers`, or `staff`.
+
+```text
+users collection                 Authentication guard "users"
+├── email      (login field)  ◄── login field: email
+├── password   (auto-added)   ◄── password field (hashed)
+├── full_name
+└── phone
+```
+
+## The flow
+
+```text
+1. Register    POST /auth/users/register   { email, password, full_name }   → session
+2. Log in      POST /auth/users/login      { login, password }              → session
+3. Use the API GET  /collections/orders/records   Authorization: Bearer <access_token>
+4. Refresh     POST /auth/users/refresh    { refresh_token }                → new session
+5. Log out     POST /auth/users/logout     { refresh_token }
+```
+
+A **session** looks like this:
+
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIs...",
+  "refresh_token": "q3Jx...(80 characters)",
+  "token_type": "Bearer",
+  "expires_in": 900,
+  "record_id": 42
+}
+```
+
+## Set up authentication
+
+<Steps>
+  <Step title="Create a users collection">
+    Add a collection (for example `users`) with a login field such as `email`, plus any profile fields.
+  </Step>
+  <Step title="Create a guard">
+    Go to **Authentication** → **Guards** → **Create guard**. Pick the collection and the login field. Bludia adds a `password` field and a default role, `user`. See [Guards](/authentication/guards).
+  </Step>
+  <Step title="Grant permissions">
+    Give the `user` role access to the collections your app needs. See [Roles & permissions](/authorization/roles-and-permissions).
+  </Step>
+  <Step title="Create an end_users API key">
+    In **API** → **API Keys**, create a key with auth type `end_users` and add your app's origin. See [API keys](/api/api-keys).
+  </Step>
+  <Step title="Build login and sign-up screens">
+    Call the auth endpoints from your app. See [Register & login](/authentication/register-and-login).
+  </Step>
+</Steps>
+
+## Features
+
+<CardGroup cols={2}>
+  <Card title="Guards" icon="shield" color="#8B5CF6" href="/authentication/guards">
+    Connect login to a collection, choose the login field, configure tokens.
+  </Card>
+  <Card title="Register & login" icon="log-in" color="#8B5CF6" href="/authentication/register-and-login">
+    Sign-up and sign-in endpoints, payloads, and errors.
+  </Card>
+  <Card title="Sessions & tokens" icon="refresh-cw" color="#8B5CF6" href="/authentication/sessions-and-tokens">
+    Access tokens, refresh rotation, logout, and logout everywhere.
+  </Card>
+  <Card title="Email verification" icon="mail-check" color="#8B5CF6" href="/authentication/email-verification">
+    Send a verification code at sign-up and confirm it.
+  </Card>
+  <Card title="Password reset" icon="rotate-ccw-key" color="#8B5CF6" href="/authentication/password-reset">
+    Forgot-password and reset flows.
+  </Card>
+  <Card title="Current user" icon="user" color="#8B5CF6" href="/authentication/current-user">
+    Get the signed-in user's profile with `/me`.
+  </Card>
+</CardGroup>
+
+## Security built in
+
+| Protection | How |
+| :-- | :-- |
+| Password storage | Hashed with bcrypt; never returned by the API |
+| Minimum password length | 8 characters (add more rules on the password field) |
+| Brute-force protection | Auth endpoints allow 10 requests per minute per IP and route |
+| Login auditing | Every login attempt is logged with IP, user agent, and result |
+| Refresh token rotation | Each refresh revokes the old refresh token |
+| Account status | Users with status `inactive`, `banned`, or `suspended` can't log in |
+| Password reset | Revokes all of the user's sessions |
+| Tenant isolation | Tokens only work for the project and guard that issued them |
+
+<Note>
+  **End users vs team members.** This section is about people who use *your app*. To give colleagues access to the Bludia dashboard, see [Team members](/authorization/team-members).
+</Note>

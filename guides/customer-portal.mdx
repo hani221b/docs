@@ -1,0 +1,68 @@
+---
+title: "Build a customer portal"
+description: "Guide: a customer portal where customers sign up, see only their own tickets and invoices, and can't see other customers' data. Uses a customers guard, owner row policies, a published knowledge base, and an end_users API key."
+keywords: ["customer portal", "multi tenant", "self service", "support tickets", "row level security example", "guide"]
+icon: "door-open"
+---
+
+Customers sign up, open support tickets, see their invoices, and read published help articles. They never see each other's data.
+
+```text
+customers (guard)  ──<  tickets        (customer creates; sees own)
+                   ──<  invoices       (staff creates; customer sees own)
+articles                               (everyone sees published)
+```
+
+<Steps>
+  <Step title="Collections">
+    - `customers`: `email` (unique, email format), `full_name`, `company`
+    - `tickets`: `subject` (required), `body` (Long Text), `status` (Select: open, pending, closed), `priority` (Select)
+    - `invoices`: `number`, `amount` (Number), `due_date` (Date), `paid` (Boolean)
+    - `articles`: `title`, `content` (Text Editor), `status` (Select: draft, published)
+
+    Relations: `customers` → `tickets` (`one_to_many`), `customers` → `invoices` (`one_to_many`).
+  </Step>
+
+  <Step title="Guard">
+    Guard `customers` on the `customers` collection, login field `email`, registration **on**. Optionally turn on [email verification](/authentication/email-verification).
+  </Step>
+
+  <Step title="Permissions for the default user role">
+    | Collection | Permissions |
+    | :-- | :-- |
+    | `customers` | read, update (their own profile) |
+    | `tickets` | read, create |
+    | `invoices` | read |
+    | `articles` | read |
+  </Step>
+
+  <Step title="Row policies">
+    | Collection | Policy | Result |
+    | :-- | :-- | :-- |
+    | `customers` | default (owner) | Customers see only their own record |
+    | `tickets` | default (owner) | Customers see tickets they opened |
+    | `invoices` | allow `relation` via customers → invoices | Customers see invoices linked to them, even though staff created them |
+    | `articles` | allow `field_equals` status = published | Everyone sees published articles |
+  </Step>
+
+  <Step title="Protect sensitive fields">
+    Add a `beforeUpdate` hook on `tickets` that rejects changes to `priority` from customers, and one on `customers` that blocks changes to `email` if you don't want customers changing their login.
+  </Step>
+
+  <Step title="Notify support">
+    `afterInsert` hook on `tickets` that emails your support inbox with `ctx.Msg().Send(...)`.
+  </Step>
+
+  <Step title="Frontend">
+    Create an `end_users` key with your portal's origin. Pages: sign-up, login, my tickets, new ticket, my invoices, help center.
+  </Step>
+</Steps>
+
+## Test isolation
+
+1. Register two customers, A and B.
+2. As A, create a ticket. As B, list tickets: A's ticket must not appear.
+3. As B, `GET /collections/tickets/{A's ticket id}`: expect `404`.
+4. As B, `PUT` the same ID: expect `404`.
+
+<Tip>Run this test whenever you change roles or policies.</Tip>

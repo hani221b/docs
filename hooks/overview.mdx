@@ -1,0 +1,108 @@
+---
+title: "Hooks overview"
+description: "Hooks run your own Go code when records are created, updated, or deleted. Before hooks can modify or reject a write; after hooks run asynchronously for side effects. Code is compiled to WebAssembly and runs in a sandbox."
+keywords: ["hooks", "triggers", "server-side code", "business logic", "custom code", "serverless functions", "go", "tinygo", "webassembly", "wasm"]
+icon: "webhook"
+---
+
+A **hook** is a small Go program that Bludia runs at a point in a record's lifecycle. Use hooks for business rules that field validation can't express, and for side effects like sending emails.
+
+```text
+POST /collections/bookings
+        │
+        ▼
+  beforeInsert hook  ── can change the record, or Abort() to reject it
+        │
+        ▼
+  record saved (transaction committed)
+        │
+        ▼
+  afterInsert hook   ── runs asynchronously: send email, update other records
+```
+
+## At a glance
+
+| | |
+| :-- | :-- |
+| **Language** | Go (compiled with TinyGo to WebAssembly) |
+| **Attached to** | One collection + one event |
+| **Events** | `beforeInsert`, `afterInsert`, `beforeUpdate`, `afterUpdate`, `beforeDelete`, `afterDelete` |
+| **Limit** | One hook per collection per event |
+| **Sandbox** | No network or file system; talks to Bludia through the SDK |
+| **SDK can** | Read/modify the current record, query/insert/update/delete records, send messages, log, abort |
+| **Default limits** | 10 s timeout, 32 MB memory (max 30 s, 128 MB) |
+| **Versioning** | Every save is a new version; you choose the current one |
+| **Observability** | Each run is logged with status, duration, resources, and your log lines |
+
+## What hooks are good for
+
+<CardGroup cols={2}>
+  <Card title="Business validation" icon="shield-alert" color="#F59E0B">
+    Reject a booking that overlaps another, or an order above the customer's credit limit.
+  </Card>
+  <Card title="Data normalization" icon="wand-sparkles" color="#F59E0B">
+    Lowercase emails, trim names, generate reference numbers, set defaults.
+  </Card>
+  <Card title="Notifications" icon="mail" color="#EC4899">
+    Email a confirmation after a booking is created.
+  </Card>
+  <Card title="Keep data in sync" icon="refresh-cw" color="#3B82F6">
+    Decrease stock when an order is placed; update a parent's status when children change.
+  </Card>
+  <Card title="Protect fields" icon="lock" color="#10B981">
+    Stop end users from changing `role`, `plan`, or `balance` on their own record.
+  </Card>
+  <Card title="Audit trails" icon="scroll-text" color="#64748B">
+    Write an `activity_log` record after important changes.
+  </Card>
+</CardGroup>
+
+## A first hook
+
+```go
+package main
+
+import (
+	"strings"
+
+	"bludia"
+)
+
+// beforeInsert on "customers": normalize the email and block duplicates.
+func main() {
+	ctx := bludia.GetContext()
+
+	record, err := ctx.Record()
+	if err != nil {
+		bludia.Abort("Could not read the record")
+		return
+	}
+
+	email, _ := record["email"].(string)
+	email = strings.ToLower(strings.TrimSpace(email))
+	record["email"] = email
+
+	taken, err := ctx.Collection("customers").Where("email", bludia.Eq, email).Exists()
+	if err != nil {
+		bludia.Abort("Could not check for duplicates")
+		return
+	}
+	if taken {
+		bludia.Abort("A customer with this email already exists")
+		return
+	}
+
+	ctx.SetRecord(record)
+}
+```
+
+## Learn more
+
+<CardGroup cols={2}>
+  <Card title="Lifecycle events" icon="git-commit-horizontal" href="/hooks/lifecycle-events">When each event fires and what it can do.</Card>
+  <Card title="Writing hooks" icon="code" href="/hooks/writing-hooks">Create, test, and deploy a hook step by step.</Card>
+  <Card title="SDK reference" icon="book-open" href="/hooks/sdk-reference">Every function in the `bludia` Go package.</Card>
+  <Card title="Versions" icon="history" href="/hooks/versions">Build, activate, and roll back versions.</Card>
+  <Card title="Runtime & limits" icon="cpu" href="/hooks/runtime-and-limits">Sandbox, timeouts, memory, and fuel.</Card>
+  <Card title="Logs & debugging" icon="bug" href="/hooks/logs-and-debugging">Execution history and log output.</Card>
+</CardGroup>

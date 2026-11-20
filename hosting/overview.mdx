@@ -1,0 +1,61 @@
+---
+title: "Hosting & operations"
+description: "What Bludia runs for you: managed PostgreSQL, the REST API, authentication, the sandboxed hook runtime, background queues for email and imports, file storage, and scheduled tasks. Covers environments, monitoring, and what's coming during beta."
+keywords: ["hosting", "infrastructure", "managed", "operations", "deployment", "environments", "uptime"]
+icon: "cloud"
+---
+
+Bludia is fully managed. You don't provision servers, databases, or queues: they run as part of your project.
+
+## What Bludia runs for you
+
+<CardGroup cols={2}>
+  <Card title="Database" icon="database" color="#3B82F6">
+    Managed PostgreSQL with per-project isolation, validation, history, and soft delete.
+  </Card>
+  <Card title="API & auth" icon="braces" color="#0EA5E9">
+    The REST API, API key checks, CORS, rate limiting, JWT sessions.
+  </Card>
+  <Card title="Hook runtime" icon="cpu" color="#F59E0B">
+    A sandboxed WebAssembly runtime that compiles and runs your hooks.
+  </Card>
+  <Card title="Background work" icon="list-todo" color="#EC4899">
+    Queues for email delivery, imports, exports, and after hooks.
+  </Card>
+  <Card title="File storage" icon="folder-open" color="#6366F1">
+    Object storage with public and private files and signed URLs.
+  </Card>
+  <Card title="Scheduler" icon="calendar-clock" color="#F97316">
+    Runs scheduled tasks with retries and misfire handling.
+  </Card>
+</CardGroup>
+
+## Your frontend
+
+Host your frontend anywhere: Vercel, Netlify, Cloudflare Pages, your own servers, or app stores. Point it at your project's API base URL and add its origin to your API key's [allowed origins](/api/cors).
+
+## Environments
+
+Separate development from production so tests can't touch live data:
+
+| Approach | How |
+| :-- | :-- |
+| **Separate projects** (recommended) | One project for development or staging, one for production. Same schema, different data and keys |
+| **Key environments** | Label keys `development`, `staging`, or `production` to tell traffic apart. They share the project's data |
+
+## Observability
+
+| What | Where |
+| :-- | :-- |
+| API key usage | Keys list: last used time and last IP |
+| Hook runs | Hooks → Executions, with logs and resource usage |
+| Scheduled task runs | Task → Runs |
+| Imports and exports | Progress and status in their screens |
+| Record changes | Record → History |
+| Errors | `request_id` in error responses; share it with support |
+
+## Beta roadmap
+
+<Info>
+  Bludia is in beta. Custom domains, managed frontend deployments, and more hosting features are planned. Follow the changelog in your dashboard, or contact [support@bludia.com](mailto:support@bludia.com) about your needs.
+</Info>

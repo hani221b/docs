@@ -1,0 +1,140 @@
+---
+title: "Register & login"
+description: "Sign up end users with POST /auth/{guard}/register and sign them in with POST /auth/{guard}/login. Request bodies, session responses, status values, and error codes."
+keywords: ["register", "sign up", "signup", "login", "sign in", "auth endpoint", "session", "invalid_credentials", "duplicate_account"]
+icon: "log-in"
+---
+
+Both endpoints need only your API key (no Bearer token). Use an `end_users` key from browsers and mobile apps.
+
+## Register
+
+`POST /auth/{guard}/register`
+
+Send the login field **by its field name**, a `password`, and any other fields on the collection.
+
+<CodeGroup>
+  ```bash cURL
+  curl -X POST "$BASE_URL/auth/users/register" \
+    -H "Content-Type: application/json" \
+    -H "X-BLUDIA-API-KEY: $BLUDIA_PUBLIC_KEY" \
+    -d '{
+      "email": "sarah@example.com",
+      "password": "correct horse battery",
+      "full_name": "Sarah Ahmed",
+      "phone": "+971501234567"
+    }'
+  ```
+
+  ```javascript JavaScript
+  const res = await fetch(`${BASE_URL}/auth/users/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-BLUDIA-API-KEY": API_KEY },
+    body: JSON.stringify({ email, password, full_name }),
+  });
+  const { session, status } = await res.json();
+  ```
+</CodeGroup>
+
+**Response `201 Created`:**
+
+```json
+{
+  "session": {
+    "access_token": "eyJhbGciOiJIUzI1NiIs...",
+    "refresh_token": "q3Jx...",
+    "token_type": "Bearer",
+    "expires_in": 900,
+    "record_id": 42
+  }
+}
+```
+
+If the guard has email verification on, the response also includes `"status": "pending_verification"` and a code is emailed. See [Email verification](/authentication/email-verification).
+
+What Bludia does:
+
+1. Checks registration is enabled for the guard.
+2. Requires the login field and a password of at least 8 characters.
+3. Rejects the request if an account with that login already exists.
+4. Saves a record with the password hashed. The new user **owns their own record**.
+5. Assigns the guard's default `user` role.
+6. Returns a session, so the user is signed in right away.
+
+| Error | Status | When |
+| :-- | :-- | :-- |
+| `registration_disabled` | 403 | The guard doesn't allow sign-up |
+| `duplicate_account` | 409 | The login value is taken |
+| Validation error | 422 | Password missing or under 8 characters, or a field rule failed |
+| `guard_not_found` | 404 | Wrong guard slug |
+
+## Login
+
+`POST /auth/{guard}/login`
+
+| Body field | Type | Required | Description |
+| :-- | :-- | :-- | :-- |
+| `login` | string | Yes | The value of the guard's login field (email, username, phone…) |
+| `password` | string | Yes | The user's password |
+
+<CodeGroup>
+  ```bash cURL
+  curl -X POST "$BASE_URL/auth/users/login" \
+    -H "Content-Type: application/json" \
+    -H "X-BLUDIA-API-KEY: $BLUDIA_PUBLIC_KEY" \
+    -d '{ "login": "sarah@example.com", "password": "correct horse battery" }'
+  ```
+
+  ```javascript JavaScript
+  async function login(login, password) {
+    const res = await fetch(`${BASE_URL}/auth/users/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-BLUDIA-API-KEY": API_KEY },
+      body: JSON.stringify({ login, password }),
+    });
+    if (!res.ok) throw await res.json();
+    const { session } = await res.json();
+    return session; // store access_token and refresh_token
+  }
+  ```
+</CodeGroup>
+
+**Response `200 OK`:**
+
+```json
+{
+  "session": {
+    "access_token": "eyJhbGciOiJIUzI1NiIs...",
+    "refresh_token": "Z8mN...",
+    "token_type": "Bearer",
+    "expires_in": 900,
+    "record_id": 42
+  }
+}
+```
+
+| Error | Status | When |
+| :-- | :-- | :-- |
+| `invalid_credentials` | 401 | Unknown login or wrong password (same error for both, so attackers can't probe accounts) |
+| `account_inactive` | 403 | The user's record status is `inactive`, `banned`, or `suspended` |
+| Rate limit | 429 | More than 10 attempts per minute from one IP |
+
+Every attempt, successful or not, is logged with IP and user agent.
+
+## Account status
+
+User records have a status that controls login:
+
+| Status | Can log in |
+| :-- | :-- |
+| `active` | Yes |
+| `pending` | Yes (set while email verification is outstanding) |
+| `inactive`, `banned`, `suspended` | No: `403 account_inactive` |
+
+To block a user, change their record's status in the dashboard. To also end their current sessions, see [Sessions & tokens](/authentication/sessions-and-tokens).
+
+## Creating users yourself
+
+You can also add users as records in the dashboard: set the password field and it's hashed on save. Then assign roles in **Authentication** → **Roles**.
+
+To create accounts from code, call `/auth/{guard}/register` (from a server if registration is closed to the public, temporarily enable it or create users in the dashboard). Don't write password values through the records API.

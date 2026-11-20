@@ -1,0 +1,137 @@
+---
+title: "Hook SDK reference"
+description: "Reference for the bludia Go package used in hooks: GetContext, Record, SetRecord, Operation, Auth, Get/Set, Abort, Log, LogWith, query builder (Collection, Where, OrderBy, Limit, Offset, Get, First, Count, Exists), Insert, Update, Delete, Query, FindOne, and Msg().Send."
+keywords: ["sdk", "go sdk", "bludia package", "hook api", "query builder", "ctx.Record", "Abort", "Msg Send", "Where", "Insert", "Update", "Delete"]
+icon: "book-open"
+---
+
+Import the SDK with `import "bludia"`. It's added to every hook build automatically.
+
+## Context
+
+```go
+ctx := bludia.GetContext()
+```
+
+| Method | Returns | Description |
+| :-- | :-- | :-- |
+| `ctx.Record()` | `map[string]any, error` | The record for this event, by field name |
+| `ctx.SetRecord(r map[string]any)` | `error` | Save changes to the record. **Before hooks only** |
+| `ctx.Operation()` | `string, error` | `before_insert`, `after_update`, … |
+| `ctx.Auth()` | `map[string]any, error` | Who triggered the event, for example `{"user_id": 42}` |
+| `ctx.Request()` | `map[string]any, error` | Request details (may be empty) |
+| `ctx.Get(key string)` | `[]byte, error` | Raw JSON of a context key: `record`, `request`, `auth`, `operation`, `collection` |
+| `ctx.GetJSON(key string, v any)` | `error` | Decode a context key into `v` |
+| `ctx.Set(key string, value any)` | `error` | Set a context key (only `record` is supported) |
+
+## Control flow and logging
+
+| Function | Description |
+| :-- | :-- |
+| `bludia.Abort(msg string)` | Stop the hook. In a before hook, the write is rejected with `msg`. Call `return` right after. |
+| `bludia.Log(level, msg string)` | Write a log line |
+| `bludia.LogWith(level, msg string, context any)` | Write a log line with JSON context |
+
+Log levels: `bludia.Debug`, `bludia.Info`, `bludia.Warn`, `bludia.Error`.
+
+```go
+bludia.LogWith(bludia.Info, "Order received", map[string]any{"total": rec["total"]})
+```
+
+## Query builder
+
+Start a query with `ctx.Collection("<slug>")`, chain conditions, then run it.
+
+```go
+orders, err := ctx.Collection("orders").
+	Where("customer", bludia.Eq, 25).
+	Where("total", bludia.Gte, 100).
+	Limit(10).
+	Get()
+```
+
+### Builder methods
+
+| Method | Description |
+| :-- | :-- |
+| `Where(field, op, value)` | Add an AND condition on a field name, or on `id`, `status`, `slug`, `created_at`, `updated_at`. Two conditions on one field (for example `Gt` and `Lt`) form a range |
+| `OrderBy(field, direction)` | Reserved: sorting isn't applied by the server yet. Sort results in Go |
+| `Limit(n)` | Max rows. Default **50**, capped at **200** |
+| `Offset(n)` | Skip rows |
+
+### Operators
+
+| Constant | Meaning |
+| :-- | :-- |
+| `bludia.Eq` | `=` |
+| `bludia.Neq` | `!=` |
+| `bludia.Gt`, `bludia.Gte` | `>`, `>=` |
+| `bludia.Lt`, `bludia.Lte` | `<`, `<=` |
+| `bludia.In` | Value is in a list: `Where("status", bludia.In, []string{"new", "open"})` |
+| `bludia.Like` | Pattern match |
+
+### Run a query
+
+| Method | Returns | Description |
+| :-- | :-- | :-- |
+| `Get()` | `bludia.QueryResult, error` | All matching records (`[]map[string]any`) |
+| `First()` | `map[string]any, error` | The first match, or `nil` |
+| `Count()` | `int, error` | Number of rows returned, so subject to `Limit` (default 50, max 200) |
+| `Exists()` | `bool, error` | Whether any record matches |
+
+### Write
+
+| Method | Returns | Description |
+| :-- | :-- | :-- |
+| `Insert(data)` | `error` | Create a record. Don't combine with `Where` |
+| `InsertGetId(data)` | `any, error` | Create a record and return its ID |
+| `Update(data)` | `error` | Update **every** record matching the `Where` conditions |
+| `UpdateGetId(data)` | `any, error` | Same, returning the first updated ID |
+| `Delete()` | `error` | Soft-delete every record matching the `Where` conditions |
+| `DeleteGetId()` | `any, error` | Same, returning the first deleted ID |
+
+```go
+id, err := ctx.Collection("activity_log").InsertGetId(map[string]any{
+	"action": "order_created",
+	"order":  rec["id"],
+})
+```
+
+<Warning>`Update` and `Delete` affect **all** matching records. Always add a `Where` that targets exactly what you mean, such as `Where("id", bludia.Eq, id)`.</Warning>
+
+### Limitations
+
+| Not supported | Workaround |
+| :-- | :-- |
+| `OrWhere` (returns `ErrOrWhereUnsupported`) | Run two queries and merge |
+| `Eq` and a comparison on the same field | Use only comparisons, or only `Eq` |
+| Column selection with `Fields()` | Full records are always returned |
+| Sorting with `OrderBy` | Sort the returned slice in Go |
+| Filtering on relation fields | Store a lookup value in a text field |
+| More than 200 rows per query | Page with `Offset` |
+
+### Lower-level helpers
+
+| Method | Description |
+| :-- | :-- |
+| `ctx.Query(collection, filter, options)` | Run a raw query. `filter` is a map like `{"status": "open", "total": {"$gte": 100}}` |
+| `ctx.FindOne(collection, filter)` | First record matching `filter`, or `nil` |
+
+## Messaging
+
+```go
+res, err := ctx.Msg().Send(bludia.MsgSendRequest{
+	Channel:  "email",              // channel type
+	Template: "Welcome",            // template name
+	To:       "sarah@example.com",  // recipient
+	Data:     map[string]any{"name": "Sarah"}, // {{name}} in the template
+})
+```
+
+| `MsgSendResult` field | Meaning |
+| :-- | :-- |
+| `Accepted` | `true` if the message was queued |
+| `Id` | Message log ID |
+| `Error` | Reason if not accepted |
+
+`Send` queues the message and returns immediately; it doesn't wait for delivery. Use it in after hooks. See [Messaging](/messaging/overview).

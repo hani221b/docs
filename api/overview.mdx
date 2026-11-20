@@ -1,0 +1,138 @@
+---
+title: "REST API overview"
+description: "The Bludia public REST API lives at /ext/api/v1. It exposes record CRUD per collection and end-user authentication. Every request needs the X-BLUDIA-API-KEY header; end-user keys also need a Bearer access token."
+keywords: ["rest api", "base url", "endpoints", "ext/api/v1", "http api", "json api"]
+icon: "braces"
+---
+
+Every Bludia project has a JSON REST API that your apps use to read and write data and to sign users in.
+
+## Base URL
+
+```text
+https://YOUR_API_HOST/ext/api/v1
+```
+
+Copy the exact base URL from any collection's **API Endpoints** panel in the dashboard. In these docs, `$BASE_URL` stands for it.
+
+## Endpoints
+
+<Tabs>
+  <Tab title="Records" icon="database">
+    | Method | Path | Action | Permission |
+    | :-- | :-- | :-- | :-- |
+    | `GET` | `/collections/{collection}/records` | List records | `read` |
+    | `GET` | `/collections/{collection}/{id}` | Get one record | `read` |
+    | `POST` | `/collections/{collection}` | Create a record | `create` |
+    | `PUT` | `/collections/{collection}/{id}` | Update a record (partial) | `update` |
+    | `DELETE` | `/collections/{collection}/{id}` | Delete a record (to trash) | `delete` |
+
+    `{collection}` is the collection **slug**, for example `customers`.
+  </Tab>
+  <Tab title="Authentication" icon="key-round">
+    | Method | Path | Needs Bearer token |
+    | :-- | :-- | :-- |
+    | `POST` | `/auth/{guard}/register` | No |
+    | `POST` | `/auth/{guard}/login` | No |
+    | `POST` | `/auth/{guard}/refresh` | No |
+    | `POST` | `/auth/{guard}/password/forgot` | No |
+    | `POST` | `/auth/{guard}/password/reset` | No |
+    | `POST` | `/auth/{guard}/email/verify` | No |
+    | `GET` | `/auth/{guard}/me` | Yes |
+    | `POST` | `/auth/{guard}/logout` | Yes |
+    | `POST` | `/auth/{guard}/logout-all` | Yes |
+    | `POST` | `/auth/{guard}/email/resend` | Yes |
+
+    `{guard}` is the authentication guard's **slug**, for example `users`.
+  </Tab>
+</Tabs>
+
+## Headers
+
+| Header | When | Value |
+| :-- | :-- | :-- |
+| `X-BLUDIA-API-KEY` | **Always** | Your API key |
+| `Authorization` | With `end_users` keys on data and account routes | `Bearer <access_token>` |
+| `Content-Type` | Requests with a body | `application/json` |
+| `Accept` | Recommended | `application/json` |
+| `If-Match` | Optional on `PUT` | The record version you loaded, for example `"3"` |
+
+## A complete request
+
+<CodeGroup>
+  ```bash cURL
+  curl "$BASE_URL/collections/orders/records?limit=10&sort=created_at&order=desc" \
+    -H "Accept: application/json" \
+    -H "X-BLUDIA-API-KEY: $BLUDIA_API_KEY" \
+    -H "Authorization: Bearer $ACCESS_TOKEN"
+  ```
+
+  ```javascript JavaScript
+  const res = await fetch(`${BASE_URL}/collections/orders/records?limit=10`, {
+    headers: {
+      Accept: "application/json",
+      "X-BLUDIA-API-KEY": API_KEY,
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+  const { data, meta } = await res.json();
+  ```
+
+  ```python Python
+  import requests
+
+  res = requests.get(
+      f"{BASE_URL}/collections/orders/records",
+      params={"limit": 10},
+      headers={
+          "Accept": "application/json",
+          "X-BLUDIA-API-KEY": API_KEY,
+          "Authorization": f"Bearer {access_token}",
+      },
+  )
+  data = res.json()["data"]
+  ```
+</CodeGroup>
+
+## Response format
+
+<CodeGroup>
+  ```json List
+  {
+    "data": [ { "id": 101, "title": "Order #101", "total": "120.00" } ],
+    "meta": { "page": 1, "limit": 10, "total": 57, "pages": 6, "trashed": 2 },
+    "totals": []
+  }
+  ```
+
+  ```json Single record
+  { "data": { "id": 101, "title": "Order #101", "total": "120.00" } }
+  ```
+
+  ```json Delete
+  { "message": "Record deleted" }
+  ```
+</CodeGroup>
+
+## In this section
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="lock" color="#8B5CF6" href="/api/authentication">
+    Platform keys vs end-user keys and Bearer tokens.
+  </Card>
+  <Card title="API keys" icon="key" color="#8B5CF6" href="/api/api-keys">
+    Create, scope, rotate, and revoke keys.
+  </Card>
+  <Card title="Querying" icon="filter" color="#0EA5E9" href="/api/querying">
+    Filters, conditions, sorting, pagination, and `with`.
+  </Card>
+  <Card title="Errors" icon="triangle-alert" color="#EF4444" href="/api/errors">
+    Status codes and error bodies.
+  </Card>
+  <Card title="Rate limits" icon="gauge" color="#F59E0B" href="/api/rate-limits">
+    Per-key and per-IP limits.
+  </Card>
+  <Card title="CORS" icon="globe" color="#14B8A6" href="/api/cors">
+    Allowed origins for browser apps.
+  </Card>
+</CardGroup>

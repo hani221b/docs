@@ -1,0 +1,61 @@
+---
+title: "Collections"
+description: "A collection is a table-like container for one type of record. Each collection has a slug used in API URLs, a set of fields, and settings such as filters and totals."
+keywords: ["collection", "table", "slug", "create collection", "collection groups"]
+icon: "table"
+---
+
+A **collection** defines one type of data in your project, such as `customers`, `orders`, or `tasks`. It's the equivalent of a database table.
+
+## Anatomy of a collection
+
+| Property | Description | Example |
+| :-- | :-- | :-- |
+| **Name** | Human-readable name shown in the dashboard | `Customers` |
+| **Slug** | Unique identifier inside the project, used in API URLs | `customers` |
+| **Fields** | The typed attributes each record has | `name`, `email`, `company` |
+| **Settings** | Display and query options, such as default filters and column totals | Sum of `amount` |
+
+The slug is what your code uses:
+
+```text
+GET  /ext/api/v1/collections/customers/records
+POST /ext/api/v1/collections/customers
+```
+
+<Warning>Renaming a collection's slug changes its API URLs. Update your apps when you change it.</Warning>
+
+## Create a collection
+
+<Steps>
+  <Step title="Open Collections">In your project, go to **Collections** → **Create Collection**.</Step>
+  <Step title="Name it">Enter a name. Use lowercase, plural slugs such as `customers` or `order_items`.</Step>
+  <Step title="Add fields">Add the [fields](/database/fields) each record needs and mark required or unique ones.</Step>
+  <Step title="Connect it">Add [relations](/database/relations) to other collections if needed.</Step>
+</Steps>
+
+## Organize collections
+
+In the sidebar you can group collections into folders (for example **Sales** and **Operations**) and drag them to reorder. Grouping is visual only and doesn't change the API.
+
+## Collection settings
+
+- **Filters:** choose which fields appear as filters in the records view, and the default match mode for text filters (such as `contains` or `exact`).
+- **Totals:** show sums or other totals for numeric columns. Totals are also returned by the API in the `totals` key of list responses.
+
+## Design tips
+
+<AccordionGroup>
+  <Accordion title="One collection per real-world thing">
+    `customers`, `orders`, and `products` are separate collections connected with relations. Avoid putting unrelated data in one collection.
+  </Accordion>
+  <Accordion title="Use relations instead of duplicating data">
+    Store the customer once and link orders to it. Don't copy the customer's name into every order.
+  </Accordion>
+  <Accordion title="Your users collection is a normal collection">
+    For login, create a collection like `users` with an `email` field, then attach an [authentication guard](/authentication/guards). Add any profile fields you need.
+  </Accordion>
+  <Accordion title="Pick slugs you won't need to change">
+    Slugs appear in URLs, permissions, and hook code (`ctx.Collection("orders")`).
+  </Accordion>
+</AccordionGroup>

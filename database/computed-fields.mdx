@@ -1,0 +1,81 @@
+---
+title: "Computed fields"
+description: "Computed fields calculate values from other fields and related records using arithmetic, string, logic, and aggregation operations (sum, avg, count, min, max). Values can be persisted or computed on read."
+keywords: ["computed fields", "formula", "calculated field", "aggregation", "sum", "rollup", "derived value"]
+icon: "calculator"
+---
+
+A **computed field** gets its value from a formula instead of user input. Use it for totals, prices with tax, full names, or counts of related records.
+
+| Example | Formula |
+| :-- | :-- |
+| `total` on order items | `quantity × unit_price` |
+| `price_with_tax` | `price × 1.08` |
+| `full_name` | `concat(first_name, " ", last_name)` |
+| `order_total` on orders | `sum(order_items.line_total)` |
+| `open_tickets` on customers | `count(tickets)` |
+| `is_overdue` | `if(due_date < today, true, false)` |
+
+## Create a computed field
+
+<Steps>
+  <Step title="Add a field">Add the field that will hold the result, for example `order_total`.</Step>
+  <Step title="Make it computed">Choose **Computed** and build the formula in the expression editor.</Step>
+  <Step title="Pick the result type">`number`, `string`, `boolean`, `date`, or `json`.</Step>
+  <Step title="Choose null handling and persistence">See the options below.</Step>
+</Steps>
+
+## Operations
+
+<Tabs>
+  <Tab title="Arithmetic" icon="plus">
+    `add`, `subtract`, `multiply`, `divide`, `modulo`, `pow`, `abs`, `round`, `round_even`, `floor`, `ceil`
+
+    Arithmetic uses exact decimals, so money stays accurate.
+  </Tab>
+  <Tab title="Text" icon="type">
+    `concat`, `upper`, `lower`, `trim`, `length`
+  </Tab>
+  <Tab title="Logic" icon="git-branch">
+    `if`, `and`, `or`, `not`, `eq`, `neq`, `gt`, `lt`, `gte`, `lte`
+  </Tab>
+  <Tab title="Aggregation" icon="sigma">
+    `sum`, `avg`, `count`, `min`, `max` over a related collection, for example the sum of `line_total` across an order's `order_items`.
+  </Tab>
+</Tabs>
+
+## Expression format
+
+Formulas are stored as an expression tree. The dashboard builds it for you; this is what it looks like:
+
+```json
+{
+  "op": "multiply",
+  "args": [
+    { "field_id": "12" },
+    { "value": "1.08" }
+  ]
+}
+```
+
+| Node | Shape |
+| :-- | :-- |
+| Field reference | `{ "field_id": "12" }` |
+| Literal | `{ "value": "1.08" }` |
+| Operation | `{ "op": "add", "args": [ ... ] }` |
+| Aggregation | `{ "op": "sum", "agg_collection": "order_items", "agg_field": "line_total" }` |
+
+## Options
+
+| Option | Values | Meaning |
+| :-- | :-- | :-- |
+| **Null strategy** | `propagate` | Any empty input makes the result empty (default) |
+| | `zero` | Treat empty inputs as `0` |
+| | `empty` | Treat empty inputs as an empty string |
+| | `skip` | Ignore empty inputs |
+| | `error` | Fail when an input is empty |
+| **Persisted** | on / off | On: the value is stored and kept up to date when inputs change, so you can filter and sort on it. Off: the value is calculated when read. |
+
+Bludia tracks dependencies between fields, so changing an input (including a related record) recalculates the values that depend on it.
+
+<Note>Computed fields are read-only. Values sent by clients for them are rejected.</Note>

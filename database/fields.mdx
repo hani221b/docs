@@ -1,0 +1,82 @@
+---
+title: "Fields"
+description: "Field types in Bludia: text, long text, text editor, number, password, relation, file, date, time, datetime, select, multi select, boolean, and QR code. Includes system fields and how fields map to API JSON."
+keywords: ["field types", "columns", "schema", "text", "number", "select", "relation", "file", "password", "system fields"]
+icon: "text-cursor-input"
+---
+
+A **field** defines one attribute of a record: its name, type, and rules. In API requests and responses, each field appears as a JSON key named after the field.
+
+```json
+{ "name": "Sarah Ahmed", "email": "sarah@example.com", "vip": true, "credit_limit": 5000 }
+```
+
+## Field types
+
+| Type | API value | JSON example | Use for |
+| :-- | :-- | :-- | :-- |
+| <Icon icon="type" /> Text | `text` | `"Acme Inc."` | Names, titles, short strings, emails, phones |
+| <Icon icon="align-left" /> Long Text | `long_text` | `"Multi-line notes…"` | Descriptions and notes |
+| <Icon icon="pilcrow" /> Text Editor | `text_editor` | `"<p>Rich <b>text</b></p>"` | Formatted content |
+| <Icon icon="hash" /> Number | `number` | `42`, `"19.99"` | Quantities, prices, scores |
+| <Icon icon="lock" /> Password | `password` | `"s3cret!pass"` (write only) | Credentials; stored hashed, never returned |
+| <Icon icon="link" /> Relation | `relation` | write `25` or `[3, 7]`; read `{ "id": 25, "label": "…" }` | Links to records in another collection |
+| <Icon icon="cloud-upload" /> File | `file` | file reference | Attachments, images (Premium plan) |
+| <Icon icon="calendar" /> Date | `date` | `"2026-12-01"` | Birthdays, due dates |
+| <Icon icon="clock" /> Time | `time` | `"14:30"` | Opening hours |
+| <Icon icon="calendar-clock" /> DateTime | `datetime` | `"2026-12-01T14:30:00Z"` | Appointments, timestamps |
+| <Icon icon="list" /> Select | `select` | `"confirmed"` | One value from a fixed list |
+| <Icon icon="list-checks" /> Multi Select | `multi_select` | `["vip", "newsletter"]` | Several values from a fixed list |
+| <Icon icon="toggle-left" /> Boolean | `boolean` | `true` | Yes/no flags |
+| <Icon icon="qr-code" /> QR Code | `qr_code` | `"TICKET-0042"` | Values rendered as QR codes |
+
+<Note>
+  **Numbers are exact.** Bludia never rounds numbers through floating point. Integers come back as numbers and decimals may come back as exact strings (for example `"19.99"`). You can configure scale and precision on the field.
+</Note>
+
+## System fields
+
+Every record has these fields automatically. You can't remove them.
+
+| Field | Type | Description |
+| :-- | :-- | :-- |
+| `id` | integer | Unique record ID within the project |
+| `slug` | string or null | Optional URL-friendly identifier you can set on create or update |
+| `created_at` | datetime | When the record was created |
+| `updated_at` | datetime | When the record was last changed |
+| `published_at` | datetime or null | Publication timestamp you can set on create or update |
+
+List responses also include `children`, which holds related records you asked for with `with`.
+
+## Field options
+
+| Option | Effect |
+| :-- | :-- |
+| **Name** | The JSON key in the API. Use `snake_case`, for example `customer_name`. |
+| **Label** | The display name in the dashboard. |
+| **Required** | The value must be present and non-empty on create. |
+| **Unique** | No two records in the collection may have the same value. |
+| **Nullable** | Allows an explicit `null`. |
+| **Default value** | Used when no value is given. |
+| **Options** | The allowed values for Select and Multi Select. |
+| **Validations** | Extra rules: lengths, ranges, patterns, formats, conditions. See [Validation](/database/validation). |
+
+<Tip>Treat the field **name** as an API contract. Renaming it changes the JSON key your apps send and receive.</Tip>
+
+## Choosing a type
+
+| Data | Recommended type | Why |
+| :-- | :-- | :-- |
+| Order status | Select | Restricts to known values and makes filtering reliable |
+| Price or amount | Number | Exact decimals, range filters, totals |
+| Customer on an order | Relation | Keeps one source of truth |
+| Email or phone | Text + `format` validation (`email`, `phone`) | Validated on write |
+| Tags | Multi Select | Filter by any of several values |
+| Login password | Password | Hashed automatically, never returned |
+
+## Fields in the API
+
+- **Write** using field names: `{ "status": "confirmed" }`. Unknown keys are ignored.
+- **Read** returns every field as a top-level key; missing values are `null`.
+- **Relation** fields accept a record ID or an array of IDs. See [Relations](/database/relations).
+- **Password** fields are accepted on write and never returned.

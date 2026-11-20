@@ -1,0 +1,43 @@
+---
+title: "Hooks best practices"
+description: "Guidelines for reliable Bludia hooks: pick the right event, keep before hooks fast, always return after Abort, handle missing fields, avoid hook loops, make after hooks idempotent, and log safely."
+keywords: ["best practices", "hook patterns", "performance", "idempotent", "hook loops"]
+icon: "star"
+---
+
+<CardGroup cols={2}>
+  <Card title="One job per hook" icon="target" color="#F59E0B">
+    Validation in `before*`, side effects in `after*`. If a hook grows large, move parts into small functions in the same file.
+  </Card>
+  <Card title="Fast before hooks" icon="zap" color="#F59E0B">
+    Every millisecond is added to the user's request. Do as few queries as possible.
+  </Card>
+  <Card title="Validate with fields first" icon="badge-check" color="#10B981">
+    Required, unique, ranges, and patterns belong in [field validation](/database/validation). Use hooks for rules that need other records or logic.
+  </Card>
+  <Card title="Fail closed" icon="shield" color="#10B981">
+    If a check can't be completed (query error), `Abort` instead of letting the write through.
+  </Card>
+</CardGroup>
+
+## Rules of thumb
+
+1. **Always `return` after `bludia.Abort(...)`** so no more code runs.
+2. **Handle missing values.** Use `v, ok := rec["field"].(string)` and decide what an absent field means, especially on update.
+3. **Write clear abort messages.** They're shown to the person who made the request: *"This time slot is already booked"*, not *"constraint failed"*.
+4. **Scope every `Update` and `Delete`** with a precise `Where`.
+5. **Avoid loops.** A hook that writes to its own collection can trigger hooks again. Write to *other* collections, or guard with a flag field.
+6. **Make after hooks idempotent.** Running twice shouldn't send two invoices. Store a marker such as `confirmation_sent_at`.
+7. **Don't store secrets in code.** Keep credentials in [messaging channels](/messaging/channels) or on your own server.
+8. **Log decisions, not data.** Log IDs and outcomes rather than whole records.
+9. **Test with both platform and end-user requests.** `ctx.Auth()` differs between them.
+10. **Roll out with versions.** Watch the first executions after setting a version current, and roll back if needed.
+
+## Before vs after: quick decision
+
+| Question | If yes |
+| :-- | :-- |
+| Should the write be blocked if this fails? | `before*` |
+| Does the saved data need to change? | `before*` |
+| Is it a notification or follow-up? | `after*` |
+| Is it slow? | `after*` (or a scheduled task) |

@@ -1,0 +1,58 @@
+---
+title: "PDF templates"
+description: "Generate PDFs (invoices, certificates, receipts) from records with HTML and CSS templates. Use {{record.field}}, {{#each record.children.KEY as item}} loops, and {{#if}} conditions. Templates are versioned."
+keywords: ["pdf", "pdf generation", "invoice pdf", "certificate", "document generation", "html to pdf", "template"]
+icon: "file-type"
+---
+
+**PDF templates** turn a record into a document: an invoice from an order, a certificate from a course completion, a receipt from a payment.
+
+## Create a template
+
+<Steps>
+  <Step title="Open PDF templates">Go to **PDF templates** → **Create template**.</Step>
+  <Step title="Pick the collection">For example `invoices`.</Step>
+  <Step title="Write HTML and CSS">Use placeholders for record data (below).</Step>
+  <Step title="Preview with a real record">Pick a record and preview the output.</Step>
+  <Step title="Save a version and activate it">Templates are versioned like hooks; the active version is used for generation.</Step>
+</Steps>
+
+## Template syntax
+
+| Syntax | Renders |
+| :-- | :-- |
+| `{{record.field_name}}` | A field's value |
+| `{{#each record.children.KEY as item}} … {{item.field}} … {{/each}}` | A list of related records (for example invoice lines) |
+| `{{#if record.field}} … {{else}} … {{/if}}` | Conditional content (`{{else}}` optional) |
+
+QR code fields render as embedded images. Password fields are never available.
+
+```html
+<h1>Invoice {{record.number}}</h1>
+<p>Bill to: {{record.customer_name}}</p>
+
+<table>
+  <tr><th>Item</th><th>Qty</th><th>Price</th></tr>
+  {{#each record.children.invoice_lines as line}}
+  <tr><td>{{line.description}}</td><td>{{line.quantity}}</td><td>{{line.price}}</td></tr>
+  {{/each}}
+</table>
+
+<p><strong>Total: {{record.total}}</strong></p>
+
+{{#if record.paid}}
+  <p class="stamp">PAID</p>
+{{else}}
+  <p>Due by {{record.due_date}}</p>
+{{/if}}
+```
+
+## Generate
+
+Generate a PDF from the record view or the template page. You can choose a record, a file name, and whether to download or preview it.
+
+| Limit | Value |
+| :-- | :-- |
+| Generation requests | 30 per minute |
+
+<Tip>Use print-friendly CSS: fixed widths in `mm` or `pt`, `page-break-inside: avoid` on table rows, and embedded or web-safe fonts.</Tip>

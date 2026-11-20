@@ -1,0 +1,94 @@
+---
+title: "Lifecycle events"
+description: "Bludia hook events: beforeInsert, afterInsert, beforeUpdate, afterUpdate, beforeDelete, afterDelete. Before hooks run synchronously and can modify or abort the write; after hooks run asynchronously after commit."
+keywords: ["lifecycle", "events", "beforeInsert", "afterInsert", "beforeUpdate", "afterUpdate", "beforeDelete", "afterDelete", "before_insert", "trigger timing"]
+icon: "git-commit-horizontal"
+---
+
+## Events
+
+| Event | `ctx.Operation()` | Fires | Runs | Can modify record | Can abort |
+| :-- | :-- | :-- | :-- | :-- | :-- |
+| `beforeInsert` | `before_insert` | Before a record is created | Synchronously | ✓ | ✓ |
+| `afterInsert` | `after_insert` | After a record is created and committed | Asynchronously | — | — |
+| `beforeUpdate` | `before_update` | Before a record is updated | Synchronously | ✓ | ✓ |
+| `afterUpdate` | `after_update` | After a record is updated and committed | Asynchronously | — | — |
+| `beforeDelete` | `before_delete` | Before a record is deleted | Synchronously | — | ✓ |
+| `afterDelete` | `after_delete` | After a record is deleted | Asynchronously | — | — |
+
+Hooks fire for writes from the REST API and the dashboard.
+
+## Before hooks
+
+Before hooks run **inside the request**. The client waits for them.
+
+- **Modify:** change the record and call `ctx.SetRecord(record)`. Your changes are merged into the values being saved.
+- **Reject:** call `bludia.Abort("reason")`. Nothing is written and the request fails with your message.
+- If the hook can't run (for example the runtime is unreachable), the write fails too, so bad data never slips through.
+
+<CodeGroup>
+  ```go beforeInsert: set defaults
+  ctx := bludia.GetContext()
+  rec, _ := ctx.Record()
+  if rec["status"] == nil {
+  	rec["status"] = "pending"
+  }
+  ctx.SetRecord(rec)
+  ```
+
+  ```go beforeUpdate: protect a field
+  ctx := bludia.GetContext()
+  rec, _ := ctx.Record()
+  if _, changing := rec["credit_limit"]; changing {
+  	bludia.Abort("credit_limit can only be changed by finance")
+  	return
+  }
+  ```
+
+  ```go beforeDelete: block deletes
+  ctx := bludia.GetContext()
+  rec, _ := ctx.Record()
+  if rec["status"] == "paid" {
+  	bludia.Abort("Paid invoices can't be deleted")
+  	return
+  }
+  ```
+</CodeGroup>
+
+<Tip>Keep before hooks fast. They add their run time to every write.</Tip>
+
+## After hooks
+
+After hooks run **after the transaction commits**, in the background. The API response doesn't wait for them, and they can't undo the write.
+
+Use them for:
+
+- Sending emails with `ctx.Msg().Send(...)`
+- Updating other records (stock, counters, parent status)
+- Writing audit or activity records
+
+If an after hook fails, the error is logged in its [execution history](/hooks/logs-and-debugging); the original write stays.
+
+## Choosing an event
+
+| Goal | Event |
+| :-- | :-- |
+| Validate or reject new data | `beforeInsert` / `beforeUpdate` |
+| Normalize or compute values before saving | `beforeInsert` / `beforeUpdate` |
+| Prevent deleting important records | `beforeDelete` |
+| Send a welcome or confirmation email | `afterInsert` |
+| Notify about a status change | `afterUpdate` |
+| Clean up related data | `afterDelete` |
+
+## Order of operations
+
+```text
+1. API key, auth, permissions, row policies
+2. Field validation
+3. before* hook          ← can change values or abort
+4. Write in a transaction
+5. Commit
+6. after* hook           ← asynchronous
+```
+
+<Note>On update, `ctx.Record()` contains the values being saved in this request. Fields the client didn't send may be missing; read the stored record with `ctx.Collection(...)` if you need the full current state.</Note>

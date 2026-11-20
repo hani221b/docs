@@ -1,0 +1,144 @@
+---
+title: "Build a CRM"
+description: "End-to-end guide: build a sales CRM backend on Bludia with companies, contacts, deals, and activities collections, relations, a staff login guard, sales_rep and sales_manager roles, row-level security, a validation hook, and a pipeline report."
+keywords: ["crm", "tutorial", "example app", "sales pipeline", "deals", "guide"]
+icon: "briefcase"
+---
+
+You'll build the backend for a small sales CRM where reps manage their own deals and managers see everything.
+
+<Card title="What you'll build" icon="briefcase" color="#3B82F6">
+  ```text
+  companies ──< contacts
+      │
+      └──< deals >── users (owner rep)
+              │
+              └──< activities
+  Guard: users (login: email)   Roles: sales_rep, sales_manager
+  ```
+</Card>
+
+<Steps>
+  <Step title="Create the project">
+    Create a project named **CRM**. (Or describe it to the AI builder: *"A CRM with companies, contacts, deals with stages, and activities"*, then adjust.)
+  </Step>
+
+  <Step title="Create collections and fields">
+    <Tabs>
+      <Tab title="users">
+        | Field | Type | Rules |
+        | :-- | :-- | :-- |
+        | `email` | Text | required, unique, format `email` |
+        | `full_name` | Text | required |
+        | `title` | Text | |
+      </Tab>
+      <Tab title="companies">
+        | Field | Type | Rules |
+        | :-- | :-- | :-- |
+        | `name` | Text | required, unique |
+        | `industry` | Select | SaaS, Retail, Manufacturing, Other |
+        | `website` | Text | format `url` |
+      </Tab>
+      <Tab title="contacts">
+        | Field | Type | Rules |
+        | :-- | :-- | :-- |
+        | `full_name` | Text | required |
+        | `email` | Text | format `email` |
+        | `phone` | Text | format `phone` |
+      </Tab>
+      <Tab title="deals">
+        | Field | Type | Rules |
+        | :-- | :-- | :-- |
+        | `title` | Text | required |
+        | `value` | Number | min `0`, scale `2` |
+        | `stage` | Select | lead, qualified, proposal, won, lost |
+        | `expected_close` | Date | |
+        | `closed_reason` | Long Text | `required_if` stage = lost |
+        | `closed_on` | Date | set by a hook |
+      </Tab>
+      <Tab title="activities">
+        | Field | Type | Rules |
+        | :-- | :-- | :-- |
+        | `type` | Select | call, email, meeting, note |
+        | `summary` | Long Text | required |
+        | `happened_at` | DateTime | required |
+      </Tab>
+    </Tabs>
+  </Step>
+
+  <Step title="Add relations">
+    | Type | Source | Target | Label |
+    | :-- | :-- | :-- | :-- |
+    | `one_to_many` | companies | contacts | `name` |
+    | `one_to_many` | companies | deals | `name` |
+    | `one_to_many` | users | deals | `full_name` (deal owner) |
+    | `one_to_many` | deals | activities | `title` |
+  </Step>
+
+  <Step title="Add a login guard">
+    Create a guard on `users` with login field `email`. Turn **registration off**: you'll add staff yourself in the dashboard. See [Guards](/authentication/guards).
+  </Step>
+
+  <Step title="Create roles and permissions">
+    | Collection | `sales_rep` | `sales_manager` |
+    | :-- | :-- | :-- |
+    | `companies`, `contacts` | read, create, update | read, create, update, delete |
+    | `deals` | read, create, update | read, create, update, delete, export |
+    | `activities` | read, create | read, create, update, delete |
+    | `users` | read | read, update |
+  </Step>
+
+  <Step title="Add row-level security">
+    - **sales_rep** on `deals` and `activities`: default owner behavior. Reps see records they created.
+    - **sales_rep** on `companies`, `contacts`, `users`: allow `field_equals` on a field every record has, so reps see the shared directory.
+    - **sales_manager**: allow policies covering every record, so managers see the whole pipeline.
+
+    See [Row-level security](/authorization/row-level-security).
+  </Step>
+
+  <Step title="Add a hook">
+    `beforeUpdate` on `deals`: stamp the close date when a deal is won or lost. (Add a `closed_on` Date field first.)
+
+    ```go
+    package main
+
+    import (
+    	"time"
+
+    	"bludia"
+    )
+
+    func main() {
+    	ctx := bludia.GetContext()
+    	rec, _ := ctx.Record()
+
+    	stage, _ := rec["stage"].(string)
+    	if stage == "won" || stage == "lost" {
+    		rec["closed_on"] = time.Now().UTC().Format("2006-01-02")
+    		ctx.SetRecord(rec)
+    	}
+    }
+    ```
+  </Step>
+
+  <Step title="Build a pipeline report">
+    Report on `deals`: dimension `stage`, metrics `count` and `sum(value)`. Add a dashboard with stats *Open pipeline value* and *Deals won this month*.
+  </Step>
+
+  <Step title="Connect the frontend">
+    Create an `end_users` API key with your app's origin. Reps log in with `POST /auth/users/login` and load their deals:
+
+    ```javascript
+    const { data } = await records.list("deals", {
+      filters: { stage: ["lead", "qualified", "proposal"] },
+      with: ["activities"],
+      sort: "updated_at",
+      order: "desc",
+    });
+    ```
+
+    See the [JavaScript client](/frontend/javascript-client).
+  </Step>
+</Steps>
+
+<Check>You have a multi-user CRM backend with validation, access control, business rules, and reporting.</Check>

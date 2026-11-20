@@ -1,0 +1,131 @@
+---
+title: "Relations"
+description: "Link collections with one_to_one, one_to_many, and many_to_many relations. Write related record IDs, read them as {id, label} objects, and expand related records with the with query parameter."
+keywords: ["relations", "relationships", "foreign key", "one to many", "many to many", "join", "with", "expand", "nested"]
+icon: "link"
+---
+
+A **relation** links records in one collection to records in another, such as orders to customers or students to courses.
+
+## Relation types
+
+| Type | API value | Example | Where the field appears |
+| :-- | :-- | :-- | :-- |
+| One-to-one | `one_to_one` | `users` ↔ `profiles` | A single-record field on the **target** collection |
+| One-to-many | `one_to_many` | `customers` → many `orders` | A single-record field on the **target** (each order points to one customer) |
+| Many-to-many | `many_to_many` | `students` ↔ `courses` | A list field on **both** collections |
+
+```text
+one_to_many: source = customers, target = orders
+
+customers #25 ─┬─ orders #101   (orders.customer = 25)
+               ├─ orders #104
+               └─ orders #117
+```
+
+## Create a relation
+
+<Steps>
+  <Step title="Open Relations">In your project, go to **Relations** → **Create relation**.</Step>
+  <Step title="Pick the type and collections">Choose the type, the **source** collection, and the **target** collection. They must be different collections.</Step>
+  <Step title="Choose label fields">Pick which field labels each side (for example `name` for customers). Labels appear in the dashboard and in API responses.</Step>
+</Steps>
+
+Bludia adds the relation field(s) for you.
+
+## Write related records
+
+Send record IDs in the relation field:
+
+<CodeGroup>
+  ```json Single (one_to_one, one_to_many)
+  { "title": "Order #1001", "customer": 25 }
+  ```
+
+  ```json List (many_to_many)
+  { "name": "Ali Hassan", "courses": [3, 7, 12] }
+  ```
+
+  ```json Clear
+  { "customer": null }
+  ```
+</CodeGroup>
+
+On update, sending a list **replaces** the linked records.
+
+## Read related records
+
+Relation fields come back as `{ id, label }` objects, or a list of them for many-to-many. Trashed related records are left out.
+
+```json
+{
+  "id": 1001,
+  "title": "Order #1001",
+  "customer": { "id": 25, "label": "Sarah Ahmed" }
+}
+```
+
+```json
+{
+  "id": 8,
+  "name": "Ali Hassan",
+  "courses": [
+    { "id": 3, "label": "Algebra" },
+    { "id": 7, "label": "Physics" }
+  ]
+}
+```
+
+## Expand related records with `with`
+
+To get the full related records, pass related collection slugs in `with`. They are returned under `children`, keyed by the related collection's name.
+
+```bash
+curl -G "$BASE_URL/collections/customers/records" \
+  -H "X-BLUDIA-API-KEY: $BLUDIA_API_KEY" \
+  --data-urlencode "with=orders"
+```
+
+```json
+{
+  "id": 25,
+  "name": "Sarah Ahmed",
+  "children": {
+    "Orders": [
+      { "id": 101, "title": "Order #101", "total": "120.00" },
+      { "id": 104, "title": "Order #104", "total": "45.50" }
+    ]
+  }
+}
+```
+
+| `with` value | Result |
+| :-- | :-- |
+| `orders` | Orders of each customer |
+| `orders,invoices` | Orders and invoices (comma-separated) |
+| `orders.order_items` | Orders, and each order's items (nested with dots) |
+
+## Filter by relation
+
+Filter records by related record IDs with `filters`:
+
+```text
+GET /collections/orders/records?filters[customer]=25
+GET /collections/orders/records?filters[customer][]=25&filters[customer][]=31
+```
+
+## Relations and security
+
+- A [row policy](/authorization/row-level-security) of type `relation` lets end users see records linked to their own user record, for example *projects where I'm a member*.
+- Expanded children follow the same project boundaries as the parent.
+
+## Tips
+
+<AccordionGroup>
+  <Accordion title="Choose good label fields">
+    Labels are what people see in pickers and what the API returns in `label`. Use a readable, mostly unique field like `name`, `title`, or `email`.
+  </Accordion>
+  <Accordion title="Model join data as its own collection">
+    If a link has its own data (for example a student's grade in a course), create a collection like `enrollments` with relations to both `students` and `courses`.
+  </Accordion>
+</AccordionGroup>

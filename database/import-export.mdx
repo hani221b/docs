@@ -1,0 +1,69 @@
+---
+title: "Import & export"
+description: "Import records into a collection from CSV with column mapping, import a whole database from a SQL dump, export records, and create full PostgreSQL database exports."
+keywords: ["import", "export", "csv import", "sql import", "mysql dump", "migrate data", "backup", "download data"]
+icon: "arrow-down-up"
+---
+
+<CardGroup cols={2}>
+  <Card title="CSV → collection" icon="file-spreadsheet" color="#10B981">
+    Load rows from a CSV file into one collection, mapping columns to fields.
+  </Card>
+  <Card title="SQL dump → project" icon="file-code" color="#3B82F6">
+    Turn a database dump into collections and records.
+  </Card>
+  <Card title="Export records" icon="download" color="#14B8A6">
+    Download the records of a collection, with your current filters.
+  </Card>
+  <Card title="Database export" icon="hard-drive-download" color="#6366F1">
+    Export the whole project as a PostgreSQL file. See [Backups & exports](/hosting/backups-and-exports).
+  </Card>
+</CardGroup>
+
+## Import a CSV into a collection
+
+<Steps>
+  <Step title="Upload the file">
+    Open the collection → **Import** → choose a `.csv` file (up to 50 MB by default).
+  </Step>
+  <Step title="Wait for the scan">
+    Every upload is virus-scanned before it's read. The import shows **scanning** until the check finishes.
+  </Step>
+  <Step title="Map columns to fields">
+    Bludia previews the file. Map each CSV header to a field, for example `E-mail → email`. Unmapped columns are skipped.
+  </Step>
+  <Step title="Start the import">
+    Rows are imported in the background in chunks. Each row is validated like any other write; you can follow progress and see failed rows.
+  </Step>
+  <Step title="Cancel or roll back if needed">
+    You can cancel a running import, or **roll back** a finished one to remove the records it created.
+  </Step>
+</Steps>
+
+### Prepare your CSV
+
+- Use a header row. Matching header names to field names makes mapping faster.
+- Use UTF-8 encoding.
+- Dates: ISO 8601 (`2026-12-01`, `2026-12-01T10:00:00Z`).
+- Booleans: `true`/`false` or `1`/`0`.
+- Numbers: plain digits with `.` as the decimal separator, no currency symbols.
+- Select values must match the field's options exactly.
+
+## Import a SQL dump
+
+Use this to move an existing app to Bludia. Upload a `.sql` dump (MySQL-style dumps are supported, up to 2 GB). Bludia parses the tables, proposes collections and fields, and shows a preview. Review it, then **confirm** to create the collections and import the rows.
+
+See [Migrate existing data](/guides/migrate-existing-data) for a walkthrough.
+
+## Export records
+
+From a collection, select **Export** to download its records. The export respects the filters you have applied.
+
+## Permissions
+
+| Who | What controls it |
+| :-- | :-- |
+| Team members in the dashboard | Their project role |
+| End users | The `can_import` and `can_export` collection permissions on their role |
+
+<Note>Imports, uploads, and database exports require a Bludia account; they aren't available to guest projects.</Note>

@@ -1,0 +1,119 @@
+---
+title: "Server-side usage"
+description: "Call Bludia from your own server: Next.js route handlers and server components, Node.js scripts, and Python, using a platform key from environment variables or forwarding an end user's token."
+keywords: ["server side", "next.js", "route handler", "server components", "node", "python", "backend to backend", "platform key", "ssr"]
+icon: "server"
+---
+
+On a server you can keep secrets, so you have two options:
+
+| Option | Key | Bearer token | Permissions |
+| :-- | :-- | :-- | :-- |
+| **Act as the app** | `platform` | none | Full project access |
+| **Act as the user** | `end_users` | the user's access token | User's roles and row policies |
+
+Prefer **acting as the user** when the request comes from a signed-in user. It keeps row-level security in force. Use a `platform` key for admin work, jobs, and integrations.
+
+## Next.js
+
+<CodeGroup>
+  ```typescript lib/bludia-server.ts
+  import "server-only";
+
+  const BASE_URL = process.env.BLUDIA_BASE_URL!;            // https://YOUR_API_HOST/ext/api/v1
+  const PLATFORM_KEY = process.env.BLUDIA_PLATFORM_KEY!;    // never NEXT_PUBLIC_
+
+  export async function bludia<T>(path: string, init: RequestInit = {}): Promise<T> {
+    const res = await fetch(`${BASE_URL}${path}`, {
+      ...init,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "X-BLUDIA-API-KEY": PLATFORM_KEY,
+        ...init.headers,
+      },
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error(`Bludia ${res.status}: ${await res.text()}`);
+    return res.json();
+  }
+  ```
+
+  ```tsx app/products/page.tsx
+  import { bludia } from "@/lib/bludia-server";
+
+  export default async function Products() {
+    const { data } = await bludia<{ data: any[] }>(
+      "/collections/products/records?filters[status]=published&limit=50"
+    );
+    return <ul>{data.map((p) => <li key={p.id}>{p.name}</li>)}</ul>;
+  }
+  ```
+
+  ```typescript app/api/contact/route.ts
+  import { bludia } from "@/lib/bludia-server";
+
+  export async function POST(req: Request) {
+    const { name, email, message } = await req.json();
+    const { data } = await bludia<{ data: { id: number } }>("/collections/inquiries", {
+      method: "POST",
+      body: JSON.stringify({ name, email, message }),
+    });
+    return Response.json({ id: data.id }, { status: 201 });
+  }
+  ```
+</CodeGroup>
+
+## Forward the user's token
+
+If your server receives the user's access token (for example from an httpOnly cookie), forward it with an `end_users` key:
+
+```typescript
+const res = await fetch(`${BASE_URL}/collections/orders/records`, {
+  headers: {
+    "X-BLUDIA-API-KEY": process.env.BLUDIA_END_USERS_KEY!,
+    Authorization: `Bearer ${accessTokenFromCookie}`,
+  },
+});
+```
+
+## Node.js script
+
+```javascript sync.mjs
+const BASE_URL = process.env.BLUDIA_BASE_URL;
+const headers = { "X-BLUDIA-API-KEY": process.env.BLUDIA_PLATFORM_KEY, "Content-Type": "application/json" };
+
+const rows = [{ sku: "A-1", name: "Mug", stock: 40 }, { sku: "A-2", name: "Cap", stock: 12 }];
+
+for (const row of rows) {
+  const res = await fetch(`${BASE_URL}/collections/products`, { method: "POST", headers, body: JSON.stringify(row) });
+  if (!res.ok) console.error(row.sku, res.status, await res.text());
+}
+```
+
+## Python
+
+```python sync.py
+import os
+import requests
+
+BASE_URL = os.environ["BLUDIA_BASE_URL"]
+session = requests.Session()
+session.headers.update({
+    "X-BLUDIA-API-KEY": os.environ["BLUDIA_PLATFORM_KEY"],
+    "Accept": "application/json",
+})
+
+page = 1
+while True:
+    res = session.get(f"{BASE_URL}/collections/customers/records", params={"page": page, "limit": 100})
+    res.raise_for_status()
+    body = res.json()
+    for customer in body["data"]:
+        print(customer["id"], customer.get("email"))
+    if page >= body["meta"]["pages"]:
+        break
+    page += 1
+```
+
+<Warning>Keep `platform` keys out of anything shipped to browsers, including Next.js variables prefixed with `NEXT_PUBLIC_`.</Warning>

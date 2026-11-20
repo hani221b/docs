@@ -1,0 +1,57 @@
+---
+title: "Reports"
+description: "Build reports on your Bludia data: choose a collection, add dimensions (group by fields or date buckets: day, week, month, quarter, year), metrics (count, count distinct, sum, avg, min, max), filters, having, and sorting. Preview, save, and run reports."
+keywords: ["reports", "analytics", "aggregation", "group by", "sum", "count", "pivot", "business intelligence", "date buckets"]
+icon: "chart-column"
+---
+
+**Reports** turn records into answers: *revenue per month*, *bookings per service*, *open tickets per agent*.
+
+```text
+Collection: orders
+Dimensions: created_at (by month), status
+Metrics:    count(*), sum(total)
+Filter:     created_at between 2026-01-01 and 2026-12-31
+Sort:       created_at ascending
+
+→ month     status     count  sum(total)
+  2026-01   paid       142    18,240.00
+  2026-01   refunded     3       310.00
+  2026-02   paid       171    21,905.50
+```
+
+## Building blocks
+
+| Part | What it does | Options |
+| :-- | :-- | :-- |
+| **Source** | The collection to report on | Any collection |
+| **Dimensions** | Group rows | Any field; dates by `day`, `week`, `month`, `quarter`, `year` |
+| **Metrics** | Calculate per group | `count`, `count_distinct`, `sum`, `avg`, `min`, `max` |
+| **Filters** | Limit the rows | `=`, `!=`, `<`, `<=`, `>`, `>=`, `between`, is empty, is not empty, is true, is false; combined in AND/OR groups |
+| **Having** | Filter groups by a metric | For example `sum(total) > 1000` |
+| **Sort** | Order the output | Any dimension or metric |
+| **Limit** | Cap the rows | |
+
+Password and relation fields aren't offered as report columns.
+
+## Create a report
+
+<Steps>
+  <Step title="Open Reports">Go to **Reports** → **Create report** and choose the source collection.</Step>
+  <Step title="Add dimensions and metrics">For example, group by `created_at` (month) and sum `total`.</Step>
+  <Step title="Filter">Restrict to the period or status you care about.</Step>
+  <Step title="Preview">Check the results before saving.</Step>
+  <Step title="Save and organize">Name the report and put it in a folder in the sidebar.</Step>
+</Steps>
+
+Saved reports can be run again at any time with fresh data. For at-a-glance numbers, see [dashboards](/reports/dashboards).
+
+## Report ideas
+
+| App | Report |
+| :-- | :-- |
+| CRM | Deals won per rep per quarter (`count`, `sum(value)`) |
+| Booking | Bookings per service per week |
+| Support | Average resolution time per agent (`avg`) |
+| Shop | Top products by revenue (`sum(line_total)`, sorted, limit 10) |
+| School | Attendance rate per class per month |

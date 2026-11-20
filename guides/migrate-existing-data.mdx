@@ -1,0 +1,50 @@
+---
+title: "Migrate existing data"
+description: "Move an existing app's data to Bludia: import a MySQL-style SQL dump to create collections automatically, or import CSV files per collection with column mapping, then recreate relations, auth, and permissions and switch your frontend to the Bludia API."
+keywords: ["migration", "migrate", "import database", "mysql to bludia", "firebase", "supabase", "csv", "move data"]
+icon: "truck"
+---
+
+<Tabs>
+  <Tab title="From a SQL database" icon="database">
+    <Steps>
+      <Step title="Create a dump">
+        ```bash
+        mysqldump --no-tablespaces --skip-triggers -u USER -p DB_NAME > dump.sql
+        ```
+      </Step>
+      <Step title="Upload it">In your project, go to **Imports** → **Upload** and choose `dump.sql` (up to 2 GB). The file is scanned and parsed.</Step>
+      <Step title="Review the proposal">Bludia shows the collections and fields it will create from your tables and columns. Check types (for example `DECIMAL` → Number, `DATETIME` → DateTime).</Step>
+      <Step title="Confirm">Collections are created and rows are imported.</Step>
+    </Steps>
+  </Tab>
+  <Tab title="From CSV files" icon="file-spreadsheet">
+    Export each table to CSV (Excel, Google Sheets, Airtable, Firebase, Supabase, and most tools can). Create the collections, then [import](/database/import-export) each file and map columns to fields.
+
+    Import parent collections first (for example `customers` before `orders`).
+  </Tab>
+</Tabs>
+
+## After importing
+
+<Steps>
+  <Step title="Recreate relations">Add [relations](/database/relations) between the imported collections and link records.</Step>
+  <Step title="Add validation">Mark required and unique fields, add formats and ranges.</Step>
+  <Step title="Set up authentication">Attach a [guard](/authentication/guards) to your users collection. Existing password hashes from another system won't work: ask users to reset their password, or invite them to register again.</Step>
+  <Step title="Recreate permissions">Map your old access rules to [roles](/authorization/roles-and-permissions) and [row policies](/authorization/row-level-security).</Step>
+  <Step title="Port server logic">Move triggers and server-side rules into [hooks](/hooks/overview).</Step>
+  <Step title="Switch the frontend">Replace your old API calls with Bludia endpoints. See the [API mapping](#api-mapping).</Step>
+  <Step title="Verify">Compare record counts and spot-check records before switching traffic.</Step>
+</Steps>
+
+## API mapping
+
+| Typical REST endpoint | Bludia |
+| :-- | :-- |
+| `GET /api/orders?page=2` | `GET /collections/orders/records?page=2` |
+| `GET /api/orders/42` | `GET /collections/orders/42` |
+| `POST /api/orders` | `POST /collections/orders` |
+| `PATCH /api/orders/42` | `PUT /collections/orders/42` (partial update) |
+| `DELETE /api/orders/42` | `DELETE /collections/orders/42` |
+| `POST /api/login` | `POST /auth/{guard}/login` |
+| `GET /api/me` | `GET /auth/{guard}/me` |

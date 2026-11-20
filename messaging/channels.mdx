@@ -1,0 +1,42 @@
+---
+title: "Channels"
+description: "A messaging channel stores how Bludia delivers messages. For email, configure an SMTP host, port, encryption, username, password, and sender address. Credentials are encrypted. Set default channels and daily or monthly limits."
+keywords: ["channel", "smtp", "email settings", "sender", "from address", "mail provider", "sendgrid", "postmark", "mailgun", "ses"]
+icon: "send"
+---
+
+A **channel** holds the delivery settings for one type of message. Create channels in **Messaging** → **Channels**.
+
+## Channel settings
+
+| Setting | Required | Description |
+| :-- | :-- | :-- |
+| **Type** | Yes | `email` (others coming soon) |
+| **Name** | Yes | For example `Transactional email` |
+| **Driver** | Yes | Delivery driver, `smtp` for email |
+| **Configuration** | Yes | Provider settings (below). Stored encrypted |
+| **Sender** | No | From address, for example `Bookings <bookings@example.com>` |
+| **Default** | No | The channel used when a type has several channels |
+| **Active** | No | Inactive channels don't send |
+| **Daily / monthly limit** | No | Caps on messages sent through this channel |
+
+## SMTP configuration
+
+| Key | Default | Example |
+| :-- | :-- | :-- |
+| `host` | (required) | `smtp.postmarkapp.com` |
+| `port` | `587` | `587` or `465` |
+| `encryption` | `tls` | `tls` or `ssl` |
+| `username` | | Your SMTP user or API token |
+| `password` | | Your SMTP password or API token |
+
+Most email providers offer SMTP, including Amazon SES, Postmark, SendGrid, Mailgun, Brevo, Resend, Google Workspace, and Microsoft 365.
+
+<Steps>
+  <Step title="Get SMTP credentials">From your email provider. Verify your sending domain there (SPF, DKIM) so mail isn't marked as spam.</Step>
+  <Step title="Create the channel">Type `email`, driver `smtp`, then fill in host, port, encryption, username, and password.</Step>
+  <Step title="Set the sender">Use an address on your verified domain.</Step>
+  <Step title="Send a test">Trigger a hook or a sign-up and check delivery.</Step>
+</Steps>
+
+<Warning>Credentials are encrypted at rest and never returned by the dashboard after saving. Use a dedicated SMTP user for Bludia so you can rotate it independently.</Warning>

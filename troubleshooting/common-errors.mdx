@@ -1,0 +1,78 @@
+---
+title: "Common errors"
+description: "Fixes for frequent Bludia API errors: Missing API key, Invalid API key, CORS blocked, Missing access token, invalid_or_expired_token, permission_denied, Collection not found, empty results for end users, 409 conflicts, 422 validation, and 429 rate limits."
+keywords: ["troubleshooting", "errors", "not working", "debug", "cors blocked", "401", "403", "404", "empty results", "fix"]
+icon: "life-buoy"
+---
+
+<AccordionGroup>
+  <Accordion title="401 Missing API key." icon="key">
+    The `X-BLUDIA-API-KEY` header wasn't sent. Check the header name and that your env variable is loaded (frontend env vars often need a prefix such as `VITE_` or `NEXT_PUBLIC_`).
+  </Accordion>
+
+  <Accordion title="401 Invalid API key." icon="key">
+    The key is wrong or incomplete. Keys are shown once; if you didn't copy all of it, create a new one. Make sure there are no spaces or quotes around it.
+  </Accordion>
+
+  <Accordion title="403 API key revoked. / API key expired." icon="key">
+    Create a new key in **API** → **API Keys**, or extend the expiry of the existing one.
+  </Accordion>
+
+  <Accordion title="403 CORS blocked (browser only)" icon="globe">
+    Add your exact origin (scheme, host, port), for example `http://localhost:5173`, to the key's allowed origins. See [CORS](/api/cors).
+  </Accordion>
+
+  <Accordion title="401 Missing access token. on /collections/..." icon="lock">
+    You're using an `end_users` key without a signed-in user. Log in first and send `Authorization: Bearer <access_token>`. For server scripts, use a `platform` key.
+  </Accordion>
+
+  <Accordion title="401 invalid_or_expired_token" icon="clock">
+    - **Access token expired** (15 min default): call `/auth/{guard}/refresh` and retry.
+    - **Refresh token reused:** refresh tokens rotate; store the new one every time.
+    - **Wrong project or guard:** tokens only work with keys from the same project.
+  </Accordion>
+
+  <Accordion title="403 permission_denied" icon="shield-x">
+    The user's roles lack the permission for this action on the collection. Grant it in **Authentication** → **Roles**, and check the user actually has the role.
+  </Accordion>
+
+  <Accordion title="Empty list or 404 for records that exist" icon="eye-off">
+    Row-level security is hiding them. With no allow policy, end users only see records **they created**, so records created in the dashboard or with a platform key aren't visible to them. Add an allow policy. See [Row-level security](/authorization/row-level-security).
+  </Accordion>
+
+  <Accordion title="404 Collection not found / guard_not_found" icon="search-x">
+    Use the **slug**, not the display name or ID: `/collections/order_items/records`, `/auth/users/login`. Slugs are case-sensitive.
+  </Accordion>
+
+  <Accordion title="Fields are missing or null in responses" icon="circle-dashed">
+    Use exact field **names** (not labels) as JSON keys when writing. Unknown keys are ignored silently. Password fields are never returned.
+  </Accordion>
+
+  <Accordion title="409 Conflict on update" icon="git-merge">
+    Someone changed the record after you loaded it. Reload, re-apply the change, and send the new `version`.
+  </Accordion>
+
+  <Accordion title="409 duplicate_account on register" icon="user-x">
+    An account with that login value exists. Offer "log in" or "forgot password".
+  </Accordion>
+
+  <Accordion title="422 validation errors" icon="badge-x">
+    The message names the field and rule. Check required fields, formats, select options, and number ranges. See [Validation](/database/validation).
+  </Accordion>
+
+  <Accordion title="429 Rate limit exceeded." icon="gauge">
+    Slow down and retry with backoff. Use larger pages and `with` to reduce requests, or raise the key's limit. See [Rate limits](/api/rate-limits).
+  </Accordion>
+
+  <Accordion title="A write fails with a message I didn't expect" icon="webhook">
+    A `before*` hook may be rejecting it. Check **Hooks** → **Executions** for the error and logs. See [Logs & debugging](/hooks/logs-and-debugging).
+  </Accordion>
+
+  <Accordion title="Emails aren't arriving" icon="mail-x">
+    Check the SMTP channel settings (host, port, encryption, credentials), that the sender domain is verified with your provider, the template name used in the hook, and the spam folder.
+  </Accordion>
+</AccordionGroup>
+
+## Still stuck?
+
+Email [support@bludia.com](mailto:support@bludia.com) with the endpoint, status code, response body, and `request_id` if present. Never include API keys or passwords.

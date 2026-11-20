@@ -1,0 +1,77 @@
+---
+title: "Email verification"
+description: "Turn on email verification for a guard to send new users a 6-character code by email at sign-up. Confirm it with POST /auth/{guard}/email/verify and resend with POST /auth/{guard}/email/resend."
+keywords: ["email verification", "verify email", "confirmation code", "resend verification", "pending account"]
+icon: "mail-check"
+---
+
+With email verification on, Bludia emails new users a short code when they register. Their account status is `pending` until they confirm it, then it becomes `active`.
+
+## Set it up
+
+<Steps>
+  <Step title="Create an email channel">
+    Add an SMTP email channel in **Messaging** → **Channels**. See [Channels](/messaging/channels).
+  </Step>
+  <Step title="Create a verification template">
+    Create an email template that includes the `{{token}}` variable:
+
+    ```html
+    Subject: Your verification code
+
+    <p>Welcome! Your verification code is <strong>{{token}}</strong>.</p>
+    ```
+  </Step>
+  <Step title="Enable it on the guard">
+    In the guard settings, turn on **Email verification** and select the channel and template.
+  </Step>
+</Steps>
+
+## The flow
+
+```text
+POST /auth/users/register   → 201 { session, status: "pending_verification" }
+                              email sent to the login field value: "Your code is 7KQ2XF"
+POST /auth/users/email/verify { token: "7KQ2XF" }
+                            → 200 { message: "Email verified. You can now log in." }
+                              record status: pending → active
+```
+
+## Verify
+
+`POST /auth/{guard}/email/verify` — API key only.
+
+```bash
+curl -X POST "$BASE_URL/auth/users/email/verify" \
+  -H "Content-Type: application/json" \
+  -H "X-BLUDIA-API-KEY: $BLUDIA_PUBLIC_KEY" \
+  -d '{ "token": "7KQ2XF" }'
+```
+
+```json
+{ "message": "Email verified. You can now log in.", "status": 200 }
+```
+
+An unknown or already used code returns `401 invalid_or_expired_token`.
+
+## Resend
+
+`POST /auth/{guard}/email/resend` — needs the user's Bearer token. Issues a new code.
+
+<Warning>Beta: resent codes are not emailed automatically yet. The code sent at registration is delivered by email.</Warning>
+
+```bash
+curl -X POST "$BASE_URL/auth/users/email/resend" \
+  -H "X-BLUDIA-API-KEY: $BLUDIA_PUBLIC_KEY" \
+  -H "Authorization: Bearer $ACCESS_TOKEN"
+```
+
+## Check verification status
+
+[`GET /auth/{guard}/me`](/authentication/current-user) includes `verified_at` in the user's data once verified, and the record `status` is `active`.
+
+<Note>
+  Registration returns a session, and `pending` users can log in. If your app needs verified users only, check `verified_at` from `/me` and show a "verify your email" screen, or add a [row policy](/authorization/row-level-security) or [hook](/hooks/overview) that blocks unverified users from key actions.
+</Note>
+
+<Tip>The code is sent to the value of the guard's login field, so use an email login field when you enable verification.</Tip>

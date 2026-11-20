@@ -1,0 +1,186 @@
+---
+title: "Quickstart"
+description: "Create a Bludia project, add a tasks collection, generate an API key, and create and list records over the REST API in about 10 minutes."
+keywords: ["getting started", "first api call", "tutorial", "curl", "fetch"]
+icon: "rocket"
+---
+
+In this guide you build a small **Tasks API**: one collection, a few records, and real API calls from `curl` and JavaScript.
+
+<Card title="What you'll build" icon="list-checks" color="#10B981">
+  ```text
+  Project: Task Manager
+  └── tasks (collection)
+      ├── title        Text
+      ├── description  Long Text
+      ├── completed    Boolean
+      └── status       Select (todo, doing, done)
+  ```
+</Card>
+
+## Before you start
+
+You need a Bludia account and an HTTP client such as `curl`, Postman, or a JavaScript runtime. You don't need to install a database or a backend framework.
+
+## Build the backend
+
+<Steps>
+  <Step title="Create a project">
+    In the [Bludia dashboard](https://bludia.com), select **Create Project** and name it **Task Manager**. Open the project when it's ready.
+
+    <Tip>Create one project per independent app. Everything in this guide lives inside this project.</Tip>
+  </Step>
+
+  <Step title="Create the tasks collection">
+    Go to **Collections** → **Create Collection** and name it `tasks`. The collection's **slug** (`tasks`) is the name you use in API URLs.
+  </Step>
+
+  <Step title="Add fields">
+    Add these fields to `tasks`:
+
+    | Field name | Type | Notes |
+    | :-- | :-- | :-- |
+    | `title` | Text | Mark as **required** |
+    | `description` | Long Text | |
+    | `completed` | Boolean | |
+    | `status` | Select | Options: `todo`, `doing`, `done` |
+
+    Every record also gets system fields automatically: `id`, `slug`, `created_at`, `updated_at`, and `published_at`.
+  </Step>
+
+  <Step title="Add a record in the dashboard">
+    Open the collection's **Records** view, select **Add record**, and fill in:
+
+    ```json
+    { "title": "Learn Bludia", "description": "Build my first backend", "completed": false, "status": "todo" }
+    ```
+  </Step>
+
+  <Step title="Create an API key">
+    Go to **API** → **API Keys** → **Create key**:
+
+    - **Name:** `Quickstart`
+    - **Auth type:** `platform` (server-side key with full project access, good for this test)
+    - **Environment:** `development`
+
+    Copy the key. It looks like `bludia_development_ab12cd_…` and is **shown only once**.
+
+    <Warning>
+      A `platform` key can read and write every collection. Use it only on servers and in scripts, never in browser or mobile code. See [API keys](/api/api-keys).
+    </Warning>
+  </Step>
+
+  <Step title="List your records">
+    Find your API base URL in the collection's **API Endpoints** panel. It ends in `/ext/api/v1`. Then run:
+
+    ```bash
+    export BASE_URL="https://YOUR_API_HOST/ext/api/v1"
+    export BLUDIA_API_KEY="bludia_development_..."
+
+    curl "$BASE_URL/collections/tasks/records" \
+      -H "Accept: application/json" \
+      -H "X-BLUDIA-API-KEY: $BLUDIA_API_KEY"
+    ```
+
+    Response:
+
+    ```json
+    {
+      "data": [
+        {
+          "id": 1,
+          "slug": null,
+          "created_at": "2026-11-20T10:00:00.000000Z",
+          "updated_at": "2026-11-20T10:00:00.000000Z",
+          "published_at": "2026-11-20T10:00:00.000000Z",
+          "children": [],
+          "title": "Learn Bludia",
+          "description": "Build my first backend",
+          "completed": false,
+          "status": "todo"
+        }
+      ],
+      "meta": { "page": 1, "limit": 20, "total": 1, "pages": 1, "trashed": 0 },
+      "totals": []
+    }
+    ```
+  </Step>
+
+  <Step title="Create a record over the API">
+    Send field names as JSON keys:
+
+    ```bash
+    curl -X POST "$BASE_URL/collections/tasks" \
+      -H "Content-Type: application/json" \
+      -H "Accept: application/json" \
+      -H "X-BLUDIA-API-KEY: $BLUDIA_API_KEY" \
+      -d '{ "title": "Build a dashboard", "completed": false, "status": "doing" }'
+    ```
+
+    Bludia validates the body against your fields and returns `201 Created` with the new record in `data`.
+  </Step>
+
+  <Step title="Filter, update, and delete">
+    <CodeGroup>
+      ```bash Filter
+      curl -G "$BASE_URL/collections/tasks/records" \
+        -H "X-BLUDIA-API-KEY: $BLUDIA_API_KEY" \
+        --data-urlencode "filters[status]=doing" \
+        --data-urlencode "limit=10"
+      ```
+
+      ```bash Update
+      curl -X PUT "$BASE_URL/collections/tasks/2" \
+        -H "Content-Type: application/json" \
+        -H "X-BLUDIA-API-KEY: $BLUDIA_API_KEY" \
+        -d '{ "completed": true, "status": "done" }'
+      ```
+
+      ```bash Delete
+      curl -X DELETE "$BASE_URL/collections/tasks/2" \
+        -H "X-BLUDIA-API-KEY: $BLUDIA_API_KEY"
+      ```
+    </CodeGroup>
+
+    Updates are partial: fields you leave out keep their values. Deletes are soft deletes; you can restore records from the dashboard trash.
+  </Step>
+</Steps>
+
+<Check>You now have a working backend with a validated data model and a REST API.</Check>
+
+## Call it from JavaScript
+
+Run this on a server (Node.js, a Next.js route handler, or a serverless function), where the key stays secret:
+
+```javascript
+const BASE_URL = process.env.BLUDIA_BASE_URL; // https://YOUR_API_HOST/ext/api/v1
+
+const res = await fetch(`${BASE_URL}/collections/tasks/records?limit=20`, {
+  headers: {
+    Accept: "application/json",
+    "X-BLUDIA-API-KEY": process.env.BLUDIA_API_KEY,
+  },
+});
+
+const { data, meta } = await res.json();
+console.log(`${meta.total} tasks`, data);
+```
+
+For browser and mobile apps, use an `end_users` key with signed-in users instead. See [Frontend integration](/frontend/overview).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Add user login" icon="key-round" color="#8B5CF6" href="/authentication/overview">
+    Let people register and log in, then call the API as themselves.
+  </Card>
+  <Card title="Lock down access" icon="shield-check" color="#10B981" href="/authorization/overview">
+    Give roles per-collection permissions and limit rows per user.
+  </Card>
+  <Card title="Add business logic" icon="webhook" color="#F59E0B" href="/hooks/overview">
+    Validate and react to changes with hooks.
+  </Card>
+  <Card title="Build a CRM" icon="briefcase" color="#3B82F6" href="/guides/build-crm">
+    Follow a complete, multi-collection example.
+  </Card>
+</CardGroup>

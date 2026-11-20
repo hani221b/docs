@@ -1,0 +1,73 @@
+---
+title: "Scheduled tasks"
+description: "Run a query on your data on a schedule (once, interval, or cron, in any timezone) and trigger actions such as email notifications when a condition is met. Configure overlap, misfire, retries, and timeouts; pause, resume, run now, and view run history."
+keywords: ["scheduled tasks", "cron", "cron jobs", "recurring jobs", "automation", "alerts", "notifications", "schedule"]
+icon: "calendar-clock"
+---
+
+A **scheduled task** checks your data on a schedule and acts on the result. For example: *every morning at 8:00, count overdue invoices and email finance if there are any.*
+
+```text
+Schedule  cron "0 8 * * 1-5"  (Asia/Dubai)
+Query     invoices where status = "unpaid" and due_date < today → count
+Trigger   count > 0
+Action    email finance@example.com: "{{matched_count}} invoices are overdue"
+```
+
+## Schedule
+
+| Type | Use | Example |
+| :-- | :-- | :-- |
+| `once` | Run one time | 2026-12-31 23:00 |
+| `interval` | Every N minutes, hours, or days | Every 15 minutes |
+| `cron` | Cron expression | `0 8 * * 1-5` (weekdays at 08:00) |
+
+Also set the **timezone**, and optionally **starts at** and **ends at** to bound the schedule.
+
+## Query and trigger
+
+The query reads one collection (optionally joined with related ones), applies filters (AND/OR groups), and aggregates the result (for example `count`). The **trigger** decides whether actions run, for example `value > 0`. Use **Preview** to test the query before saving.
+
+## Actions
+
+| Action | What it does |
+| :-- | :-- |
+| `notification` | Sends an email to one or more recipients |
+
+A task can have up to 10 actions. Notification subject and body can use these variables:
+
+| Variable | Value |
+| :-- | :-- |
+| `{{task.name}}` | The task's name |
+| `{{matched_count}}` | Number of matching records |
+| `{{value}}` | The aggregated value |
+| `{{scheduled_for}}` | When the run was scheduled |
+| `{{run_id}}` | The run's ID |
+
+## Reliability settings
+
+| Setting | Options | Default behavior |
+| :-- | :-- | :-- |
+| **Overlap policy** | `allow`, `skip`, `queue` | What happens if a run is still going when the next one is due |
+| **Misfire policy** | `skip`, `run_once`, `catch_up` | What happens to runs missed during downtime |
+| **Max catch-up runs** | 1–10 | Upper bound for `catch_up` |
+| **Execution timeout** | 1–600 seconds | Stops runs that take too long |
+| **Max attempts** | 1–10 | Retries for failed runs |
+| **Retry delay** | 0–86,400 seconds | Wait between attempts |
+
+Retries don't re-send notifications to recipients who already received them.
+
+## Manage tasks
+
+- **Pause / resume** a task without deleting it.
+- **Run now** to test (limited to 20 per minute).
+- **Runs** shows history with status: `queued`, `running`, `succeeded`, `failed`, `skipped`, `cancelled`.
+
+## Ideas
+
+| App | Task |
+| :-- | :-- |
+| Billing | Daily: email finance when invoices are overdue |
+| Inventory | Hourly: alert when any product's `stock` is below 5 |
+| Booking | Every evening: tell the manager how many bookings are tomorrow |
+| Support | Every 30 min: alert if tickets are unassigned for over an hour |

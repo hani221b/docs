@@ -1,55 +1,27 @@
-# Mintlify Starter Kit
+# Bludia documentation
 
-Use the starter kit to get your docs deployed and ready to customize.
+Source for the Bludia docs site, built with [Mintlify](https://mintlify.com).
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
-
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
-
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
-
-## AI-assisted writing
-
-Set up your AI coding tool to work with Mintlify:
+## Local preview
 
 ```bash
-npx skills add https://mintlify.com/docs
-```
-
-This command installs Mintlify's documentation skill for your configured AI tools like Claude Code, Cursor, Windsurf, and others. The skill includes component reference, writing standards, and workflow guidance.
-
-See the [AI tools guides](/ai-tools) for tool-specific setup.
-
-## Development
-
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
-
-```
 npm i -g mint
+mint dev            # http://localhost:3000
+mint broken-links   # check internal links
 ```
 
-Run the following command at the root of your documentation, where your `docs.json` is located:
+Run commands from this folder (where `docs.json` lives).
 
-```
-mint dev
-```
+## Editing
 
-View your local preview at `http://localhost:3000`.
+- Pages are `.mdx` files; navigation is in `docs.json`.
+- The API Reference tab is generated from `api-reference/openapi.json`.
+- See `AGENTS.md` for structure, terminology, and style rules.
 
-## Publishing changes
+## Publishing
 
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
+Changes pushed to the default branch deploy automatically through the Mintlify GitHub app.
 
-## Need help?
+## AI and LLM access
 
-### Troubleshooting
-
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
-
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
+Mintlify serves `/llms.txt` and `/llms-full.txt` automatically, and every page can be copied as Markdown or opened in ChatGPT, Claude, Perplexity, Cursor, or VS Code from the page menu. `reference/at-a-glance.mdx` is a single-page fact sheet for quick answers.

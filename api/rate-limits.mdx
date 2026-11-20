@@ -1,0 +1,62 @@
+---
+title: "Rate limits"
+description: "Bludia rate limits: each API key allows a configurable number of requests per minute (default 1,000, range 10 to 100,000). Auth endpoints are limited to 10 requests per minute per IP. Exceeding a limit returns 429."
+keywords: ["rate limit", "429", "too many requests", "throttle", "requests per minute", "backoff"]
+icon: "gauge"
+---
+
+## Limits
+
+| Scope | Limit | Window | Configurable |
+| :-- | :-- | :-- | :-- |
+| Per API key | **1,000** requests by default | 1 minute | Yes, 10 to 100,000 per key |
+| `/auth/{guard}/*` endpoints | **10** requests | 1 minute, per IP and route | No |
+| PDF generation (dashboard) | 30 requests | 1 minute | No |
+
+Every request made with a key counts toward that key's limit, including auth requests. The auth endpoint limit protects against password guessing and sign-up spam.
+
+## When you exceed a limit
+
+```http
+HTTP/1.1 429 Too Many Requests
+Content-Type: application/json
+
+{ "message": "Rate limit exceeded." }
+```
+
+The window resets 60 seconds after the first counted request.
+
+## Retry with backoff
+
+```javascript
+async function withRetry(fn, attempts = 4) {
+  for (let i = 0; ; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      if (err.status !== 429 || i >= attempts - 1) throw err;
+      const delay = Math.min(60_000, 1000 * 2 ** i) + Math.random() * 250;
+      await new Promise((r) => setTimeout(r, delay));
+    }
+  }
+}
+```
+
+## Stay under the limit
+
+<CardGroup cols={2}>
+  <Card title="Fetch bigger pages" icon="layers">
+    Use `limit=100` instead of many small pages.
+  </Card>
+  <Card title="Use relations" icon="link">
+    Load related data with `with=` instead of one request per record.
+  </Card>
+  <Card title="Cache on your side" icon="database-zap">
+    Cache rarely changing data such as categories or settings.
+  </Card>
+  <Card title="Split keys" icon="key">
+    Give each app or job its own key and limit, so one can't starve another.
+  </Card>
+</CardGroup>
+
+To change a key's limit, edit the key in **API** → **API Keys**.

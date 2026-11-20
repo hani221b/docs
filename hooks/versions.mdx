@@ -1,0 +1,52 @@
+---
+title: "Hook versions"
+description: "Every saved hook is a new version that is compiled to WebAssembly (pending, compiling, compiled, failed). Choose which compiled version is current, roll back instantly, and turn hooks on or off with active/inactive status."
+keywords: ["hook versions", "deploy hook", "rollback", "build status", "compile", "activate hook", "disable hook"]
+icon: "history"
+---
+
+Every time you save a hook, Bludia stores a new **version** and compiles it. You decide which version runs.
+
+```text
+Hook: bookings.beforeInsert   (status: active)
+├── v1  compiled
+├── v2  compiled   ← current
+└── v3  failed     (syntax error; v2 keeps running)
+```
+
+## Build status
+
+| Status | Meaning |
+| :-- | :-- |
+| `pending` | Waiting to be compiled |
+| `compiling` | Being compiled to WebAssembly |
+| `compiled` | Ready; can be made current |
+| `failed` | Compilation failed; check the build output and save a fix |
+
+Saving a version doesn't change what's running. Only a **compiled** version can be made current.
+
+## Make a version current
+
+Open the hook → **Versions** → choose a compiled version → **Set as current**. The change applies to the next event.
+
+**Rollback** is the same action: set an earlier compiled version as current.
+
+## Turn a hook on or off
+
+| Hook status | Effect |
+| :-- | :-- |
+| `active` | The current version runs on every matching event |
+| `inactive` | The hook is skipped; writes proceed without it |
+
+Use `inactive` to pause a hook while you investigate a problem, without deleting it.
+
+## Safe release workflow
+
+<Steps>
+  <Step title="Save a new version">Wait for `compiled`.</Step>
+  <Step title="Set it current">Preferably during low traffic.</Step>
+  <Step title="Watch executions">Check the first runs in [Logs & debugging](/hooks/logs-and-debugging).</Step>
+  <Step title="Roll back if needed">Set the previous version current.</Step>
+</Steps>
+
+<Tip>Each version stores a checksum of its source, so you can tell exactly which code produced each execution.</Tip>

@@ -1,0 +1,77 @@
+---
+title: "Roles & permissions"
+description: "Create roles per authentication guard, assign them to end users, and grant each role permissions per collection: can_read, can_create, can_update, can_delete, can_export, can_import, can_execute_actions, can_manage_schema."
+keywords: ["roles", "permissions", "rbac", "role based access control", "assign role", "default role", "admin role", "can_read"]
+icon: "lock-keyhole"
+---
+
+## Roles
+
+A **role** is a named group of end users inside a guard, such as `customer`, `manager`, or `admin`. Every guard starts with one system role:
+
+| Role | Slug | Assigned |
+| :-- | :-- | :-- |
+| User | `user` | Automatically to everyone who registers through the guard |
+
+Create more roles in **Authentication** → **Guards** → *your guard* → **Roles**. A user can have several roles; their access is the **union** of all their roles.
+
+### Assign roles
+
+- **One user:** open the role → **Assign** → pick the user's record.
+- **Many users:** edit the role's assignments to set the full list at once.
+- **Remove:** **Revoke** the role from the user.
+
+<Note>Role IDs are copied into the access token at login. Bludia checks current roles on every request, but clients should refresh the session to see updated `roles` claims.</Note>
+
+## Collection permissions
+
+For each role and collection, switch on the actions the role may perform:
+
+| Permission | Allows | Used by |
+| :-- | :-- | :-- |
+| `can_read` | List and get records | `GET` |
+| `can_create` | Create records | `POST` |
+| `can_update` | Update records | `PUT` |
+| `can_delete` | Delete records | `DELETE` |
+| `can_export` | Export records | Export |
+| `can_import` | Import records | Import |
+| `can_execute_actions` | Run custom actions | Actions |
+| `can_manage_schema` | Change the collection's structure | Schema |
+
+Missing permissions are `false`. Removing a role's permissions for a collection blocks that role from it entirely.
+
+## Example: a CRM
+
+| Collection | `sales_rep` | `sales_manager` | `viewer` |
+| :-- | :-- | :-- | :-- |
+| `companies` | read, create, update | read, create, update, delete | read |
+| `contacts` | read, create, update | read, create, update, delete | read |
+| `deals` | read, create, update | read, create, update, delete, export | read |
+| `settings` | — | read, update | — |
+
+Combine with [row-level security](/authorization/row-level-security) so reps only see their own deals while managers see everyone's.
+
+## Denied requests
+
+```json
+{
+  "error": "permission_denied",
+  "message": "You do not have [delete] permission on collection [14]."
+}
+```
+
+Status `403`. Hide actions in your UI that a user's roles don't allow.
+
+## Tips
+
+<AccordionGroup>
+  <Accordion title="Start from least privilege">
+    Give the default `user` role only what every new user needs. Grant more through extra roles.
+  </Accordion>
+  <Accordion title="Name roles by job, not by person">
+    `billing_admin` is clearer and easier to manage than `ahmed_access`.
+  </Accordion>
+  <Accordion title="Promote users from the server">
+    Never let end users assign roles to themselves. Assign roles in the dashboard or from a trusted server.
+  </Accordion>
+</AccordionGroup>

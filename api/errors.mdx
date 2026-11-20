@@ -1,0 +1,117 @@
+---
+title: "Errors"
+description: "Bludia API error format and HTTP status codes: 400, 401, 403, 404, 409, 422, 429, 500. Includes authentication error codes such as invalid_credentials, duplicate_account, permission_denied, and invalid_or_expired_token."
+keywords: ["errors", "status codes", "401", "403", "404", "409", "422", "429", "500", "error codes", "request_id"]
+icon: "triangle-alert"
+---
+
+Bludia uses standard HTTP status codes. `2xx` means success; `4xx` means the request needs fixing; `5xx` means something failed on Bludia's side.
+
+## Status codes
+
+| Code | Meaning | Typical cause |
+| :-- | :-- | :-- |
+| `200` | OK | Read, update, delete, or auth action succeeded |
+| `201` | Created | Record created or user registered |
+| `204` | No content | CORS preflight (`OPTIONS`) |
+| `401` | Unauthorized | Missing or invalid API key or access token; wrong login |
+| `403` | Forbidden | Key revoked or expired, origin not allowed, no permission, registration disabled |
+| `404` | Not found | Unknown collection slug, guard slug, or record, or a record hidden by row policies |
+| `405` | Method not allowed | Wrong HTTP method for the path |
+| `409` | Conflict | Duplicate account, or record changed since you loaded it (version mismatch) |
+| `422` | Unprocessable | Validation failed |
+| `429` | Too many requests | Rate limit exceeded |
+| `500` | Server error | Unexpected failure; retry and contact support with the `request_id` |
+
+## Error body formats
+
+You'll see one of three shapes depending on where the request was stopped.
+
+<Tabs>
+  <Tab title="Gateway errors">
+    API key, CORS, rate limit, and token-presence checks return a short message:
+
+    ```json
+    { "message": "Rate limit exceeded." }
+    ```
+  </Tab>
+  <Tab title="Authentication errors">
+    Guard, login, token, and permission errors include a machine-readable `error` code:
+
+    ```json
+    {
+      "error": "invalid_credentials",
+      "message": "The provided credentials are incorrect."
+    }
+    ```
+  </Tab>
+  <Tab title="General errors">
+    Validation, not-found, conflict, and server errors use the standard envelope:
+
+    ```json
+    {
+      "status": false,
+      "message": "Validation failed.",
+      "errors": { "password": ["The password field must be at least 8 characters."] },
+      "request_id": "9b2f6c1e-4a7d-4e0b-9a51-2f1d3c8e7a10"
+    }
+    ```
+
+    `errors` lists field-level problems when available. Include `request_id` when you contact support.
+  </Tab>
+</Tabs>
+
+## Authentication error codes
+
+| `error` | Status | Message |
+| :-- | :-- | :-- |
+| `invalid_credentials` | 401 | The provided credentials are incorrect. |
+| `invalid_or_expired_token` | 401 | The provided access_token / refresh_token / password_reset / email_verification is invalid, expired, or has already been used. |
+| `account_inactive` | 403 | This account is inactive or has been suspended. |
+| `registration_disabled` | 403 | Registration is disabled for guard [slug]. |
+| `password_reset_disabled` | 403 | Password reset is disabled for guard [slug]. |
+| `permission_denied` | 403 | You do not have [action] permission on collection [id]. |
+| `duplicate_account` | 409 | An account with this [field] already exists. |
+| `guard_not_found` | 404 | Authentication guard [slug] was not found. |
+| `collection_not_found` | 404 | Collection [id] was not found. |
+| `field_not_found` | 404 | Field [id] was not found on this collection. |
+| `account_not_found` | 404 | Account no longer exists. (from `/me`) |
+
+## Handle errors in code
+
+```javascript
+async function bludia(path, options = {}) {
+  const res = await fetch(`${BASE_URL}${path}`, {
+    ...options,
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      "X-BLUDIA-API-KEY": API_KEY,
+      ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+      ...options.headers,
+    },
+  });
+
+  if (res.ok) return res.status === 204 ? null : res.json();
+
+  const body = await res.json().catch(() => ({}));
+  const err = new Error(body.message ?? `HTTP ${res.status}`);
+  err.status = res.status;
+  err.code = body.error;           // e.g. "invalid_credentials"
+  err.details = body.errors;       // field errors, if any
+  err.requestId = body.request_id;
+  throw err;
+}
+```
+
+| Status | What your app should do |
+| :-- | :-- |
+| `401` with `invalid_or_expired_token` | Refresh the session, then retry once; if that fails, send the user to login |
+| `403` `permission_denied` | Hide the action or show "You don't have access" |
+| `404` | Show "not found"; the record may be deleted or not visible to this user |
+| `409` | Reload the record and let the user re-apply their change |
+| `422` | Show the message next to the form |
+| `429` | Wait and retry with backoff (see [Rate limits](/api/rate-limits)) |
+| `5xx` | Retry with backoff; report `request_id` if it persists |
+
+See [Troubleshooting](/troubleshooting/common-errors) for fixes to frequent errors.

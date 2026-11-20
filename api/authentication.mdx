@@ -1,0 +1,115 @@
+---
+title: "API authentication"
+description: "How requests to the Bludia API are authenticated: every request sends an API key in X-BLUDIA-API-KEY. Platform keys get full project access; end_users keys also require an end user's JWT in Authorization: Bearer."
+keywords: ["api authentication", "x-bludia-api-key", "bearer token", "jwt", "platform key", "end_users key", "401", "403"]
+icon: "lock"
+---
+
+Bludia uses two layers of credentials:
+
+1. **API key**: identifies your **app**. Sent on every request as `X-BLUDIA-API-KEY`.
+2. **Access token**: identifies the **signed-in end user**. Sent as `Authorization: Bearer <token>` when the key's auth type is `end_users`.
+
+## Choose a key type
+
+<CardGroup cols={2}>
+  <Card title="platform" icon="server" color="#EF4444">
+    **For trusted servers only.**
+
+    - API key alone is enough.
+    - Full read/write access to every collection.
+    - Role permissions and row policies **don't apply**.
+    - Use for back-office scripts, data sync, and server-side rendering.
+  </Card>
+  <Card title="end_users" icon="smartphone" color="#10B981">
+    **For browser and mobile apps.**
+
+    - API key + end user's Bearer token on data routes.
+    - Role permissions and row policies **apply**.
+    - Login, register, and password routes work with the key alone.
+    - Safe to ship in client code when combined with allowed origins.
+  </Card>
+</CardGroup>
+
+| | `platform` | `end_users` |
+| :-- | :-- | :-- |
+| Bearer token required on `/collections/...` | No | **Yes** |
+| Collection permissions checked | No | Yes |
+| Row policies applied | No | Yes |
+| Records created are owned by | No end user | The signed-in end user |
+| Where to use | Servers, scripts, cron jobs | Browsers, mobile apps |
+
+## Platform key request
+
+```bash
+curl "$BASE_URL/collections/customers/records" \
+  -H "X-BLUDIA-API-KEY: $BLUDIA_PLATFORM_KEY"
+```
+
+<Danger>Never put a `platform` key in frontend code, a mobile app bundle, or a public repository. Anyone with it can read and change all project data.</Danger>
+
+## End-user request
+
+<Steps>
+  <Step title="Log the user in">
+    ```bash
+    curl -X POST "$BASE_URL/auth/users/login" \
+      -H "Content-Type: application/json" \
+      -H "X-BLUDIA-API-KEY: $BLUDIA_PUBLIC_KEY" \
+      -d '{ "login": "sarah@example.com", "password": "correct horse battery" }'
+    ```
+
+    ```json
+    {
+      "session": {
+        "access_token": "eyJhbGciOiJIUzI1NiIs...",
+        "refresh_token": "Xk2p...80 chars",
+        "token_type": "Bearer",
+        "expires_in": 900,
+        "record_id": 42
+      }
+    }
+    ```
+  </Step>
+  <Step title="Call the API as that user">
+    ```bash
+    curl "$BASE_URL/collections/orders/records" \
+      -H "X-BLUDIA-API-KEY: $BLUDIA_PUBLIC_KEY" \
+      -H "Authorization: Bearer $ACCESS_TOKEN"
+    ```
+  </Step>
+  <Step title="Refresh before it expires">
+    Access tokens last `expires_in` seconds (15 minutes by default). Use the refresh token to get a new pair. See [Sessions & tokens](/authentication/sessions-and-tokens).
+  </Step>
+</Steps>
+
+## How a request is checked
+
+```text
+X-BLUDIA-API-KEY present?            no  → 401 Missing API key.
+Key exists?                          no  → 401 Invalid API key.
+Key revoked / expired?               yes → 403 API key revoked. / API key expired.
+Origin allowed (browser requests)?   no  → 403 CORS blocked
+Under the key's rate limit?          no  → 429 Rate limit exceeded.
+── platform key → allowed ──
+Bearer token present and valid?      no  → 401
+Token belongs to this project?       no  → 401
+Role has permission on collection?   no  → 403 permission_denied
+Row policies → only visible records are returned or changeable (others → 404)
+```
+
+## Access token contents
+
+Access tokens are JWTs signed with HS256. Their payload includes:
+
+| Claim | Meaning |
+| :-- | :-- |
+| `sub` | The end user's record ID |
+| `prj` | Project ID |
+| `gid` | Authentication guard ID |
+| `roles` | Role IDs at the time of login |
+| `exp`, `iat` | Expiry and issue time (Unix seconds) |
+| `jti` | Unique token ID |
+| `typ` | `access` |
+
+<Note>Roles are copied into the token at login. Bludia checks the user's current roles on each request, but refresh the session after changing roles so your client sees up-to-date claims.</Note>

@@ -1,0 +1,54 @@
+---
+title: "Messaging overview"
+description: "Send email from your Bludia backend. Channels store delivery settings (SMTP today); templates store subject and HTML content with {{variables}}. Messages are sent from hooks and from authentication flows such as email verification."
+keywords: ["messaging", "email", "send email", "notifications", "smtp", "transactional email"]
+icon: "mail"
+---
+
+Messaging lets your backend send transactional messages, like booking confirmations or verification codes, without building an email system.
+
+```text
+Hook or auth flow ──► Template "Booking confirmed" ──► Channel "SMTP (Postmark)" ──► sarah@example.com
+                       Subject: Your booking on {{date}}
+                       Body:    Hi {{name}}, ...
+```
+
+<CardGroup cols={2}>
+  <Card title="Channels" icon="send" color="#EC4899" href="/messaging/channels">
+    How messages are delivered: SMTP host, credentials, sender address, limits.
+  </Card>
+  <Card title="Templates" icon="file-text" color="#EC4899" href="/messaging/templates">
+    What messages say: subject and HTML body with `{{variables}}`.
+  </Card>
+</CardGroup>
+
+## Supported channels
+
+| Channel type | Status |
+| :-- | :-- |
+| **Email (SMTP)** | <Badge color="green">Available</Badge> |
+| SMS | <Badge color="gray">Coming soon</Badge> |
+| WhatsApp | <Badge color="gray">Coming soon</Badge> |
+| Telegram | <Badge color="gray">Coming soon</Badge> |
+| Push | <Badge color="gray">Coming soon</Badge> |
+
+## Ways to send
+
+| Trigger | How |
+| :-- | :-- |
+| A record changes | `ctx.Msg().Send(...)` in an [after hook](/hooks/sdk-reference#messaging) |
+| A user registers (verification) | Configure the guard's [email verification](/authentication/email-verification) channel and template |
+| On a schedule | A [scheduled task](/automation/scheduled-tasks) with a `notification` action |
+
+## Example: send from a hook
+
+```go
+ctx.Msg().Send(bludia.MsgSendRequest{
+	Channel:  "email",
+	Template: "Booking confirmed",
+	To:       "sarah@example.com",
+	Data:     map[string]any{"name": "Sarah", "date": "1 Dec, 10:00"},
+})
+```
+
+Messages are queued and sent in the background, so hooks return quickly.

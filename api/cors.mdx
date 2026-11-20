@@ -1,0 +1,51 @@
+---
+title: "CORS & allowed origins"
+description: "Browser requests to the Bludia API are only accepted from origins listed in the API key's allowed origins. Requests with a non-allowed Origin header get 403 CORS blocked. Preflight OPTIONS requests return 204."
+keywords: ["cors", "allowed origins", "cors blocked", "origin", "preflight", "browser", "localhost"]
+icon: "globe"
+---
+
+Browsers send an `Origin` header with cross-site requests. Bludia accepts a request with an `Origin` header **only if that origin is in the API key's allowed origins**.
+
+```text
+Origin: https://app.example.com
+Key allowed origins: ["https://app.example.com", "http://localhost:3000"]   → allowed
+Key allowed origins: []                                                      → 403 CORS blocked
+Key allowed origins: ["*"]                                                   → allowed (any origin)
+```
+
+Requests without an `Origin` header (servers, mobile apps, `curl`) aren't affected.
+
+## Configure allowed origins
+
+Edit the key in **API** → **API Keys** and add each origin:
+
+| Write | Not |
+| :-- | :-- |
+| `https://app.example.com` | `https://app.example.com/` (trailing slash is removed for you) |
+| `http://localhost:3000` | `localhost:3000` (include the scheme) |
+| `https://admin.example.com` | `https://*.example.com` (wildcard subdomains aren't supported) |
+
+Include the exact scheme, host, and port. Use `*` only for development or truly public data.
+
+## What Bludia returns
+
+| Request | Response |
+| :-- | :-- |
+| `OPTIONS` preflight | `204` with `Access-Control-Allow-Origin: <your origin>`, `Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS`, `Access-Control-Allow-Headers: Content-Type, Authorization, X-BLUDIA-API-KEY, X-Requested-With, X-XSRF-TOKEN`, `Access-Control-Max-Age: 3600` |
+| Allowed origin | Normal response with `Access-Control-Allow-Origin` echoing your origin and `Access-Control-Allow-Credentials: true` |
+| Origin not allowed | `403` with body `CORS blocked` |
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="403 CORS blocked from the browser, but curl works">
+    `curl` doesn't send `Origin`. Add your site's exact origin to the key's allowed origins.
+  </Accordion>
+  <Accordion title="Works on localhost, fails in production">
+    Add the production origin (for example `https://app.example.com`) to the key, or use a separate production key.
+  </Accordion>
+  <Accordion title="Calls from my Next.js server fail with CORS">
+    Server-side `fetch` doesn't send `Origin` unless you add it. Check that you aren't forwarding the browser's headers.
+  </Accordion>
+</AccordionGroup>

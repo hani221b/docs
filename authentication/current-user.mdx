@@ -1,0 +1,66 @@
+---
+title: "Current user"
+description: "Get the signed-in end user's record with GET /auth/{guard}/me. Returns the user's record with profile fields by name and verified_at; the password is never included. Update the profile through the records API."
+keywords: ["current user", "me endpoint", "profile", "who am i", "user profile", "update profile"]
+icon: "user"
+---
+
+## Get the signed-in user
+
+`GET /auth/{guard}/me` — needs the Bearer token.
+
+```bash
+curl "$BASE_URL/auth/users/me" \
+  -H "X-BLUDIA-API-KEY: $BLUDIA_PUBLIC_KEY" \
+  -H "Authorization: Bearer $ACCESS_TOKEN"
+```
+
+```json
+{
+  "id": 42,
+  "project_id": 7,
+  "collection_id": 12,
+  "status": "active",
+  "created_by": 42,
+  "version": 3,
+  "created_at": "2026-11-01 08:30:00",
+  "updated_at": "2026-11-18 16:02:11",
+  "published_at": "2026-11-01 08:30:00",
+  "data": {
+    "email": "sarah@example.com",
+    "full_name": "Sarah Ahmed",
+    "phone": "+971501234567",
+    "verified_at": "2026-11-01 08:34:12"
+  }
+}
+```
+
+| Key | Description |
+| :-- | :-- |
+| `id` | The user's record ID (same as `record_id` in the session and `sub` in the token) |
+| `status` | `active`, `pending`, `inactive`, `banned`, or `suspended` |
+| `data` | Profile fields by field name. The password is never included. |
+| `data.verified_at` | Present once the email is verified |
+
+If the user's record was deleted, the endpoint returns `404` with `"error": "account_not_found"`.
+
+## Update the profile
+
+A user's profile is a normal record, so update it with the records API:
+
+```bash
+curl -X PUT "$BASE_URL/collections/users/42" \
+  -H "Content-Type: application/json" \
+  -H "X-BLUDIA-API-KEY: $BLUDIA_PUBLIC_KEY" \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  -d '{ "full_name": "Sarah A. Ahmed" }'
+```
+
+For this to work:
+
+1. The user's role needs `can_update` on the `users` collection.
+2. A row policy must let them see their own record. Self-registered users own their record, so the default **owner** behavior already allows it. See [Row-level security](/authorization/row-level-security).
+
+<Warning>
+  Protect fields users shouldn't change themselves, such as `role`, `plan`, or `status`. Use a `beforeUpdate` [hook](/hooks/lifecycle-events) to reject or reset those fields when the request comes from an end user.
+</Warning>

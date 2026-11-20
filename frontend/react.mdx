@@ -1,0 +1,152 @@
+---
+title: "React"
+description: "Use Bludia in a React app: an AuthProvider with login, register, and logout, a protected route, a useRecords data hook, and a create form, built on the Bludia JavaScript client."
+keywords: ["react", "react hooks", "auth context", "protected route", "useRecords", "vite", "spa"]
+icon: "atom"
+---
+
+This guide builds on the [JavaScript client](/frontend/javascript-client). Copy `src/lib/bludia.js` first.
+
+## Auth context
+
+```jsx src/auth.jsx
+import { createContext, useContext, useEffect, useState } from "react";
+import { auth } from "./lib/bludia";
+
+const AuthContext = createContext(null);
+
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!auth.isSignedIn()) return setLoading(false);
+    auth.me().then(setUser).catch(() => setUser(null)).finally(() => setLoading(false));
+  }, []);
+
+  const value = {
+    user,
+    loading,
+    async login(login, password) {
+      await auth.login(login, password);
+      setUser(await auth.me());
+    },
+    async register(fields) {
+      await auth.register(fields);
+      setUser(await auth.me());
+    },
+    async logout() {
+      await auth.logout();
+      setUser(null);
+    },
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+export const useAuth = () => useContext(AuthContext);
+```
+
+## Protected route
+
+```jsx src/RequireAuth.jsx
+import { Navigate } from "react-router-dom";
+import { useAuth } from "./auth";
+
+export function RequireAuth({ children }) {
+  const { user, loading } = useAuth();
+  if (loading) return <p>Loading…</p>;
+  return user ? children : <Navigate to="/login" replace />;
+}
+```
+
+## Login form
+
+```jsx src/Login.jsx
+import { useState } from "react";
+import { useAuth } from "./auth";
+
+export function Login() {
+  const { login } = useAuth();
+  const [error, setError] = useState(null);
+
+  async function onSubmit(e) {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    try {
+      await login(form.get("email"), form.get("password"));
+    } catch (err) {
+      setError(err.code === "invalid_credentials" ? "Wrong email or password" : err.message);
+    }
+  }
+
+  return (
+    <form onSubmit={onSubmit}>
+      <input name="email" type="email" required />
+      <input name="password" type="password" required minLength={8} />
+      {error && <p role="alert">{error}</p>}
+      <button>Sign in</button>
+    </form>
+  );
+}
+```
+
+## Data hook
+
+```jsx src/useRecords.js
+import { useCallback, useEffect, useState } from "react";
+import { records } from "./lib/bludia";
+
+export function useRecords(collection, params) {
+  const [state, setState] = useState({ data: [], meta: null, loading: true, error: null });
+  const key = JSON.stringify(params);
+
+  const load = useCallback(async () => {
+    setState((s) => ({ ...s, loading: true }));
+    try {
+      const { data, meta } = await records.list(collection, params);
+      setState({ data, meta, loading: false, error: null });
+    } catch (error) {
+      setState((s) => ({ ...s, loading: false, error }));
+    }
+  }, [collection, key]);
+
+  useEffect(() => { load(); }, [load]);
+  return { ...state, reload: load };
+}
+```
+
+```jsx src/Orders.jsx
+import { useState } from "react";
+import { useRecords } from "./useRecords";
+import { records } from "./lib/bludia";
+
+export function Orders() {
+  const [page, setPage] = useState(1);
+  const { data, meta, loading, error, reload } = useRecords("orders", { page, limit: 20 });
+
+  async function addOrder() {
+    await records.create("orders", { status: "pending" });
+    reload();
+  }
+
+  if (error) return <p>Error: {error.message}</p>;
+  return (
+    <>
+      <button onClick={addOrder}>New order</button>
+      {loading ? <p>Loading…</p> : (
+        <ul>{data.map((o) => <li key={o.id}>#{o.id} · {o.status}</li>)}</ul>
+      )}
+      {meta && (
+        <p>
+          <button disabled={page <= 1} onClick={() => setPage(page - 1)}>Prev</button>
+          Page {meta.page} of {meta.pages}
+          <button disabled={page >= meta.pages} onClick={() => setPage(page + 1)}>Next</button>
+        </p>
+      )}
+    </>
+  );
+}
+```
+
+<Tip>With a data library like TanStack Query, call `records.list(...)` inside `queryFn` and use the record collection and params as the query key.</Tip>

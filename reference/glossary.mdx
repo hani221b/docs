@@ -1,0 +1,40 @@
+---
+title: "Glossary"
+description: "Definitions of Bludia terms: access token, API key, auth type, collection, computed field, end user, field, guard, hook, platform key, project, record, refresh token, relation, role, row policy, slug, team member, template, and more."
+keywords: ["glossary", "terms", "definitions", "vocabulary"]
+icon: "book-a"
+---
+
+<AccordionGroup>
+  <Accordion title="Access token">A short-lived JWT (15 minutes by default) that identifies a signed-in end user. Sent as `Authorization: Bearer <token>`. See [Sessions & tokens](/authentication/sessions-and-tokens).</Accordion>
+  <Accordion title="After hook">A hook that runs asynchronously after a write is committed (`afterInsert`, `afterUpdate`, `afterDelete`).</Accordion>
+  <Accordion title="API key">The credential that identifies your app to the API, sent in `X-BLUDIA-API-KEY`. See [API keys](/api/api-keys).</Accordion>
+  <Accordion title="Auth type">A key's mode: `platform` (full access, servers only) or `end_users` (requires a user token; permissions apply).</Accordion>
+  <Accordion title="Before hook">A hook that runs synchronously before a write and can modify or reject it.</Accordion>
+  <Accordion title="Channel">Delivery settings for messages, such as an SMTP email account. See [Channels](/messaging/channels).</Accordion>
+  <Accordion title="Collection">A table-like container for one type of record, addressed by its slug. See [Collections](/database/collections).</Accordion>
+  <Accordion title="Collection permission">A role's allowed actions on a collection: `can_read`, `can_create`, `can_update`, `can_delete`, and more.</Accordion>
+  <Accordion title="Computed field">A field whose value comes from a formula. See [Computed fields](/database/computed-fields).</Accordion>
+  <Accordion title="Conditions">A query parameter for filtering on system columns with operators like `>=` or `in`.</Accordion>
+  <Accordion title="End user">A person who uses your app and signs in through a guard. Stored as a record in your collection.</Accordion>
+  <Accordion title="Field">A typed attribute of a collection, like a column. See [Fields](/database/fields).</Accordion>
+  <Accordion title="Filters">A query parameter (`filters[field]=…`) for filtering by field values.</Accordion>
+  <Accordion title="Guard (authentication guard)">Connects login to a collection and a login field. Its slug appears in `/auth/{guard}/...`. See [Guards](/authentication/guards).</Accordion>
+  <Accordion title="Hook">Go code that runs on a record lifecycle event, compiled to WebAssembly. See [Hooks](/hooks/overview).</Accordion>
+  <Accordion title="Login field">The collection field users log in with (email, username, phone…).</Accordion>
+  <Accordion title="Owner">The end user who created a record. Used by `owner` row policies and the default visibility rule.</Accordion>
+  <Accordion title="Platform key">An API key with auth type `platform`: full project access without a user token. Keep it on servers.</Accordion>
+  <Accordion title="Project">One isolated backend containing collections, keys, guards, hooks, and settings.</Accordion>
+  <Accordion title="Record">One item in a collection, like a row.</Accordion>
+  <Accordion title="Refresh token">A long-lived opaque token used to get new access tokens. Rotates on every refresh.</Accordion>
+  <Accordion title="Relation">A link between two collections: `one_to_one`, `one_to_many`, or `many_to_many`.</Accordion>
+  <Accordion title="Role">A named group of end users in a guard, with collection permissions and row policies.</Accordion>
+  <Accordion title="Row policy">A rule that limits which records a role can access: `owner`, `field_equals`, or `relation`, with `allow` or `deny` effect.</Accordion>
+  <Accordion title="Session">An access token plus refresh token returned by register, login, or refresh.</Accordion>
+  <Accordion title="Slug">A URL-safe identifier. Collections and guards have slugs used in API paths.</Accordion>
+  <Accordion title="Team member">A person with a Bludia account who manages the project in the dashboard, controlled by project roles.</Accordion>
+  <Accordion title="Template">Reusable message content with `{{variables}}`. See [Templates](/messaging/templates).</Accordion>
+  <Accordion title="Trash">Where soft-deleted records go. They can be restored or permanently deleted.</Accordion>
+  <Accordion title="Version (record)">A counter that increases on every change, used to detect conflicting updates (`409`).</Accordion>
+  <Accordion title="Version (hook)">A saved, compiled copy of hook code. One version is current.</Accordion>
+</AccordionGroup>

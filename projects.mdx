@@ -1,231 +1,93 @@
 ---
 title: "Projects"
+description: "A Bludia project is one isolated backend containing collections, records, API keys, authentication guards, hooks, messaging, files, and settings. Create projects from scratch, from a template, or with AI."
+keywords: ["project", "workspace", "create project", "templates", "ai project generator", "guest project"]
+icon: "folder-kanban"
 ---
 
-A project is the foundation of everything you build with Bludia.
+A **project** is one complete backend. Everything you build in Bludia lives inside a project, and nothing is shared between projects.
 
-Each project represents an independent backend for an application or system. It brings together the resources, configurations, and infrastructure required to operate that backend.
+## What a project contains
 
-Instead of managing databases, API endpoints, authentication systems, and backend infrastructure separately, you manage them through a single Bludia project.
-
-## What is a project?
-
-A Bludia project acts as an isolated workspace for your application's backend resources.
-
-A project can contain:
-
-- **Collections** — Define and organize your application data.
-- **Fields** — Specify the structure and data types of your records.
-- **Relationships** — Connect related collections.
-- **API** — Access and manage your application data programmatically.
-- **Authentication** — Manage application users and authenticated sessions.
-- **Roles & Permissions** — Control access to resources and operations.
-- **Hooks** — Execute custom backend logic in response to events.
-- **Reports** — Build insights and retrieve meaningful information from your data.
-
-The project provides a unified place to configure and manage these capabilities.
-
-## Project structure
-
-A typical Bludia project looks like this:
+<CardGroup cols={3}>
+  <Card title="Data" icon="database" color="#3B82F6">
+    Collections, fields, relations, records, computed fields.
+  </Card>
+  <Card title="Access" icon="key" color="#8B5CF6">
+    API keys, authentication guards, roles, row policies.
+  </Card>
+  <Card title="Logic" icon="webhook" color="#F59E0B">
+    Hooks, messaging channels and templates, scheduled tasks.
+  </Card>
+  <Card title="Content" icon="folder-open" color="#6366F1">
+    Files, PDF templates.
+  </Card>
+  <Card title="Insights" icon="chart-column" color="#14B8A6">
+    Reports and dashboards.
+  </Card>
+  <Card title="Team" icon="users" color="#64748B">
+    Team members and their project roles.
+  </Card>
+</CardGroup>
 
 ```text
-Task Manager
-│
-├── Collections
-│   ├── tasks
-│   ├── users
-│   └── categories
-│
-├── Relationships
-│   ├── tasks → users
-│   └── tasks → categories
-│
-├── API
-│   └── API Keys
-│
-├── Authentication
-│
-├── Roles & Permissions
-│
-├── Hooks
-│
-├── Reports
-│
-└── Settings
+Task Manager (project)
+├── Collections:   tasks, users, categories
+├── Relations:     tasks → users, tasks → categories
+├── API keys:      "Web app" (end_users), "Nightly sync" (platform)
+├── Guards:        users (login field: email)
+├── Roles:         user, admin
+├── Hooks:         tasks.beforeInsert, tasks.afterUpdate
+├── Messaging:     SMTP channel, "Task assigned" template
+└── Settings, team members
 ```
 
-The exact resources available depend on your project's configuration and enabled features.
+## Create a project
 
-## Creating a project
+<Tabs>
+  <Tab title="From scratch" icon="plus">
+    <Steps>
+      <Step title="Open the dashboard">Sign in at [bludia.com](https://bludia.com).</Step>
+      <Step title="Select Create Project">Give the project a name, such as `Booking System`.</Step>
+      <Step title="Open the project">Start adding collections and fields.</Step>
+    </Steps>
+  </Tab>
+  <Tab title="From a template" icon="layout-template">
+    Pick a ready-made template (for example a CRM or school management system). Bludia creates its collections, fields, and relations for you. Edit anything afterwards.
+  </Tab>
+  <Tab title="With AI" icon="sparkles">
+    Describe your app in plain language, for example *"A gym membership system with members, plans, payments, and class bookings."* Bludia proposes a schema (collections, fields, relations). Review it, then confirm to create the project.
 
-<Steps>
-  <Step title="Open your dashboard">
-    Sign in to your Bludia account and navigate to the dashboard.
-
-    Your dashboard provides access to the projects you own or have permission to manage.
-  </Step>
-  <Step title="Create a new project">
-    Select **Create Project** to start creating a backend.
-
-    Provide the required project information, including its name and other available configuration options.
-  </Step>
-  <Step title="Configure your project">
-    Review the available project settings and configure your backend according to your application's requirements.
-
-    You can start with a simple data model and introduce additional capabilities as your application grows.
-  </Step>
-  <Step title="Start building">
-    Once your project is created, open it to access its management interface.
-
-    You can now create collections, define fields, configure relationships, generate API access, and manage your backend resources.
-  </Step>
-</Steps>
+    You can also use AI later to propose schema changes to an existing project and apply them after review.
+  </Tab>
+</Tabs>
 
 <Tip>
-  You don't need to design your entire backend before creating a project. Start with the resources your application needs today and expand your configuration over time.
+  You can try Bludia before signing up. A guest gets a temporary project; when you create an account or log in, that project is claimed by your account. Some features (API keys, guards, hooks, messaging, uploads, invitations) require an account.
 </Tip>
 
-## Managing multiple projects
+## One project or several?
 
-You can use your Bludia account to manage multiple independent projects.
+Use **one project per independent application**.
 
-For example, you might have:
-
-| Project | Purpose |
+| Situation | Recommendation |
 | :-- | :-- |
-| Task Manager | Task management application |
-| Customer Portal | Customer-facing application |
-| Booking System | Appointment and reservation management |
-| Internal CRM | Internal business operations |
+| Web app and mobile app share the same users and data | **One project**, two API keys |
+| Customer portal and internal admin over the same data | **One project**, separate roles |
+| Two unrelated client apps | **Two projects** |
+| Development vs production data | Separate projects, or key `environment` labels for traffic separation |
 
-Each project maintains its own backend configuration and resources.
+If parts of your system share users, permissions, and data, they belong in the same project.
 
-This makes it possible to manage multiple applications without mixing their data models and configurations.
+## Project settings and team
 
-## Projects and collections
+From the project settings you can rename or delete the project and invite team members. Team members get **project roles** that control what they can do in the dashboard, such as viewing or creating API keys. See [Team members](/authorization/team-members).
 
-Projects contain collections, which define how application data is structured and managed.
+<Warning>Deleting a project deletes its data, keys, and configuration. Export your data first; see [Backups & exports](/hosting/backups-and-exports).</Warning>
 
-For example, a booking application might have the following collections:
-
-```text
-Booking System
-│
-├── customers
-├── services
-├── staff
-├── bookings
-└── payments
-```
-
-Each collection can contain its own fields, records, relationships, and configuration.
-
-Learn more about [Collections](/database/collections).
-
-## Project API access
-
-Every project can expose its backend capabilities through the Bludia API.
-
-This allows external applications and services to communicate with your backend.
-
-For example:
-
-```text
-React / Next.js / Flutter
-          │
-          ▼
-      Bludia API
-          │
-          ▼
-     Your Project
-          │
-          ▼
-      Collections
-          │
-          ▼
-       Database
-```
-
-You can generate API keys from your project's API settings and use them to authenticate API requests.
-
-Learn more about [API Overview](/api/overview) and [API Keys](/api/api-keys).
-
-## Project settings
-
-Project settings provide access to the configuration and management options associated with your backend.
-
-Depending on the available features, these may include:
-
-- Project information and configuration
-- API access and API keys
-- Authentication settings
-- Security and permissions
-- Other project-level capabilities
-
-Review your project settings when configuring or maintaining your backend.
-
-## Choosing your project structure
-
-A useful general rule is to create a separate project for each independent application or backend.
-
-For example:
-
-**Good separation**
-
-```text
-Company
-│
-├── Customer Portal
-│
-├── Internal CRM
-│
-└── Booking Application
-```
-
-**Shared application backend**
-
-```text
-Sports Academy
-│
-├── students
-├── coaches
-├── courses
-├── registrations
-├── payments
-└── attendance
-```
-
-If multiple parts of an application share the same users, data, permissions, and backend logic, they will often belong in the same project.
-
-If they represent independent applications with separate data and configurations, separate projects may be more appropriate.
-
-## What's next?
-
-Now that you understand how Bludia projects work, explore the resources available inside your project.
+## Next steps
 
 <CardGroup cols={2}>
-  <Card title="Collections" icon="database" href="/database/collections">
-    Define your data structures and manage application records.
-  </Card>
-
-  <Card title="Relationships" icon="workflow" href="/database/relationships">
-    Connect collections and model relationships between your data.
-  </Card>
-
-  <Card title="API" icon="plug" href="/api/overview">
-    Connect external applications to your backend.
-  </Card>
-
-  <Card title="Authentication" icon="users" href="/authentication/overview">
-    Configure user authentication and application sessions.
-  </Card>
-
-  <Card title="Security" icon="shield-check" href="/security/overview">
-    Manage roles, permissions, and access control.
-  </Card>
-
-  <Card title="Hooks" icon="workflow" href="/hooks/overview">
-    Extend your backend with custom logic and automation.
-  </Card>
+  <Card title="Collections" icon="table" href="/database/collections">Define your data model.</Card>
+  <Card title="API keys" icon="key" href="/api/api-keys">Let your app call the API.</Card>
 </CardGroup>

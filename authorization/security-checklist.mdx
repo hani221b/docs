@@ -1,0 +1,48 @@
+---
+title: "Security checklist"
+description: "A production security checklist for Bludia apps: key types, allowed origins, roles, row policies, token lifetimes, protected fields, hooks, and team access."
+keywords: ["security", "checklist", "production", "best practices", "go live", "hardening"]
+icon: "list-checks"
+---
+
+Go through this list before you launch.
+
+## API keys
+
+- [ ] Browser and mobile apps use an **`end_users`** key, never a `platform` key.
+- [ ] `platform` keys exist only in server environment variables or a secret manager.
+- [ ] No keys are committed to Git (check history too).
+- [ ] Browser keys list **exact allowed origins**; no `*` in production.
+- [ ] Separate keys per app and environment, each with a sensible **rate limit**.
+- [ ] Temporary keys have an **expiry**. Unused keys are revoked.
+
+## Authentication
+
+- [ ] The login field is **unique** and has a `format` rule (`email` or `phone`).
+- [ ] The password field has strength rules (`min_length`, `require_number`, …) beyond the 8-character minimum.
+- [ ] **Registration** is off for guards that shouldn't allow public sign-up (for example `staff`).
+- [ ] Access token lifetime is short (default 15 minutes is a good choice).
+- [ ] Clients store refresh tokens securely and replace them after every refresh.
+- [ ] Your app offers "sign out of all devices" (`logout-all`).
+
+## Authorization
+
+- [ ] The default `user` role has only the permissions every new user needs.
+- [ ] Every collection exposed to end users has deliberate permissions per role.
+- [ ] Row policies are set where users must not see each other's data; test them with two accounts.
+- [ ] Sensitive fields (`role`, `plan`, `status`, `balance`) can't be changed by end users: guard them with a `beforeUpdate` hook.
+
+## Hooks and data
+
+- [ ] `before*` hooks validate business rules that the frontend also checks.
+- [ ] Hooks never log secrets or full personal data.
+- [ ] You have a recent [database export](/hosting/backups-and-exports).
+
+## Team
+
+- [ ] Team members have the smallest project role they need.
+- [ ] Former team members are removed.
+
+<Card title="Test it" icon="flask-conical" color="#10B981">
+  Create two test end users. Log in as each, and confirm that lists, direct `GET /collections/{slug}/{id}`, `PUT`, and `DELETE` only work on records each one should access.
+</Card>

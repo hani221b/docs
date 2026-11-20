@@ -1,0 +1,122 @@
+---
+title: "Validation rules"
+description: "Field validation in Bludia: required, unique, nullable, string length, number ranges and precision, patterns, formats (email, URL, phone, UUID, IP, slug), allowed values, password strength, array rules, cross-field and conditional rules."
+keywords: ["validation", "required", "unique", "regex", "pattern", "email validation", "min max", "conditional validation", "422"]
+icon: "badge-check"
+---
+
+Bludia validates every create and update against your field definitions, whether the write comes from the dashboard, the API, an import, or a hook. Invalid writes are rejected with **`422 Unprocessable Entity`** and nothing is saved.
+
+Configure rules in the dashboard on each field under **Validations**.
+
+## Core rules
+
+| Rule | Applies to | Effect |
+| :-- | :-- | :-- |
+| `required` | all | Value must be present and non-empty on create |
+| `unique` | all except relation | No other record has the same value |
+| `nullable` / `allow_null` | all | Allows an explicit `null` |
+| `strict_type` | all | Disables type coercion; `"42"` is rejected for a number |
+| `readonly` / `computed` | all | Value can't be set by clients |
+
+## Rules by type
+
+<Tabs>
+  <Tab title="Text" icon="type">
+    | Rule | Example | Meaning |
+    | :-- | :-- | :-- |
+    | `min_length` | `3` | At least 3 characters |
+    | `max_length` | `120` | At most 120 characters |
+    | `exact_length` | `10` | Exactly 10 characters |
+    | `lowercase` / `uppercase` | `true` | Must be all lowercase / uppercase |
+    | `pattern` | `^[A-Z]{3}-\d{4}$` | Must match the regular expression |
+    | `format` | `email` | Built-in format check (see below) |
+    | `sanitize_html`, `strip_scripts` | `true` | Clean HTML and remove scripts |
+
+    **Formats:** `email`, `url`, `uuid`, `ip` / `ipv4`, `ipv6`, `phone` (optional `+` and 7–15 digits), `slug` (lowercase letters, digits, and hyphens).
+  </Tab>
+  <Tab title="Number" icon="hash">
+    | Rule | Meaning |
+    | :-- | :-- |
+    | `min`, `max` | Inclusive bounds |
+    | `exclusive_min`, `exclusive_max` | Exclusive bounds |
+    | `integer` | Whole numbers only |
+    | `scale` | Maximum digits after the decimal point |
+    | `precision` | Maximum total digits |
+    | `rounding` | How extra decimals are handled |
+  </Tab>
+  <Tab title="Password" icon="lock">
+    | Rule | Meaning |
+    | :-- | :-- |
+    | `min_length`, `max_length` | Length bounds |
+    | `require_uppercase` | At least one uppercase letter |
+    | `require_lowercase` | At least one lowercase letter |
+    | `require_number` | At least one digit |
+    | `require_special` | At least one symbol |
+
+    On update, an empty password keeps the existing one.
+  </Tab>
+  <Tab title="Date & time" icon="calendar">
+    | Rule | Meaning |
+    | :-- | :-- |
+    | `between` | Value must fall within a start and end |
+    | `timezone_required` | Value must include a timezone offset, such as `Z` or `+02:00` |
+  </Tab>
+  <Tab title="Select & lists" icon="list">
+    | Rule | Meaning |
+    | :-- | :-- |
+    | `enum` / `one_of` | Value must be one of the listed values |
+    | `not_in` | Value must not be one of the listed values |
+    | `const` | Value must equal exactly this |
+    | `min_items`, `max_items` | Number of items in a list |
+    | `unique_items` | No duplicates in a list |
+    | `items_type` | Type of every list item |
+  </Tab>
+</Tabs>
+
+## Cross-field rules
+
+| Rule | Example | Meaning |
+| :-- | :-- | :-- |
+| `same_as` | `password_confirm` same as `password` | Values must match |
+| `different_from` | `backup_email` different from `email` | Values must differ |
+| `greater_than` | `end_date` greater than `start_date` | Compare to another field |
+| `less_than` | `discount` less than `price` | Compare to another field |
+| `xor_with` | `phone` xor `email` | Exactly one of the two may be set |
+| `unique_scope` | `seat` unique per `event` | Unique among records sharing other field values |
+
+## Conditional rules
+
+Apply rules only in some situations. A condition compares another field to a value:
+
+```json
+{ "field": "type", "operator": "=", "value": "company" }
+```
+
+| Rule | Meaning |
+| :-- | :-- |
+| `required_if` | Required when the condition is true (for example `company_name` when `type = company`) |
+| `prohibited_if` | Must be empty when the condition is true |
+| `validate_if` | Run this field's other rules only when the condition is true |
+
+## Error response
+
+```json
+{
+  "status": false,
+  "message": "Field 'email' must be a valid email address.",
+  "errors": [],
+  "request_id": "9b2f6c1e-4a7d-4e0b-9a51-2f1d3c8e7a10"
+}
+```
+
+Error messages name the field and the failed rule, for example:
+
+- `Field 'title' is required.`
+- `Field 'email' must be unique.`
+- `Field 'code' does not match the required pattern.`
+- `Field 'amount' has an invalid value for type 'number'.`
+
+See [Errors](/api/errors) for the full error format.
+
+<Tip>Validate in your frontend for fast feedback, and rely on Bludia's validation as the source of truth.</Tip>

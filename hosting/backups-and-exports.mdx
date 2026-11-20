@@ -1,0 +1,38 @@
+---
+title: "Backups & exports"
+description: "Export your Bludia project's database as a PostgreSQL file with schema, data, or both. One export runs at a time per project; download it when it completes. Also export records per collection."
+keywords: ["backup", "database export", "download data", "postgresql dump", "data portability", "restore"]
+icon: "hard-drive-download"
+---
+
+Your data is yours. You can export it at any time.
+
+## Database export
+
+<Steps>
+  <Step title="Start an export">Go to **Settings** → **Database exports** → **New export**.</Step>
+  <Step title="Choose what to include">**Schema**, **data**, or both.</Step>
+  <Step title="Wait for it to finish">The export runs in the background with a progress indicator. Status moves from `pending` to `processing` to done.</Step>
+  <Step title="Download">Download the file when it's ready.</Step>
+</Steps>
+
+| Detail | Value |
+| :-- | :-- |
+| Format | PostgreSQL (`.sql`) |
+| Concurrency | One export at a time per project (starting another returns `409`) |
+| Contents | Your collections and records |
+
+<Tip>Export before big changes such as deleting collections, bulk edits, or large imports.</Tip>
+
+## Collection export
+
+To export only some records, open a collection, apply filters, and select **Export**. See [Import & export](/database/import-export).
+
+## Built-in safety nets
+
+| Feature | Protects against |
+| :-- | :-- |
+| Trash (soft delete) | Accidental record deletes; restore from the trash |
+| Record history | Unwanted edits; see what changed |
+| Import rollback | A bad CSV import; roll it back |
+| Optimistic concurrency (`409`) | Two people overwriting each other's changes |

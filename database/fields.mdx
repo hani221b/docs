@@ -29,6 +29,7 @@ A **field** defines one attribute of a record: its name, type, and rules. In API
 | <Icon icon="list-checks" /> Multi Select | `multi_select` | `["vip", "newsletter"]` | Several values from a fixed list |
 | <Icon icon="toggle-left" /> Boolean | `boolean` | `true` | Yes/no flags |
 | <Icon icon="qr-code" /> QR Code | `qr_code` | `"TICKET-0042"` | Values rendered as QR codes |
+| <Icon icon="shapes" /> Icon | `icon` | `"trophy"` | An icon per record, for example one per sport. The value is an icon name in kebab-case |
 
 <Note>
   **Numbers are exact.** Bludia never rounds numbers through floating point. Integers come back as numbers and decimals may come back as exact strings (for example `"19.99"`). You can configure scale and precision on the field.
@@ -57,7 +58,7 @@ List responses also include `children`, which holds related records you asked fo
 | **Required** | The value must be present and non-empty on create. |
 | **Unique** | No two records in the collection may have the same value. |
 | **Nullable** | Allows an explicit `null`. |
-| **Default value** | Used when no value is given. |
+| **Default value** | Used when a record is created without a value for the field. Booleans can default to `true` or `false`, Select fields to one of their options. The dashboard form shows defaults pre-filled, and a required Select with a single option has it selected. |
 | **Options** | The allowed values for Select and Multi Select. |
 | **Validations** | Extra rules: lengths, ranges, patterns, formats, conditions. See [Validation](/database/validation). |
 
@@ -73,6 +74,7 @@ List responses also include `children`, which holds related records you asked fo
 | Email or phone | Text + `format` validation (`email`, `phone`) | Validated on write |
 | Tags | Multi Select | Filter by any of several values |
 | Login password | Password | Hashed automatically, never returned |
+| Sport or category icon | Icon | Picked from the icon set, shown in tables and forms |
 
 ## Fields in the API
 

@@ -39,6 +39,11 @@ A **computed field** gets its value from a formula instead of user input. Use it
   <Tab title="Logic" icon="git-branch">
     `if`, `and`, `or`, `not`, `eq`, `neq`, `gt`, `lt`, `gte`, `lte`
   </Tab>
+  <Tab title="Dates" icon="calendar">
+    `today`, `now`, `add_days`, `add_months`, `days_between`, `weeks_between`, `months_between`, `years_between`, `hours_between`, `minutes_between`
+
+    The `*_between` operations take two dates and return whole units from the first to the second, negative when the second is earlier. For example, `years_between(birth_date, today)` is an age. Days, weeks, months and years ignore the time of day.
+  </Tab>
   <Tab title="Aggregation" icon="sigma">
     `sum`, `avg`, `count`, `min`, `max` over a related collection, for example the sum of `line_total` across an order's `order_items`.
   </Tab>

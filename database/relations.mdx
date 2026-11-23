@@ -33,6 +33,14 @@ customers #25 ─┬─ orders #101   (orders.customer = 25)
 
 Bludia adds the relation field(s) for you.
 
+### Labels from several fields
+
+A label can combine fields. Pick `first_name` and then `last_name` as label fields and related records show as `Jane Doe`. The values are joined with a space by default; you can set another separator, such as ` - `. Empty values are skipped. Searching a relation picker matches the words you type against the label fields in order.
+
+### Many-to-many on one side only
+
+A many-to-many relation normally shows on both collections. Turn off **Show on the other collection** to keep it on the collection that defines it. The other collection then has no field for it. Links are kept, so turning the option back on shows them again. If something uses the other side's field, such as a report, Bludia asks you to remove that use first.
+
 ## Write related records
 
 Send record IDs in the relation field:

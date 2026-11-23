@@ -110,12 +110,28 @@ Apply rules only in some situations. A condition compares another field to a val
 }
 ```
 
-Error messages name the field and the failed rule, for example:
+Error messages name the field (its label, or its name when it has no label) and the failed rule, for example:
 
 - `Field 'title' is required.`
 - `Field 'email' must be unique.`
 - `Field 'code' does not match the required pattern.`
 - `Field 'amount' has an invalid value for type 'number'.`
+
+### Custom messages
+
+You can replace the message of any rule on a field. In the field's settings, open **Custom error messages** under a rule section, or fill in the message under **Required** or **Unique**. In the schema they live in `validations.messages`, keyed by rule:
+
+```json
+"validations": {
+  "min_length": 3,
+  "messages": {
+    "required": "Please enter a code.",
+    "min_length": "{field} needs at least 3 characters (you entered {value})."
+  }
+}
+```
+
+`{field}` is replaced by the field's label and `{value}` by the submitted value. Rules without a custom message keep the default.
 
 See [Errors](/api/errors) for the full error format.
 

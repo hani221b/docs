@@ -1,6 +1,6 @@
 ---
 title: "Hosting & operations"
-description: "What Bludia runs for you: managed PostgreSQL, the REST API, authentication, the sandboxed hook runtime, background queues for email and imports, file storage, and scheduled tasks. Covers environments, monitoring, and what's coming during beta."
+description: "What Bludia runs for you: managed PostgreSQL, the REST API, authentication, the sandboxed hook runtime, background queues for email and imports, file storage, and scheduled functions. Covers environments, monitoring, and what's coming during beta."
 keywords: ["hosting", "infrastructure", "managed", "operations", "deployment", "environments", "uptime"]
 icon: "cloud"
 ---
@@ -26,7 +26,7 @@ Bludia is fully managed. You don't provision servers, databases, or queues: they
     Object storage with public and private files and signed URLs.
   </Card>
   <Card title="Scheduler" icon="calendar-clock" color="#F97316">
-    Runs scheduled tasks with retries and misfire handling.
+    Runs scheduled functions on time, without overlap, and recovers runs after downtime.
   </Card>
 </CardGroup>
 
@@ -49,7 +49,7 @@ Separate development from production so tests can't touch live data:
 | :-- | :-- |
 | API key usage | Keys list: last used time and last IP |
 | Hook runs | Hooks → Executions, with logs and resource usage |
-| Scheduled task runs | Task → Runs |
+| Scheduled function runs | Function → Runs |
 | Imports and exports | Progress and status in their screens |
 | Record changes | Record → History |
 | Errors | `request_id` in error responses; share it with support |

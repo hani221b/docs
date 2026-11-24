@@ -38,7 +38,6 @@ Hook or auth flow ──► Template "Booking confirmed" ──► Channel "SMTP
 | :-- | :-- |
 | A record changes | `ctx.Msg().Send(...)` in an [after hook](/hooks/sdk-reference#messaging) |
 | A user registers (verification) | Configure the guard's [email verification](/authentication/email-verification) channel and template |
-| On a schedule | A [scheduled task](/automation/scheduled-tasks) with a `notification` action |
 
 ## Example: send from a hook
 

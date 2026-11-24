@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Bludia Documentation",
-  "description": "Bludia is a backend platform: collections, a REST API, end-user authentication, role-based access control, row-level security, hooks, messaging, files, reports, and scheduled tasks for your app.",
+  "description": "Bludia is a backend platform: collections, a REST API, end-user authentication, role-based access control, row-level security, hooks, messaging, files, reports, and scheduled functions for your app.",
   "colors": {
     "primary": "#3B82F6",
     "light": "#60A5FA",
@@ -110,7 +110,7 @@
               "reports/overview",
               "reports/dashboards",
               "reports/pdf-templates",
-              "automation/scheduled-tasks"
+              "automation/scheduled-functions"
             ]
           },
           {

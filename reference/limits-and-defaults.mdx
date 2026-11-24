@@ -1,6 +1,6 @@
 ---
 title: "Limits & defaults"
-description: "All Bludia limits and default values in one table: API rate limits, page size, token lifetimes, password rules, upload sizes, hook timeouts and memory, query caps, scheduled task bounds, and reset token lifetimes."
+description: "All Bludia limits and default values in one table: API rate limits, page size, token lifetimes, password rules, upload sizes, hook timeouts and memory, query caps, scheduled function bounds, and reset token lifetimes."
 keywords: ["limits", "quotas", "defaults", "max", "maximum", "timeouts", "size limits"]
 icon: "ruler"
 ---
@@ -49,16 +49,15 @@ icon: "ruler"
 | Rows per query | 50 | 200 |
 | Hooks per collection and event | 1 | 1 |
 
-## Scheduled tasks
+## Scheduled functions
 
-| Item | Range |
+| Item | Limit |
 | :-- | :-- |
-| Actions per task | 1 – 10 |
-| Execution timeout | 1 – 600 s |
-| Max attempts | 1 – 10 |
-| Retry delay | 0 – 86,400 s |
-| Max catch-up runs | 1 – 10 |
-| Manual "run now" | 20 / minute |
+| Interval (`every.amount`) | 1 – 1000 minutes, hours, days or weeks |
+| Records per run (`for_each.limit`) | 1 – 1000 (default 100) |
+| Time for one `for_each` run | 10 minutes, then it stops early |
+| Missed runs after downtime | Run once |
+| "Run now" | 60 / minute |
 
 ## Other
 

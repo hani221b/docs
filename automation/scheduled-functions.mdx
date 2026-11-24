@@ -1,0 +1,97 @@
+---
+title: "Scheduled functions"
+description: "Run a function on a cron schedule, every few minutes, hours, days or weeks, or once at a set time, with an optional run for each matching record. Timezones, daylight saving, missed runs and overlap are handled for you."
+keywords: ["cron", "schedule", "scheduled function", "recurring job", "interval", "timezone", "automation", "for each record"]
+icon: "calendar-clock"
+---
+
+A **scheduled function** is a function whose trigger is a schedule, not a button or a record change. Use one for work that should happen at set times: mark overdue invoices, close stale bookings, roll up daily totals.
+
+Scheduled functions replace the old scheduled tasks.
+
+## Choose when it runs
+
+In the function editor, open **Trigger** → **On a schedule** and pick one of three options:
+
+| Runs | Trigger | Example |
+| :-- | :-- | :-- |
+| On a cron schedule | `"cron"`: 5 fields: minute, hour, day of month, month, day of week | `"0 9 * * 1-5"`: weekdays at 09:00 |
+| Every… | `"every": {"amount": 1–1000, "unit": "minutes" \| "hours" \| "days" \| "weeks"}` | `{"amount": 15, "unit": "minutes"}` |
+| Once | `"at"`: a date and time | `"2026-12-01T09:00"` |
+
+Each schedule also takes these settings:
+
+- **`timezone`** is an IANA name such as `"Europe/Berlin"`. The default is `UTC`. Times are read in this timezone, so a 09:00 run stays at 09:00 local time when daylight saving changes.
+- **`starts_at` / `ends_at`** (cron and every only, both optional) limit the schedule to a window. An interval counts from `starts_at`. Without `starts_at` it counts from midnight, so "every 15 minutes" runs at :00, :15, :30 and :45, and "every 1 week" runs on Mondays.
+
+The editor shows the next five run times while you type.
+
+```json
+{
+  "type": "schedule",
+  "cron": "0 6 * * *",
+  "timezone": "Europe/Berlin"
+}
+```
+
+## Run once for each matching record
+
+Add `for_each` to run the function once for every record that matches a filter. Each run sets `trigger.record_id` to that record.
+
+```json
+{
+  "type": "schedule",
+  "cron": "0 6 * * *",
+  "timezone": "Europe/Berlin",
+  "for_each": {
+    "collection": 12,
+    "where": { "type": "group", "operator": "and", "conditions": [
+      { "path": ["status"], "operator": "=", "value": "open" },
+      { "path": ["due_date"], "operator": "<", "value": { "var": "trigger.scheduled_for" } }
+    ]},
+    "limit": 100
+  }
+}
+```
+
+- Each record gets **its own transaction**. If the run for one record fails, the runs that already succeeded stay saved.
+- If a guard step stops the run for a record, that record is skipped. A guard stop is not counted as a failure.
+- Records are taken in id order, up to `limit` (default 100, at most 1000) per run.
+- The `where` filter can read `trigger.scheduled_for`.
+
+## What steps can read
+
+| Value | Meaning |
+| :-- | :-- |
+| `trigger.scheduled_for` | The time this run was due (ISO 8601, UTC) |
+| `trigger.record_id` | The record this run is for (only with `for_each`; otherwise `null`) |
+| `trigger.collection` | The `for_each` collection (otherwise `null`) |
+
+Scheduled functions always run as the **system** (`run_as: "system"`), because no user starts them. They cannot have inputs.
+
+## How runs behave
+
+- **Publish and enable it.** Only the published version of an enabled function runs. A newly published version starts counting from the moment you publish it. Disabling a function stops it. When you enable it again, its schedule starts from that moment, so runs it missed while disabled are not replayed.
+- **Runs of one function never overlap.** If a run is due while the previous one is still running, it starts when the previous one finishes.
+- **Missed runs run once.** If the server was down when runs were due, the function runs once when it is back, for the latest missed time. The run log records how many runs were missed (`missed`).
+- **Long runs stop early.** A `for_each` run that takes longer than 10 minutes stops starting new records and is marked partial.
+- **Run now.** The **Run now** button, or `POST /api/projects/{projectId}/functions/{id}/run`, queues a run straight away and returns `202`. The next scheduled run does not change.
+- **Test.** A test run (dry run) runs as if the schedule were due now, then undoes everything. With `for_each`, it uses the record you pick, or else the first matching record.
+
+The function page shows the next run time and the result of the last run: **succeeded**, **partly failed**, **failed** or **skipped**. Every run, one per record with `for_each`, appears in the **Runs** tab with its step trace.
+
+## Hosting
+
+Scheduled functions need the Laravel scheduler and a queue worker:
+
+```bash
+# cron, every minute
+* * * * * php artisan schedule:run
+
+# a worker for the default queue (runs can take up to 15 minutes)
+php artisan queue:work --timeout=960
+```
+
+`functions:schedule` runs every minute. It queues the functions that are due and recovers runs that a crashed worker left unfinished.
+
+<Note>Scheduled functions cannot send email yet. Steps that send messages or call other services will come with the outbox.</Note>

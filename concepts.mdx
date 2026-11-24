@@ -37,7 +37,7 @@ Project
 ├── Hooks               → before/after insert, update, delete
 ├── Messaging           → channels + templates
 ├── Files, reports, dashboards, PDF templates
-└── Scheduled tasks
+└── Functions (buttons, record events, schedules)
 ```
 
 <AccordionGroup>
@@ -100,8 +100,8 @@ Project
     A **channel** stores delivery settings (for example an SMTP email account). A **template** stores reusable content with `{{variables}}`. Hooks and authentication flows (like email verification) send messages through them. See [Messaging](/messaging/overview).
   </Accordion>
 
-  <Accordion title="Reports, dashboards, and scheduled tasks" icon="chart-column">
-    **Reports** query and aggregate records. **Dashboards** show widgets (stats, record lists). **PDF templates** render records into documents. **Scheduled tasks** run queries and actions once, on an interval, or on a cron schedule.
+  <Accordion title="Reports, dashboards, and scheduled functions" icon="chart-column">
+    **Reports** query and aggregate records. **Dashboards** show widgets (stats, record lists). **PDF templates** render records into documents. **Scheduled functions** run business logic once, on an interval, or on a cron schedule, optionally once for each matching record.
   </Accordion>
 </AccordionGroup>
 
@@ -145,7 +145,7 @@ What happens when your app calls `POST /collections/bookings`:
   <Step title="Model">Collections, fields, relations.</Step>
   <Step title="Expose">API keys and the REST API.</Step>
   <Step title="Secure">Guards, roles, collection permissions, row policies.</Step>
-  <Step title="Extend">Hooks, messaging, scheduled tasks.</Step>
+  <Step title="Extend">Hooks, messaging, scheduled functions.</Step>
   <Step title="Connect">Your frontend, mobile app, or server.</Step>
 </Steps>
 

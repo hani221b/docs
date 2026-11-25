@@ -84,6 +84,17 @@ Configure rules in the dashboard on each field under **Validations**.
 | `less_than` | `discount` less than `price` | Compare to another field |
 | `xor_with` | `phone` xor `email` | Exactly one of the two may be set |
 | `unique_scope` | `seat` unique per `event` | Unique among records sharing other field values |
+| `composite_unique` | `trip_code` unique together with `year` | The combination of this field and the listed fields must be unique |
+
+### Unique together
+
+A trip code may repeat from one year to the next, but only once per year. Put the rule on the trip code field and list the other fields by id:
+
+```json
+{ "id": 1, "name": "trip_code", "type": "text", "validations": { "composite_unique": ["2"] } }
+```
+
+In the collection editor, open **Unique Together** on the field and pick the other fields. The database enforces the rule, so it also holds when two people save at the same moment. A record with an empty value in any of these fields is not checked. Adding the rule while duplicates exist is refused with a 422 error. A field that a rule uses can't be removed until the rule is removed.
 
 ## Conditional rules
 

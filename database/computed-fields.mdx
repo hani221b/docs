@@ -70,6 +70,20 @@ Formulas are stored as an expression tree. The dashboard builds it for you; this
 | Operation | `{ "op": "add", "args": [ ... ] }` |
 | Aggregation | `{ "op": "sum", "agg_collection": "order_items", "agg_field": "line_total" }` |
 
+## Totals from related records
+
+An invoice's `paid_amount` can be the sum of its payments' `amount`. Each payment links to its invoice with a relation field.
+
+1. On **Invoices**, add a number field `paid_amount` and make it computed.
+2. Choose the aggregation **Sum**, the collection **Payments**, and the field **amount**.
+3. Turn **Persisted** on, so the total is stored and can be filtered and sorted.
+
+```json
+{ "op": "sum", "agg_collection": "<payments id>", "agg_field": "<amount field id>", "agg_relation_id": <relation id> }
+```
+
+The total is updated in the same transaction as the payment change: when a payment is created, edited, moved to another invoice, trashed or restored. With the null strategy `zero`, an invoice without payments shows `0`.
+
 ## Options
 
 | Option | Values | Meaning |

@@ -59,3 +59,19 @@ In the sidebar you can group collections into folders (for example **Sales** and
     Slugs appear in URLs, permissions, and hook code (`ctx.Collection("orders")`).
   </Accordion>
 </AccordionGroup>
+
+## Project map
+
+**Project map** in the project sidebar draws every collection as a card with its fields and their properties: type, required, unique rules, auto numbers, defaults, validation rules, and computed formulas such as `sum(Payments.amount)`. Lines show relations (solid, with the field name and cardinality such as `N:1`) and the collections a computed field reads from (dashed).
+
+Drag cards to arrange them. Your layout is remembered in this browser, and **Re-arrange** starts over. Click a card to highlight what it connects to, or search for a collection or field.
+
+**Export** downloads the map as:
+
+| Format | Use for |
+| :-- | :-- |
+| PNG | Slides, chats, printing |
+| SVG | Sharp printing at any size, editing in a vector tool |
+| Markdown | A data dictionary: every field with its type and properties |
+| Mermaid (`.mmd`) | ER diagrams in docs and wikis that render Mermaid |
+| JSON | Your own tools |

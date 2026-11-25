@@ -29,11 +29,30 @@ A **field** defines one attribute of a record: its name, type, and rules. In API
 | <Icon icon="list-checks" /> Multi Select | `multi_select` | `["vip", "newsletter"]` | Several values from a fixed list |
 | <Icon icon="toggle-left" /> Boolean | `boolean` | `true` | Yes/no flags |
 | <Icon icon="qr-code" /> QR Code | `qr_code` | `"TICKET-0042"` | Values rendered as QR codes |
+| <Icon icon="list-ordered" /> Auto Number | `auto_number` | `"INV-00042"` (read only) | Invoice, receipt and voucher numbers: sequential, gapless, never editable |
 | <Icon icon="shapes" /> Icon | `icon` | `"trophy"` | An icon per record, for example one per sport. The value is an icon name in kebab-case |
 
 <Note>
   **Numbers are exact.** Bludia never rounds numbers through floating point. Integers come back as numbers and decimals may come back as exact strings (for example `"19.99"`). You can configure scale and precision on the field.
 </Note>
+
+## Auto numbers
+
+An `auto_number` field numbers records in the order they are created, the way invoice numbers work:
+
+```json
+{ "name": "invoice_no", "type": "auto_number",
+  "validations": { "auto_number": { "start": 1, "prefix": "INV-", "padding": 5 } } }
+```
+
+This gives `INV-00001`, `INV-00002`, and so on. All three settings are optional. `start` defaults to 1, `prefix` to none, and `padding` (zero-pad to this many digits) to 0.
+
+- **Assigned by the database** when a record is created, whatever the write path (dashboard, API, import, functions). Don't send a value: a create that includes one is rejected, and an edit may only send the stored number back unchanged.
+- **Gapless.** A number is used only when the record is saved. A failed or cancelled save gives its number back. Concurrent saves wait their turn, so two records never get the same number.
+- **Never changes.** Editing or clearing a number is refused (409). Moving a record to the trash and restoring it keeps its number. Deleting a record permanently leaves its number unused.
+- **Existing records.** Adding an auto-number field to a collection that already has records numbers them in creation order. Values that are already there are kept.
+- **Settings.** The start can't change after the first number is issued. A new prefix or padding applies to new records only, so issued numbers stay exactly as they were.
+- Sorting follows the number, so `INV-10` comes after `INV-9`.
 
 ## System fields
 

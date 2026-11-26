@@ -69,6 +69,8 @@ Add `for_each` to run the function once for every record that matches a filter. 
 
 Scheduled functions always run as the **system** (`run_as: "system"`), because no user starts them. They cannot have inputs.
 
+A scheduled function can also make PDFs with the **Generate a PDF** step (for example, a monthly statement per customer with `for_each`). See [PDF templates](/reports/pdf-templates#from-a-function).
+
 ## How runs behave
 
 - **Publish and enable it.** Only the published version of an enabled function runs. A newly published version starts counting from the moment you publish it. Disabling a function stops it. When you enable it again, its schedule starts from that moment, so runs it missed while disabled are not replayed.

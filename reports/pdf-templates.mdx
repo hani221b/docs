@@ -1,58 +1,348 @@
 ---
 title: "PDF templates"
-description: "Generate PDFs (invoices, certificates, receipts) from records with HTML and CSS templates. Use {{record.field}}, {{#each record.children.KEY as item}} loops, and {{#if}} conditions. Templates are versioned."
+description: "Turn records into PDFs (invoices, certificates, receipts, reports) with HTML and CSS templates: fields and related records, money and date formatting, conditions and loops, headers and footers with page numbers, a table of contents, images, fonts, QR codes, barcodes and charts, Arabic and right-to-left. Save, attach, verify and generate in bulk."
 keywords: ["pdf", "pdf generation", "invoice pdf", "certificate", "document generation", "html to pdf", "template"]
 icon: "file-type"
 ---
 
-**PDF templates** turn a record into a document: an invoice from an order, a certificate from a course completion, a receipt from a payment.
+**PDF templates** turn a record into a document: an invoice from an order, a certificate from a course completion, a receipt from a payment, a report with a table of contents.
 
 ## Create a template
 
 <Steps>
-  <Step title="Open PDF templates">Go to **PDF templates** → **Create template**.</Step>
-  <Step title="Pick the collection">For example `invoices`.</Step>
-  <Step title="Write HTML and CSS">Use placeholders for record data (below).</Step>
-  <Step title="Preview with a real record">Pick a record and preview the output.</Step>
-  <Step title="Save a version and activate it">Templates are versioned like hooks; the active version is used for generation.</Step>
+  <Step title="Open PDF templates">On a collection, open **PDF templates** → **New template**.</Step>
+  <Step title="Write the template">HTML for the content, CSS for the look, and optionally a **Header** and **Footer** repeated on every page. Use **Insert** to add a field of the record or a ready-made snippet at the cursor.</Step>
+  <Step title="Preview it">Open **Preview** and choose **Sample data** or **A record**. Turn on **Live** to update the PDF as you type.</Step>
+  <Step title="Save">Every save is a new version and becomes the one in use. **Versions** lists them; open an old one or make it active again.</Step>
 </Steps>
+
+### The editor
+
+- The settings on the left are grouped (template, page, layout, document, images, fonts); closed groups show a summary.
+- The code editor highlights HTML, CSS and the template tags, and **suggests as you type** inside `{{ }}`: the record's fields, fields of related records (`record.customer.`), related lists (`record.children.`), the fields of a loop's items, filters with their arguments (after `|`), blocks (`#if`, `#each` …), images, and `document` / `page` / `toc`. Press **Ctrl+Space** to ask for suggestions.
+- Problems are underlined in the code and listed under it; click one to jump to it. Each code tab shows how many it has.
+- **Ctrl+S** (**⌘S**) saves. Each tab (HTML, Header, Footer, CSS) keeps its own undo history.
+- Closing the editor or opening another template with unsaved changes asks first.
+- **Duplicate** starts a new template from an existing one.
 
 ## Template syntax
 
+### Values
+
 | Syntax | Renders |
 | :-- | :-- |
-| `{{record.field_name}}` | A field's value |
-| `{{#each record.children.KEY as item}} … {{item.field}} … {{/each}}` | A list of related records (for example invoice lines) |
-| `{{#if record.field}} … {{else}} … {{/if}}` | Conditional content (`{{else}}` optional) |
+| `{{record.field_name}}` | A field's value. Dates use the project's date format |
+| `{{record.id}}`, `{{record.created_at}}` | System attributes, when no field has that name |
+| `{{record.customer.city}}` | A field of the related record (any depth: `{{record.customer.country.name}}`) |
+| `{{record.customer}}`, `{{record.customer.label}}`, `{{record.customer.id}}` | The relation as it shows on screen, its label, its record id |
+| `{{record.contract.url}}`, `{{record.qr.png}}` | A part of a file or QR value |
+| `{{record.total \| currency: "SAR"}}` | A value through [filters](#filters) |
+| `{{! a note }}` | Nothing: a comment |
 
-QR code fields render as embedded images. Password fields are never available.
+Values are always inserted as text, never as HTML, and are never read as template code: a value containing `{{…}}` prints as written. A missing field, `null` or an empty value prints nothing.
+
+QR code fields give an embedded image source: `<img src="{{record.qr}}">`. Password fields are never available.
+
+### Images and fonts
+
+PDFs never load files from the internet: everything a document shows is embedded in it.
+
+| Use | Syntax |
+| :-- | :-- |
+| A logo, signature or stamp uploaded to the template (**Images** in the editor) | `<img src="{{assets.logo}}">` |
+| An image stored in a record's file field (photo, signature, stamp) | `<img src="{{record.signature \| image}}">` |
+| A QR code field | `<img src="{{record.qr}}">` or `{{record.qr \| image}}` |
+| A font uploaded to the template (**Fonts** in the editor) | `font-family: "Brand Sans";` in the CSS |
+
+- Images: PNG, JPEG, GIF, WebP or SVG, up to 5 MB each. Fonts: TTF, OTF, WOFF or WOFF2, up to 5 MB each. A document embeds at most 10 MB of images and fonts.
+- The file type is checked from the file itself, not its name. A file that isn't an image (or is another project's) shows as an empty image.
+- `| image` on a field with several files uses the first.
+- Use `background-image: url("{{assets.paper}}")` in the CSS for a background image.
+
+### Headers, footers and page numbers
+
+The editor's **Header** and **Footer** tabs hold template HTML repeated on every page. They can use everything a template can (record fields, filters, conditions, `{{assets.logo}}`), plus the page number:
 
 ```html
-<h1>Invoice {{record.number}}</h1>
-<p>Bill to: {{record.customer_name}}</p>
+<!-- Header -->
+<div style="display: flex; justify-content: space-between; border-bottom: 1px solid #ccc;">
+  <img src="{{assets.logo}}" style="height: 10mm">
+  <span>Invoice {{record.number}}</span>
+</div>
 
-<table>
-  <tr><th>Item</th><th>Qty</th><th>Price</th></tr>
-  {{#each record.children.invoice_lines as line}}
-  <tr><td>{{line.description}}</td><td>{{line.quantity}}</td><td>{{line.price}}</td></tr>
-  {{/each}}
-</table>
+<!-- Footer -->
+<div style="text-align: center">Page {{page.number}} of {{page.total}}</div>
+```
 
-<p><strong>Total: {{record.total}}</strong></p>
+- The header sits inside the top margin and the footer inside the bottom margin: set margins tall enough (for example 30 mm with a logo).
+- The template's CSS applies to them. Uploaded fonts don't (the system's fonts are used, including Noto Arabic on Bludia's servers).
+- `{{page.number}}` and `{{page.total}}` only work in the header and footer.
 
-{{#if record.paid}}
-  <p class="stamp">PAID</p>
+For page numbers without a footer, use **Page numbers** in **Page layout**: choose a position and a format such as `Page {page} of {pages}` or `صفحة {page} من {pages}`, with Western or Arabic digits.
+
+### Backgrounds
+
+In **Page layout**, **Background** sets a colour and/or an image (one of the template's images, PNG or JPEG) for every page, margins included. The image can fill the page, fit inside it, or be stretched to it.
+
+For a watermark (for example *DRAFT* or *PAID*), use a fixed element: it repeats on every page.
+
+```html
+{{#if record.status == "paid"}}<div class="watermark">PAID</div>{{/if}}
+```
+```css
+.watermark { position: fixed; top: 40%; left: 0; right: 0; text-align: center;
+  font-size: 80px; color: rgba(0, 150, 0, .15); transform: rotate(-30deg); }
+```
+
+### Page breaks
+
+By default, table rows are never split across pages, table headers repeat on every page, headings stay with what follows, and long words and links wrap. Turn any of these off in **Page layout**. In the template:
+
+| Class | Effect |
+| :-- | :-- |
+| `page-break` (or `page-break-after`) | Start a new page after this element |
+| `page-break-before` | Start a new page before this element |
+| `keep-together` (or `no-break`) | Never split this element across pages |
+| `keep-with-next` | Keep this element on the same page as the next one |
+
+### Table of contents
+
+Put `{{toc}}` where the table of contents goes. It lists the document's headings (`h1` to `h3` by default; change it with **Table of contents** in **Page layout**) with the page each one is on, as clickable links. Page numbers use Arabic digits when the page numbers do.
+
+```html
+<h1 class="toc-exclude">Contents</h1>
+{{toc}}
+<div class="page-break"></div>
+<h1>Summary</h1> …
+```
+
+Headings with the class `toc-exclude` (or inside an element with it) are left out. Restyle it with the classes `bludia-toc-entry`, `bludia-toc-l1` … `bludia-toc-l6`, `bludia-toc-title`, `bludia-toc-leader` and `bludia-toc-page`.
+
+### QR codes, barcodes and charts
+
+| Use | Syntax |
+| :-- | :-- |
+| A QR code of any value (a reference, a link, a QR field) | `<img src="{{record.number \| qr}}">` |
+| A barcode | `<img src="{{record.sku \| barcode: "ean13"}}">` |
+| A chart of a list of records | `{{record.children.lines \| chart: "bar", "category", "amount"}}` |
+
+- Barcode types: `code128` (default), `code39`, `ean13`, `ean8`, `upca`, `upce`, `itf14`, `i25`, `codabar`. A value the type can't encode (letters in an EAN-13) gives an empty image.
+- Charts: `"bar"`, `"line"` or `"pie"`, then the field for the labels and the field for the numbers, and optionally colours: `chart: "pie", "category", "amount", "#2563eb,#16a34a"`. Values with the same label are added up exactly. Charts fill the width of their container; set the height in CSS (`.bludia-chart { height: 70mm; }`).
+- QR codes, barcodes and charts are drawn as vectors: sharp at any size.
+
+### Links and bookmarks
+
+Links (`<a href="https://…">`, `mailto:`, `tel:`) are clickable in the PDF, and `<a href="#totals">` jumps to the element with `id="totals"`. Other kinds of links are removed.
+
+Headings (`h1`–`h6`) become the PDF's bookmarks, so readers can jump between sections. Turn this off with **Bookmarks from headings** in **Page layout** (`"bookmarks": false`).
+
+### Language and direction
+
+Set **Language** in the editor (for example Arabic) and the document is written right to left, with an Arabic font that looks the same wherever the PDF is generated. **Direction** overrides it.
+
+Two Arabic fonts are always available, whatever the language: `"Noto Sans Arabic"` and `"Noto Naskh Arabic"`. Add one after your Latin font so Arabic text uses it:
+
+```css
+body { font-family: Arial, "Noto Sans Arabic", sans-serif; }
+```
+
+### Conditions
+
+```html
+{{#if record.total >= 10000}}
+  <p>Large order</p>
+{{else if record.status in ["sent", "overdue"]}}
+  <p>Awaiting payment</p>
 {{else}}
-  <p>Due by {{record.due_date}}</p>
+  <p>Thank you</p>
 {{/if}}
 ```
 
-## Generate
+| In a condition | Meaning |
+| :-- | :-- |
+| `record.paid` | True unless empty, `0`, `false`, `"no"`, an empty list or an empty relation |
+| `==` `!=` `>` `<` `>=` `<=` | Compare. Numbers compare exactly (`"1500.00" == 1500`). An empty value is never greater or smaller |
+| `in [..]`, `not in [..]` | One of a list |
+| `contains`, `starts_with`, `ends_with` | Text search, ignoring case. Relations compare by their label |
+| `and`, `or`, `not`, `( )` | Combine conditions (`&&`, `\|\|`, `!` also work) |
+| `record.children.lines \| count > 0` | Filters work in conditions too |
 
-Generate a PDF from the record view or the template page. You can choose a record, a file name, and whether to download or preview it.
+**Conditional formatting**: put a condition inside an attribute.
+
+```html
+<td class="{{#if line.amount < 0}}negative{{/if}}">{{line.amount | number: 2}}</td>
+```
+
+### Repeating content
+
+```html
+<table>
+  <thead><tr><th>#</th><th>Item</th><th>Qty</th><th>Amount</th></tr></thead>
+  <tbody>
+  {{#each record.children.invoice_lines | sort: "position" as line}}
+    <tr>
+      <td>{{@number}}</td>
+      <td>{{line.description}}</td>
+      <td>{{line.quantity | number}}</td>
+      <td>{{line.amount | currency: "SAR"}}</td>
+    </tr>
+  {{else}}
+    <tr><td colspan="4">No items</td></tr>
+  {{/each}}
+  </tbody>
+</table>
+```
+
+- `record.children.KEY` lists the records of another collection that point at this record. `KEY` is that collection's name or slug.
+- `{{else}}` inside a loop shows when the list is empty.
+- Inside a loop: `@number` (1, 2, …), `@index` (0, 1, …), `@first`, `@last`, `@count`.
+- Loops nest (`{{#each line.children.parts as part}}`). Inside a loop, `record` and the outer loop's item stay available.
+- `{{#each list}}` without `as` names the item `this`.
+- A many-to-many relation field is a list too: `{{#each record.tags as tag}}{{tag}} ({{tag.colour}}){{/each}}`.
+
+### Filters
+
+Write `{{ value | filter: argument, argument }}`, and chain them: `{{record.total | currency: "SAR" | default: "—"}}`. Formatting filters keep empty values empty, so `default` can follow any of them.
+
+| Filter | Example | Result |
+| :-- | :-- | :-- |
+| `currency: code, decimals` | `{{record.total \| currency: "SAR"}}` | `SAR 1,234.57` (`"$"` gives `$1,234.57`) |
+| `number: decimals` | `{{line.qty \| number: 2}}` | `1,234.50` |
+| `fixed: decimals` | `{{record.total \| fixed: 2}}` | `1234.50` (no separators) |
+| `round: decimals` | `{{record.rate \| round: 1}}` | `0.2` |
+| `percent: decimals` | `{{record.vat_rate \| percent}}` | `15%` from `0.15` |
+| `date: format` | `{{record.issued \| date: "dd MMM yyyy"}}` | `05 Mar 2026` |
+| `time: format`, `datetime: format` | `{{record.paid_at \| datetime}}` | in the project's timezone |
+| `default: text` | `{{record.notes \| default: "—"}}` | `—` when empty |
+| `upper`, `lower`, `capitalize`, `trim` | `{{record.code \| upper}}` | |
+| `truncate: length, ending` | `{{record.notes \| truncate: 80}}` | first 80 characters + `…` |
+| `nl2br` | `{{record.address \| nl2br}}` | keeps the line breaks of long text |
+| `yesno: yes, no` | `{{record.paid \| yesno: "Paid", "Unpaid"}}` | |
+| `arabic_digits` | `{{record.total \| number: 2 \| arabic_digits}}` | `١٬٢٣٤٫٥٠` |
+| `count` | `{{record.children.lines \| count}}` | number of items |
+| `sum: field` | `{{record.children.lines \| sum: "amount"}}` | exact total |
+| `sort: field, "desc"` | `{{#each record.children.lines \| sort: "amount", "desc" as l}}` | empty values last |
+| `limit: n`, `reverse`, `join: separator` | `{{record.tags \| join: " / "}}` | |
+
+Numbers are exact: totals and rounding never pass through floating point. Rounding is half up (`1234.565` → `1,234.57`). Date formats use `yyyy`, `MM`, `MMM`, `dd`, `EEE`, `HH`, `hh`, `mm`, `ss`, `a`. Date-only values never shift between timezones.
+
+### What a template can read
+
+A document reads only what its template mentions, and only what the person generating it may see:
+
+- Related collections and child lists follow the same permissions and row rules as everywhere else in Bludia. Records someone can't see are left out of their documents, as if they didn't exist. Deleted records are never included.
+- Password fields are never available.
+- Computed fields show their current values, as on the record page.
+
+| Limit per document | Default |
+| :-- | :-- |
+| Records read in total (the record, children, related records) | 10,000 |
+| Rows in one child list | 5,000 |
+| Size of the finished HTML and CSS | 20 MB |
+
+A document over a limit is not generated. The error says which list is too long. Split it into smaller documents.
+
+### Problems in a template
+
+The editor checks the template as you type and lists problems by line: tags it can't read, blocks that are never closed, unknown filters, fields or related collections that don't exist, password fields, images the template doesn't have, files from other sites that won't load, and scripts that won't run. Click a problem to jump to it. A problem never stops a template from saving or rendering: an unreadable tag is printed as written, so it is visible in the PDF.
+
+## Page settings
+
+| Setting | Values | Default |
+| :-- | :-- | :-- |
+| `page_size` | `A3`, `A4`, `A5`, `Letter`, `Legal` (also `A0`–`A6`, `Tabloid`, `Ledger`), or `custom` | `A4` |
+| `page_width`, `page_height` | With `custom`: a number in mm, or a length such as `"8.5in"` | — |
+| `orientation` | `portrait`, `landscape` | `portrait` |
+| `margin_top`, `margin_right`, `margin_bottom`, `margin_left` | A number in mm (0–100), or a length such as `"0.5in"` | `16` |
+| `header`, `footer` | Template HTML repeated on every page | — |
+| `page_numbers` | `{ "position": "bottom-center", "format": "Page {page} of {pages}", "digits": "latin" }` (`arabic` for ١٢٣) | none |
+| `background_color`, `background_image`, `background_fit` | `#rrggbb`; an image name; `cover`, `contain` or `stretch` | none, none, `cover` |
+| `keep_rows_together`, `repeat_table_headers`, `keep_headings_with_next`, `wrap_long_words` | `true` or `false` | `true` |
+| `language`, `direction` | `en`, `ar`, …; `auto`, `ltr` or `rtl` | none, `auto` |
+| `bookmarks` | `true` or `false`: bookmarks from headings | `true` |
+| `toc_depth` | `1` to `6`: heading levels in `{{toc}}` | `3` |
+
+Invalid values fall back to the default.
+
+## What a template cannot do
+
+Templates are markup only. Scripts, event handlers (`onload`, `onerror`, …), frames, forms and page redirects do not run in the renderer. It loads nothing from the network: images and stylesheets from other sites (`<img src="https://…">`, `@import`) are not loaded. Upload images and fonts to the template instead. Links (`<a href="https://…">`) stay clickable in the PDF.
+
+## Saved documents
+
+**Download** makes a PDF on the spot. **Save** (on the record page) makes a PDF that is kept:
+
+- it is generated in the background and stored with the project's files;
+- it can be **attached** to one of the record's file fields (choose **Attach to**): the field then holds the PDF;
+- it records which template version made it, and its SHA-256 fingerprint;
+- it has a permanent identifier and a public **verification page**.
+
+Saved documents are listed under the templates on the record page: preview, download, copy the verification link, or **revoke** a document that should no longer be trusted.
+
+### Verification
+
+Every saved document has a page at `https://<your Bludia address>/verify/<identifier>`. Anyone with the link sees who issued the document, which template, when, and whether it was revoked. They never see the record's data. They can also upload their copy: it matches only if it is exactly the file that was issued, so any change is detected.
+
+Print the link on the document itself, usually as a QR code:
+
+| Syntax | Renders |
+| :-- | :-- |
+| `{{document.id}}` | The document's identifier |
+| `{{document.verify_url}}` | Its verification page |
+| `{{document.created_at}}` | When it was generated |
+
+```html
+<img src="{{document.verify_url | qr}}" style="width: 25mm">
+<small>Verify: {{document.verify_url}}</small>
+```
+
+Previews and downloads are not saved documents: there, `{{document.id}}` shows a placeholder.
+
+### From a function
+
+A function can make a saved document with the **Generate a PDF** step: for example, confirm a booking, then save its confirmation PDF into the booking and show the verification link.
+
+```json
+{ "id": "pdf", "type": "generate_pdf",
+  "template": 12,
+  "record": { "var": "trigger.record_id" },
+  "attach_to": "confirmation",
+  "filename": { "op": "concat", "args": ["booking-", { "var": "trigger.record_id" }] } }
+```
+
+| Property | |
+| :-- | :-- |
+| `template` | The template's id (required) |
+| `record` | The record to make it from: it must belong to the template's collection. Leave it out for a template that reads no record |
+| `attach_to` | Optional: a file field of that record to store the PDF in |
+| `filename` | Optional, without `.pdf` |
+
+Later steps can read `steps.pdf.id` and `steps.pdf.verify_url`, for example in the result message.
+
+- The PDF is made right after the function finishes, as the person (or the system) the function runs as, so it reads only what they may read.
+- If the function stops (a guard, an error) or is a dry run, no document is made.
+- Storing the PDF in the record is not a new change for the function: a function that runs when its records change does not run again because of it.
+- A template that a published function uses cannot be deleted.
+
+### Many records at once
+
+On a collection's records, select records and choose **Generate PDFs**: pick a template, and optionally **combine them into one PDF** and attach each to its record. The PDFs are made in the background (you can close the window). The combined PDF follows the order of the selection.
 
 | Limit | Value |
 | :-- | :-- |
-| Generation requests | 30 per minute |
+| Records per run | 500 |
+| Size of a combined PDF | 80 MB |
 
-<Tip>Use print-friendly CSS: fixed widths in `mm` or `pt`, `page-break-inside: avoid` on table rows, and embedded or web-safe fonts.</Tip>
+## Generate
+
+On a record, each enabled template offers **Preview** and **Download** (made on the spot, not kept) and **Save** (kept, see [Saved documents](#saved-documents)).
+
+| Limit | Value |
+| :-- | :-- |
+| PDFs made on the spot | 30 per minute |
+| Saved documents requested | 30 per minute |
+| Bulk runs started | 10 per minute |
+| Records read by one PDF | 10,000 (5,000 per list) |
+| Images and fonts | 5 MB each, 10 MB per PDF |
+
+<Tip>Use print-friendly CSS: fixed widths in `mm` or `pt`, `break-inside: avoid` on table rows, and a `<thead>` so table headers repeat on every page.</Tip>

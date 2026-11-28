@@ -1,45 +1,88 @@
 ---
 title: "Dashboards"
-description: "Create dashboards in Bludia with widgets on a 12-column grid: stat (count, sum, avg, min, max with filters), record list, collection, and activity widgets."
-keywords: ["dashboard", "widgets", "kpi", "stat card", "admin dashboard", "metrics"]
+description: "Build dashboards in Bludia: KPIs, charts, tables, maps and more on a drag-and-drop grid, with dashboard-wide filters, drill-down and export."
+keywords: ["dashboard", "widgets", "kpi", "charts", "map", "drill-down", "dashboard filters", "admin dashboard", "metrics"]
 icon: "layout-dashboard"
 ---
 
-A **dashboard** is a page of widgets that summarize your project's data at a glance.
+A **dashboard** is a page of widgets that summarize your project's data at a glance. A project can have several dashboards; each one keeps its own layout and filters.
 
 ## Widget types
 
 <CardGroup cols={2}>
-  <Card title="Stat" icon="hash" color="#14B8A6">
-    One number: `count`, `sum`, `avg`, `min`, or `max` of a field, with optional filters. *Open tickets: 37.*
+  <Card title="KPI" icon="hash" color="#14B8A6">
+    A headline number with the change from the previous period (like for like: *this month so far vs the same days last month*), a sparkline, and colored thresholds.
   </Card>
-  <Card title="Record list" icon="list" color="#14B8A6">
-    A short list of records, such as *latest 10 orders*.
+  <Card title="Charts" icon="chart-line" color="#14B8A6">
+    Line, area, bar (grouped, stacked, horizontal), combo (bars + lines, optional second axis), pie / donut, scatter, funnel, gauge and heatmap.
   </Card>
-  <Card title="Collection" icon="table" color="#14B8A6">
-    A view of a collection's records.
+  <Card title="Table" icon="table" color="#14B8A6">
+    Records or grouped totals. Sortable, paginated, with totals, conditional colors and click-to-open records.
   </Card>
-  <Card title="Activity" icon="activity" color="#14B8A6">
-    Recent changes across your data.
+  <Card title="Map" icon="map" color="#14B8A6">
+    Records with latitude/longitude as markers, clusters or a heat layer, or regions colored by a value (from a GeoJSON URL). No API key needed.
+  </Card>
+  <Card title="Lists" icon="list" color="#14B8A6">
+    The latest records of a collection, or the activity log (created, updated, deleted, by whom).
+  </Card>
+  <Card title="Progress, gauge, countdown" icon="target" color="#14B8A6">
+    How close a value is to a target, a value on a dial, or the time left until a date.
+  </Card>
+  <Card title="Content" icon="text" color="#14B8A6">
+    Markdown text, an image, or an embedded `https://` page.
+  </Card>
+  <Card title="Filter" icon="filter" color="#14B8A6">
+    A date range or field-value picker placed on the grid that filters the other widgets.
   </Card>
 </CardGroup>
 
-Widget filters support `eq`, `neq`, `gt`, `gte`, `lt`, `lte`, `contains`, `is_null`, and `not_null`.
+## Data
+
+Every data widget reads either a **collection** or a **saved report**, through the same engine as [reports](/reports/overview). Queries are always scoped to the project, and a widget only shows data the viewer's role may see: a role needs `{collection}.view` for a collection source, or `report.{report}.view` for a report source.
+
+| Setting | Options |
+| :-- | :-- |
+| Values | `count`, `count_distinct`, `sum`, `avg`, `min`, `max`; several values make several series |
+| Group by | Up to two fields. Date fields group by hour, day, week, month, quarter or year |
+| Filters | `eq`, `neq`, `gt`, `gte`, `lt`, `lte`, `between`, `in`, `not_in`, `contains`, `starts_with`, `ends_with`, `is_null`, `not_null`, `is_true`, `is_false`, `in_last_days`, `in_this`, `in_previous` |
+| Sort & limit | By a value, a grouping or a field; up to 1000 rows |
+| Format | Number, currency or percent; decimals; prefix / suffix; compact (1.2K); date formats |
+| Freshness | Auto-refresh (off to 1 hour) and a server cache (off to 1 hour) |
+
+Fields are stored by their permanent id, so renaming a field never breaks a widget. A field used by a widget cannot be removed until the widget stops using it.
+
+## Dashboard filters
+
+Add filters from **⋯ → Dashboard filters**, or place a **Filter** widget on the grid.
+
+- A **date range** (presets like *Last 30 days*, *Month to date*, or a custom range) applies to each widget's date field (`created_at` unless you pick another).
+- A **field value** filter applies to widgets that read the same collection.
+
+Each widget can opt out with **Follow dashboard filters**. Viewers' choices are remembered on their device.
 
 ## Build a dashboard
 
 <Steps>
-  <Step title="Create it">Go to **Dashboards** → **Create dashboard** and name it, for example `Sales overview`.</Step>
-  <Step title="Add widgets">Pick a type, a collection, and the metric or fields. Preview before saving.</Step>
-  <Step title="Arrange">Drag and resize widgets on the 12-column grid (width 1–12).</Step>
+  <Step title="Edit">Open the dashboard and select **Edit dashboard**.</Step>
+  <Step title="Add widgets">Select **Add widget**, pick a type, then choose its data, display and format. The preview runs your settings live.</Step>
+  <Step title="Arrange">Drag widgets by their header and pull an edge to resize; they snap to the 12-column grid. Switch to **Tablet** or **Mobile** to arrange those screens separately. Lock a widget to keep it in place.</Step>
+  <Step title="Save">Select **Save**. Until then, **Undo** / **Redo** (Ctrl/⌘ Z) and **Cancel** work on everything you changed.</Step>
 </Steps>
+
+## Interactions
+
+- **Tooltips** on every chart.
+- **Drill-down**: click a bar, slice, point or region to list the records behind it, then open any record.
+- **Export** a widget's data as CSV (up to 1000 rows) or the widget as a PNG image.
+- **Full screen** view of a single widget.
 
 ## Example: sales overview
 
 | Widget | Type | Config |
 | :-- | :-- | :-- |
-| Revenue this month | Stat | `sum(total)` on `orders`, `created_at` ≥ first of month |
-| Open deals | Stat | `count` on `deals`, `stage` neq `closed` |
-| Average deal size | Stat | `avg(value)` on `deals` |
-| Latest orders | Record list | `orders`, newest first, 10 rows |
-| Recent activity | Activity | |
+| Revenue | KPI | `sum(total)` on `orders`, compare *this month vs last month*, sparkline |
+| Revenue by month | Combo | `sum(total)` as bars, `count` as a line, grouped by `created_at` by month |
+| Orders by region | Map | Regions from a GeoJSON URL, `count` grouped by `region` |
+| Pipeline | Funnel | `count` on `deals`, grouped by `stage` |
+| Top customers | Table | `sum(total)` grouped by `customer`, sorted descending, 10 rows |
+| Period | Filter | Date range, default *Last 90 days* |
